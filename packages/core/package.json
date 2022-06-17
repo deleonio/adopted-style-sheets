@@ -16,12 +16,11 @@
 		"build:umd": "tsc -m umd --outDir umd",
 		"build:cleanup": "rm -rf cjs esm types umd",
 		"build": "npm run build:cleanup && npm run build:cjs && npm run build:esm && npm run build:types && npm run build:umd",
-		"reinstall": "npm run remove && npm install",
-		"remove:lock": "rm -rf package-lock.json",
-		"remove": "npm run remove:lock && git clean -f -d -X",
 		"prepack": "npm run build",
-		":publish": "npm unpublish -f --registry=http://localhost:4873 && npm publish --registry=http://localhost:4873"
-		},
+		"reinstall": "npm run remove && npm install",
+		"remove": "npm run remove:lock && git clean -f -d -X",
+		"remove:lock": "rm -rf package-lock.json"
+	},
 	"main": "cjs/index.js",
 	"module": "esm/index.js",
 	"types": "types/index.d.ts",
@@ -41,5 +40,8 @@
 		"esm",
 		"types",
 		"umd"
-	]
+	],
+	"publishConfig": {
+		"access": "public"
+	}
 }
