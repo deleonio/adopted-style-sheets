@@ -3,6 +3,11 @@
 	"version": "1.0.0-rc.0",
 	"license": "EUPL-1.2",
 	"description": "Contains the generic types and utils to provide an overall web component architecture.",
+	"author": {
+		"email": "github@martinoppitz.com",
+		"name": "Martin Oppitz",
+		"url": "https://martinoppitz.com"
+	},
 	"sideEffects": false,
 	"scripts": {
 		"build:cjs": "tsc -m commonjs --outDir cjs",
@@ -13,8 +18,10 @@
 		"build": "npm run build:cleanup && npm run build:cjs && npm run build:esm && npm run build:types && npm run build:umd",
 		"reinstall": "npm run remove && npm install",
 		"remove:lock": "rm -rf package-lock.json",
-		"remove": "npm run remove:lock && git clean -f -d -X"
-	},
+		"remove": "npm run remove:lock && git clean -f -d -X",
+		"prepack": "npm run build",
+		":publish": "npm unpublish -f --registry=http://localhost:4873 && npm publish --registry=http://localhost:4873"
+		},
 	"main": "cjs/index.js",
 	"module": "esm/index.js",
 	"types": "types/index.d.ts",
