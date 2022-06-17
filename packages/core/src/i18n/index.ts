@@ -1,7 +1,9 @@
-import { Common } from './common';
+import { Common } from '../common';
 import { Locale } from './locale';
 
 export declare namespace I18n {
+	export { Locale };
+
 	export type TranslationKey<Prefix extends string, Key extends string> = Lowercase<Common.PrefixedKey<Prefix, Key>>;
 	export type TranslationMap<Prefix extends string, Key extends string> = {
 		[K in TranslationKey<Prefix, Key>]?: string;
