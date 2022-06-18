@@ -4,22 +4,21 @@ import { Locale } from './locale';
 export declare namespace I18n {
 	export { Locale };
 
-	export type TranslationKey<Prefix extends string, Key extends string> = Lowercase<Common.PrefixedKey<Prefix, Key>>;
-	export type TranslationMap<Prefix extends string, Key extends string> = {
-		[K in TranslationKey<Prefix, Key>]?: string;
+	export type Props<Prefix extends string, Key extends string> = Lowercase<Common.PrefixedKey<Prefix, Key>>;
+	export type Map<Prefix extends string, Key extends string> = {
+		[K in Props<Prefix, Key>]?: string;
 	};
-	export type PatchTranslation<Locale extends Locale.ISO_639_1, Prefix extends string, Key extends string> = (
-		name: Locale,
-		css: TranslationMap<Prefix, Key>
-	) => Locale;
-	export type RegisterPatchTranslation<Locale extends Locale.ISO_639_1, Prefix extends string, Key extends string> = (
-		patchTranslation: PatchTranslation<Locale, Prefix, Key>
-	) => Locale;
+	export type Patch<Name extends string, Prefix extends string, Key extends string> = (name: Name, map: Map<Prefix, Key>) => Name;
+	export type RegisterPatch<Name extends string, Prefix extends string, Key extends string> = (patch: Patch<Name, Prefix, Key>) => Name;
+	export type Register<Name extends string, Prefix extends string, Key extends string> = (
+		name: Name,
+		map: Map<Prefix, Key>
+	) => RegisterPatch<Name, Prefix, Key>;
 }
 
-export const createTranslation = <Locale extends Locale.ISO_639_1, Prefix extends string, Key extends string>(
-	name: Locale,
-	translation: I18n.TranslationMap<Prefix, Key>
-): I18n.RegisterPatchTranslation<Locale, Prefix, Key> => {
-	return (patchTranslation): Locale => patchTranslation(name, translation);
+export const createTranslation: I18n.Register<string, string, string> = <Name extends string, Prefix extends string, Key extends string>(
+	name: Name,
+	map: I18n.Map<Prefix, Key>
+): I18n.RegisterPatch<Name, Prefix, Key> => {
+	return (patch): Name => patch(name, map);
 };
