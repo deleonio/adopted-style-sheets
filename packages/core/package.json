@@ -29,6 +29,10 @@
 		"require": "./cjs/index.js",
 		"import": "./esm/index.js"
 	},
+	"dependencies": {
+		"@leanup/lib": "1.3.20",
+		"rxjs": "7.5.5"
+	},
 	"devDependencies": {
 		"@types/minimatch": "3.0.5",
 		"@types/minimist": "1.2.2",

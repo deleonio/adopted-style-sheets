@@ -5,9 +5,9 @@ export declare namespace Element {
 	 * component.
 	 */
 	export type Watchers<R, O> = {
-		readonly [Property in keyof R as `watch${Capitalize<string & Property>}`]: (newValue?: R[Property], oldValue?: R[Property]) => void;
+		readonly [Property in keyof R & O as `map${Capitalize<string & Property>}`]: (newValue?: (R & O)[Property], oldValue?: (R & O)[Property]) => void;
 	} & {
-		readonly [Property in keyof O as `watch${Capitalize<string & Property>}`]: (newValue?: O[Property], oldValue?: O[Property]) => void;
+		readonly [Property in keyof R & O as `validate${Capitalize<string & Property>}`]?: (newValue?: (R & O)[Property], oldValue?: (R & O)[Property]) => void;
 	};
 
 	/**

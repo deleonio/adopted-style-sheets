@@ -7,5 +7,7 @@ export declare namespace Generic {
 	export { Common, Element, I18n, Theming };
 }
 
-export { createTheme } from './theming';
 export { createTranslation } from './i18n';
+export { getTheme, register } from './lib/register';
+export { createTheme } from './theming';
+
