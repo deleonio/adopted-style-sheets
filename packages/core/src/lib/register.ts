@@ -5,7 +5,7 @@ import { ThemeDetails, LoaderCallback, RegisterOptions, RegisterThemeOptions } f
 let lockThemePatching = true;
 let warrentyWarning = false;
 
-const patchThemeTag = (themeName: string, tagName: Generic.Theming.Props<string, string>, css: string): void => {
+export const patchThemeTag = (themeName: string, tagName: Generic.Theming.Props<string, string>, css: string): void => {
 	if (lockThemePatching === true && warrentyWarning === false) {
 		warrentyWarning = true;
 		Log.warn(
