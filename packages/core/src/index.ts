@@ -8,6 +8,6 @@ export declare namespace Generic {
 }
 
 export { createTranslation } from './i18n';
-export { getTheme, getThemeDetails, register } from './lib/register';
+export { getTheme, getThemeDetails, patchTheme, register } from './lib/register';
 export { ThemeDetails } from './theme';
 export { createTheme } from './theming';

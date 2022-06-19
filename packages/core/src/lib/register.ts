@@ -59,7 +59,7 @@ register(THEME, defineCustomElements)
 	}
 };
 
-const patchTheme = (name: string, map: Generic.Theming.Map<string, string>): string => {
+export const patchTheme = (name: string, map: Generic.Theming.Map<string, string>): string => {
 	if (typeof map === 'object' && map !== null) {
 		const tagNames = Object.getOwnPropertyNames(map) as Generic.Theming.Props<string, string>[];
 		tagNames.forEach((tagName) => {
