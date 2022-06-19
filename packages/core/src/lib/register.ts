@@ -1,6 +1,6 @@
 import { Log } from '@leanup/lib';
 import { Generic } from '..';
-import { A11yUiThemeDetails, LoaderCallback, RegisterOptions, RegisterThemeOptions } from '../theme';
+import { ThemeDetails, LoaderCallback, RegisterOptions, RegisterThemeOptions } from '../theme';
 
 let lockThemePatching = true;
 let warrentyWarning = false;
@@ -90,7 +90,7 @@ const getThemeNode = (element: HTMLElement | ParentNode | null): HTMLElement | n
 	}
 };
 
-const getThemeDetails = (element: HTMLElement | ParentNode | null): A11yUiThemeDetails => {
+export const getThemeDetails = (element: HTMLElement | ParentNode | null): ThemeDetails => {
 	if (
 		typeof window.A11yUi === 'object' &&
 		window.A11yUi !== null &&

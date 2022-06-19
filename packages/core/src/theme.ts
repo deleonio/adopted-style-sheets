@@ -1,10 +1,10 @@
 import { Generic } from '.';
 
 export type LoaderCallback = () => Promise<void>;
-export type A11yUiThemeName = string | null;
-export type A11yUiThemeDetails = {
+export type ThemeName = string | null;
+export type ThemeDetails = {
 	cache: boolean;
-	name: A11yUiThemeName;
+	name: ThemeName;
 	reset: boolean;
 };
 export type RegisterThemeOptions = {
@@ -21,13 +21,13 @@ export type RegisterThemeOptions = {
 	/**
 	 * Gibt an, welches Theme initial fest gesetzt werden soll, wenn mehrere Themes geladen wurden.
 	 */
-	name?: A11yUiThemeName;
+	name?: string;
 };
 export type RegisterTranslationOptions = {
 	/**
 	 * Gibt an, welches Sprache initial fest gesetzt werden soll, wenn mehrere Sprachen geladen wurden.
 	 */
-	name?: A11yUiThemeName;
+	name?: Generic.I18n.Locale.ISO_639_1;
 };
 export type RegisterOptions = {
 	theme?: RegisterThemeOptions;

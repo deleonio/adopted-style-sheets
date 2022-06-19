@@ -1,12 +1,12 @@
 import { Generic } from './';
-import { A11yUiThemeDetails } from './theme';
+import { ThemeDetails } from './theme';
 
 export {};
 
 declare global {
 	interface Window {
 		A11yUi: {
-			Theme?: A11yUiThemeDetails;
+			Theme?: ThemeDetails;
 			Themes?: Record<string, Generic.Theming.Map<string, string>>;
 		} & Record<string, unknown>;
 	}
