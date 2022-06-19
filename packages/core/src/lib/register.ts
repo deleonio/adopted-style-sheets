@@ -168,7 +168,7 @@ export const register = (
 		| Generic.Theming.RegisterPatch<string, string, string>
 		| Generic.Theming.RegisterPatch<string, string, string>[]
 		| Set<Generic.Theming.RegisterPatch<string, string, string>>,
-	loader: LoaderCallback,
+	loaders: LoaderCallback | LoaderCallback[] | Set<LoaderCallback>,
 	options: RegisterOptions = {}
 ): Promise<void> => {
 	if (registered === false) {
@@ -195,5 +195,10 @@ export const register = (
 		});
 	}
 	lockThemePatching = true;
-	return loader();
+        if (typeof loaders === 'function') {
+		loaders = new Set([loaders]);
+	} else if (Array.isArray(loaders)) {
+		loaders = new Set(loaders);
+	}
+	return Promise.all(Array.from(loaders));
 };
