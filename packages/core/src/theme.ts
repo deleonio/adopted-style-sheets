@@ -35,5 +35,5 @@ export type RegisterOptions = {
 		| Generic.I18n.RegisterPatch<Generic.I18n.Locale.ISO_639_1, string, string>
 		| Generic.I18n.RegisterPatch<Generic.I18n.Locale.ISO_639_1, string, string>[]
 		| Set<Generic.I18n.RegisterPatch<Generic.I18n.Locale.ISO_639_1, string, string>>;
-	translation?: RegisterThemeOptions;
+	translation?: RegisterTranslationOptions;
 };
