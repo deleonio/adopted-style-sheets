@@ -170,7 +170,7 @@ export const register = (
 		| Set<Generic.Theming.RegisterPatch<string, string, string>>,
 	loaders: LoaderCallback | LoaderCallback[] | Set<LoaderCallback>,
 	options: RegisterOptions = {}
-): Promise<void> => {
+): Promise<void[]> => {
 	if (registered === false) {
 		registered = true;
 		lockThemePatching = false;
@@ -195,10 +195,12 @@ export const register = (
 		});
 	}
 	lockThemePatching = true;
-        if (typeof loaders === 'function') {
+	if (typeof loaders === 'function') {
 		loaders = new Set([loaders]);
 	} else if (Array.isArray(loaders)) {
 		loaders = new Set(loaders);
 	}
-	return Promise.all(Array.from(loaders));
+	const promises: Promise<void>[] = []
+	loaders.forEach((loader)=>promises.push(loader()))
+	return Promise.all(promises);
 };
