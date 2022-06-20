@@ -9,5 +9,6 @@ export declare namespace Generic {
 
 export { createTranslation } from './i18n';
 export { getTheme, getThemeDetails, patchTheme, patchThemeTag, register } from './lib/register';
+export { setThemeStyle } from './lib/style-sheet';
 export { ThemeDetails } from './theme';
 export { createTheme } from './theming';
