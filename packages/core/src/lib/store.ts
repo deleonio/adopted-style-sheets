@@ -1,0 +1,76 @@
+/**
+ * We try to store our date in the global window object.
+ *
+ * - Browser: window
+ * - Node: global
+ * - WebWorker: self
+ * - ServiceWorker: self
+ * - Other: object
+ */
+ const GLOBAL: Record<string, unknown> = typeof window === 'object' ? window : typeof global === 'object' ? global : typeof self === 'object' ? self : {};
+
+ type RobustStoreSetItemOptions = {
+	 enumerable?: boolean;
+	 immutable?: boolean;
+ };
+
+ export class RobustStore {
+	 private static options: RobustStoreSetItemOptions = {
+		 enumerable: false,
+		 immutable: false,
+	 };
+	 private static instances: Map<string, RobustStore> = new Map();
+	 private readonly store: Record<string, unknown>;
+
+	 private constructor(identifier: string) {
+		 this.store = this.createStore(identifier);
+	 }
+
+	 public static getInstance(identifier: string): RobustStore {
+		 let instance = RobustStore.instances.get(identifier);
+		 if (instance === undefined) {
+			 instance = new RobustStore(identifier);
+			 RobustStore.instances.set(identifier, instance);
+		 }
+		 return instance;
+	 }
+
+	 private createStore(identifier: string): Record<string, unknown> {
+		 Object.defineProperty(GLOBAL, identifier, {
+			 enumerable: false,
+			 value: {},
+			 writable: false,
+		 });
+		 return GLOBAL[identifier] as Record<string, unknown>;
+	 }
+
+	 private recursiveSetItem(store: Record<string, unknown>, key: string, value: unknown, options: RobustStoreSetItemOptions = RobustStore.options): void {
+		 let storeValue: unknown = typeof value === 'object' && value !== null ? {} : value;
+		 Object.defineProperty(store, key, {
+			 enumerable: options.enumerable === true,
+			 get: () => storeValue,
+			 /**
+				* Die set Methode muss eigentlich ein this.recursiveSetItem aufrufen.
+				*/
+			 set: options.immutable === true ? undefined : (value: unknown) => (storeValue = value),
+		 });
+		 if (typeof value === 'object' && value !== null) {
+			 for (const [k, v] of Object.entries(value)) {
+				 console.log(store, key, store[key], k, v);
+				 this.recursiveSetItem(store[key] as Record<string, unknown>, k, v, options);
+			 }
+		 }
+	 }
+
+	 public setItem(key: string, value: unknown, options: RobustStoreSetItemOptions = RobustStore.options): RobustStore {
+		 this.recursiveSetItem(this.store, key, value, options);
+		 return this;
+	 }
+
+	 public getItem(key: string | string[]): unknown {
+		 if (Array.isArray(key)) {
+			 return key.map((k) => this.getItem(k));
+		 }
+		 return this.store[key];
+	 }
+ }
