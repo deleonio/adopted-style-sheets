@@ -1,10 +1,10 @@
-import { Common } from './common';
-import { Element } from './element';
-import { I18n } from './i18n';
-import { Theming } from './theming';
+import type { Common } from './common';
+import type { Element } from './element';
+import type { I18n } from './i18n';
+import type { Theming } from './theming';
 
 export declare namespace Generic {
-	export { Common, Element, I18n, Theming };
+	export type { Common, Element, I18n, Theming };
 }
 
 export { createTranslation } from './i18n';
