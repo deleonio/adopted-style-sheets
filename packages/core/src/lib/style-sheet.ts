@@ -5,6 +5,7 @@ type CSSStyleSheetW3C = CSSStyleSheet & {
 	replaceSync?: (css: string) => void;
 };
 
+const CSS_PROPERTIES_REGISTERED: Set<string> = new Set();
 const CSS_STYLE_SHEETS: Map<string, Map<string, CSSStyleSheetW3C>> = new Map();
 const HTML_STYLE_ELEMENTS: Map<string, Map<string, HTMLStyleElement>> = new Map();
 
@@ -15,7 +16,7 @@ const getCssStyleSheet = (themeCache: boolean, themeName: string, tagName: Gener
 	} else if (themeCache === true && HTML_STYLE_ELEMENTS.has(themeName) && HTML_STYLE_ELEMENTS.get(themeName)?.has(tagName)) {
 		return HTML_STYLE_ELEMENTS.get(themeName)?.get(tagName) as HTMLStyleElement;
 	} else {
-		// Instanciate default StyleSheet
+		// Instantiate default StyleSheet
 		if (
 			// Search custom StyleSheet in Config
 			typeof window.A11yUi === 'object' &&
@@ -26,6 +27,18 @@ const getCssStyleSheet = (themeCache: boolean, themeName: string, tagName: Gener
 			window.A11yUi.Themes[themeName] !== null &&
 			typeof window.A11yUi.Themes[themeName][tagName] === 'string'
 		) {
+			if ((tagName === 'GLOBAL' || tagName === 'PROPERTIES') && CSS_PROPERTIES_REGISTERED.has(themeName) === false) {
+				let css = window.A11yUi.Themes[themeName][tagName] as string;
+				let properties = css.match(/--[^;]+/g);
+				if (Array.isArray(properties)) {
+					properties = properties.filter((property) => /:/.test(property));
+					console.log('Register global css properties:', properties);
+					const style = document.createElement('style');
+					style.innerHTML = `.${themeName} {${properties.join(';')}}`;
+					document.querySelector('head')?.appendChild(style);
+				}
+			}
+
 			let style: CSSStyleSheetW3C | HTMLStyleElement;
 			try {
 				style = new CSSStyleSheet();
