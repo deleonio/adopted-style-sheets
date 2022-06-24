@@ -32,11 +32,11 @@ const getCssStyleSheet = (themeCache: boolean, themeName: string, tagName: Gener
 				let properties = css.match(/--[^;]+/g);
 				if (Array.isArray(properties)) {
 					properties = properties.filter((property) => /:/.test(property));
-					console.log('Register global css properties:', properties);
 					const style = document.createElement('style');
 					style.innerHTML = `.${themeName} {${properties.join(';')}}`;
 					document.querySelector('head')?.appendChild(style);
 				}
+				CSS_PROPERTIES_REGISTERED.add(themeName);
 			}
 
 			let style: CSSStyleSheetW3C | HTMLStyleElement;
