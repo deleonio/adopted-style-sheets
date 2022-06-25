@@ -9,11 +9,9 @@ export const patchThemeTag = (themeName: string, tagName: Generic.Theming.Props<
 	if (lockThemePatching === true && warrentyWarning === false) {
 		warrentyWarning = true;
 		Log.warn(
-			`[Theming] Der Theming-Prozess sieht vor, dass nur auditierte Themes geladen werden dürfen. Der vorgesehene Theming-Prozess wurde umgangen.
+			`[Theming] The theme process is locked. This means that the theme "${themeName}" should not be patched.
 
-// Theme registrieren
-
-import { defineCustomElements } from '@kolibri/lib/dist/loader';
+import { defineCustomElements } from '...';
 import { register } from '@a11y-ui/core';
 import { THEME } from '...';
 
