@@ -11,8 +11,8 @@ export const patchThemeTag = (themeName: string, tagName: Generic.Theming.Props<
 		Log.warn(
 			`[Theming] The theme process is locked. This means that the theme "${themeName}" should not be patched.
 
-import { defineCustomElements } from '...';
 import { register } from '@a11y-ui/core';
+import { defineCustomElements } from '...';
 import { THEME } from '...';
 
 register(THEME, defineCustomElements)
