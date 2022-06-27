@@ -1,14 +1,28 @@
 export declare namespace Element {
 	/**
+	 * @internal
+	 */
+	export type Validators<R, O> = {
+		readonly [Property in keyof R as `validate${Capitalize<string & Property>}`]: (newValue?: R[Property], oldValue?: R[Property]) => void;
+	} & {
+		readonly [Property in keyof O as `validate${Capitalize<string & Property>}`]: (newValue?: O[Property], oldValue?: O[Property]) => void;
+	};
+
+	/**
+	 * @internal
+	 */
+	export type Mapper<R, O> = {
+		readonly [Property in keyof R as `map${Capitalize<string & Property>}`]?: (newValue?: R[Property]) => R[Property];
+	} & {
+		readonly [Property in keyof O as `map${Capitalize<string & Property>}`]?: (newValue?: O[Property]) => O[Property];
+	};
+
+	/**
 	 * This type generates a object declaration of all properties of
 	 * the type object Props (P) and define all watcher methods for  a stencil
 	 * component.
 	 */
-	export type Watchers<R, O> = {
-		readonly [Property in keyof R & O as `map${Capitalize<string & Property>}`]: (newValue?: (R & O)[Property], oldValue?: (R & O)[Property]) => void;
-	} & {
-		readonly [Property in keyof R & O as `validate${Capitalize<string & Property>}`]?: (newValue?: (R & O)[Property], oldValue?: (R & O)[Property]) => void;
-	};
+	export type Watchers<R, O> = Validators<R, O> & Mapper<R, O>;
 
 	/**
 	 * This type generates a object declaration of all properties of
@@ -31,7 +45,7 @@ export declare namespace Element {
 	export type NextStateHooksCallback = (nextValue: unknown, nextState: Map<string, unknown>, component: Component, key: string) => void;
 
 	export interface Component {
-		componentWillLoad: () => void;
+		componentWillLoad?: () => void;
 		hydrated?: boolean;
 		nextHooks?: Map<string, Map<StateHooks, StateHooksCallback | NextStateHooksCallback>>;
 		nextState?: Map<string, unknown>;
