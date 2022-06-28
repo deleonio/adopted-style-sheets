@@ -18,18 +18,16 @@ In der folgenden Darstellung wird der Grundaufbau einer Komponentenbibliothek (U
 ```mermaid
   flowchart BT
     subgraph UI-Lib
-      subgraph Components-Lib
-         Components --> Schema
-      end
-      Themes --> Components-Lib
+      Components --> Schema
+      Components .-> Themes
+      Themes --> Schema
     end
-    Components --> Core
     Schema --> Core
     App/Storybook --> Components
     App/Storybook --> Themes
 ```
 
-| Module     | Erläuterung                                                                                                                                             |
+| Module     | Erläuterung                                                                                                                                            |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Core       | Das Kern-Modul beinhaltet die Gesamtarchitektur (Generic Types) und nützliche Funktionalitäten (Utils) für Webcomponents.                              |
 | UI-Lib     | Das Komponentenbibliotheks-Modul beinhaltet sein Schema und die zum Schema gehörigen Komponenten und Theme(s).                                         |
@@ -45,32 +43,24 @@ In der erweiterten Darstellung der Modularisierung wird sichtbar, wie durch die 
 ```mermaid
   flowchart BT
     subgraph Bund
-      subgraph Bund-Core
-        BundComponents --> BundSchema
-      end
-      BundThemes --> Bund-Core
-      BundThemes -.-> BundComponents
+      BundComponents --> BundSchema
+      BundThemes --> BundSchema
+      BundComponents .-> BundThemes
     end
     subgraph Land
-      subgraph Land-Core
-        LandComponents -->LandSchema
-      end
-      LandThemes --> Land-Core
-      LandThemes -.-> LandComponents
+      LandComponents -->LandSchema
+      LandThemes --> LandSchema
+      LandComponents .-> LandThemes
     end
     subgraph Kommune
-      subgraph Kommune-Core
-        KommuneComponents --> KommuneSchema
-      end
-      KommuneThemes --> Kommune-Core
-      KommuneThemes -.-> KommuneComponents
+      KommuneComponents --> KommuneSchema
+      KommuneThemes --> KommuneSchema
+      KommuneComponents .-> KommuneThemes
     end
     subgraph A11y-UI
-      subgraph A11y-UI-Core
-        A11y-UIComponents --> A11y-UISchema
-      end
-      A11y-UIThemes --> A11y-UI-Core
-      A11y-UIThemes -.-> A11y-UIComponents
+      A11yUiComponents --> A11yUiSchema
+      A11yUiThemes --> A11yUiSchema
+      A11yUiComponents .-> A11yUiThemes
     end
     subgraph Core
       Utils
@@ -79,22 +69,18 @@ In der erweiterten Darstellung der Modularisierung wird sichtbar, wie durch die 
     Bund --> A11y-UI
     Land --> Bund
     Kommune --> Land
-    A11y-UIComponents --> Core
-    A11y-UISchema --> Core
+    A11yUiSchema --> Core
     BundSchema --> Core
-    BundComponents --> Core
     LandSchema --> Core
-    LandComponents --> Core
     KommuneSchema --> Core
-    KommuneComponents --> Core
     App/Storybook --> BundComponents
     App/Storybook --> BundThemes
     App/Storybook --> LandComponents
     App/Storybook --> LandThemes
     App/Storybook --> KommuneComponents
     App/Storybook --> KommuneThemes
-    App/Storybook --> A11y-UIComponents
-    App/Storybook --> A11y-UIThemes
+    App/Storybook --> A11yUiComponents
+    App/Storybook --> A11yUiThemes
 ```
 
 ## Design System / Styleguides (UX)
