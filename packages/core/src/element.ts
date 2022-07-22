@@ -62,4 +62,9 @@ export declare namespace Element {
 		Watchers<RequiredProps, OptionalProps> & {
 			readonly state: Members<RequiredState, OptionalState>;
 		};
+
+	/**
+	 * Allow stringified complex webcomponent property types.
+	 */
+	export type Stringified<T> = T | string;
 }
