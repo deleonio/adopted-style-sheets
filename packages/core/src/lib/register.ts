@@ -1,6 +1,7 @@
 import { Log } from '@leanup/lib';
 import { Generic } from '..';
 import { ThemeDetails, LoaderCallback, RegisterOptions, RegisterThemeOptions } from '../theme';
+import { GLOBAL } from './window';
 
 let lockThemePatching = true;
 let warrentyWarning = false;
@@ -30,30 +31,36 @@ register(THEME, defineCustomElements)
 		);
 	}
 
-	if (typeof window.A11yUi !== 'object' || window.A11yUi === null) {
-		window.A11yUi = {};
-	}
-	if (typeof window.A11yUi === 'object' && window.A11yUi !== null && (typeof window.A11yUi.Themes !== 'object' || window.A11yUi.Themes === null)) {
-		window.A11yUi.Themes = {};
+	if (typeof GLOBAL.A11yUi !== 'object' || GLOBAL.A11yUi === null) {
+		GLOBAL.A11yUi = {};
 	}
 	if (
-		typeof window.A11yUi === 'object' &&
-		window.A11yUi !== null &&
-		typeof window.A11yUi.Themes === 'object' &&
-		window.A11yUi.Themes !== null &&
-		(typeof window.A11yUi.Themes[themeName] !== 'object' || window.A11yUi.Themes[themeName] === null)
+		typeof GLOBAL.A11yUi === 'object' &&
+		GLOBAL.A11yUi !== null &&
+		(typeof ((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) !== 'object' ||
+			((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) === null)
 	) {
-		window.A11yUi.Themes[themeName] = {};
+		((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) = {};
 	}
 	if (
-		typeof window.A11yUi === 'object' &&
-		window.A11yUi !== null &&
-		typeof window.A11yUi.Themes === 'object' &&
-		window.A11yUi.Themes !== null &&
-		typeof window.A11yUi.Themes[themeName] === 'object' &&
-		window.A11yUi.Themes[themeName] !== null
+		typeof GLOBAL.A11yUi === 'object' &&
+		GLOBAL.A11yUi !== null &&
+		typeof ((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) === 'object' &&
+		((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) !== null &&
+		(typeof ((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] !== 'object' ||
+			((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] === null)
 	) {
-		window.A11yUi.Themes[themeName][tagName] = css;
+		((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] = {};
+	}
+	if (
+		typeof GLOBAL.A11yUi === 'object' &&
+		GLOBAL.A11yUi !== null &&
+		typeof ((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) === 'object' &&
+		((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) !== null &&
+		typeof ((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] === 'object' &&
+		((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] !== null
+	) {
+		(((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] = css;
 	}
 };
 
@@ -90,15 +97,15 @@ const getThemeNode = (element: HTMLElement | ParentNode | null): HTMLElement | n
 
 export const getThemeDetails = (element: HTMLElement | ParentNode | null): ThemeDetails => {
 	if (
-		typeof window.A11yUi === 'object' &&
-		window.A11yUi !== null &&
-		typeof window.A11yUi.Theme === 'object' &&
-		window.A11yUi.Theme !== null &&
-		typeof window.A11yUi.Theme.cache === 'boolean' &&
-		typeof window.A11yUi.Theme.name === 'string' &&
-		typeof window.A11yUi.Theme.reset === 'boolean'
+		typeof GLOBAL.A11yUi === 'object' &&
+		GLOBAL.A11yUi !== null &&
+		typeof (GLOBAL.A11yUi as Record<string, unknown>).Theme === 'object' &&
+		(GLOBAL.A11yUi as Record<string, unknown>).Theme !== null &&
+		typeof ((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).cache === 'boolean' &&
+		typeof ((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).name === 'string' &&
+		typeof ((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).reset === 'boolean'
 	) {
-		return window.A11yUi.Theme;
+		return (GLOBAL.A11yUi as Record<string, unknown>).Theme as ThemeDetails;
 	} else {
 		const themeNode = getThemeNode(element);
 		if (themeNode instanceof HTMLElement) {
@@ -127,13 +134,13 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions = {}
 		name: options.name,
 	};
 	if (
-		(typeof window.A11yUi === 'object' &&
-			window.A11yUi !== null &&
-			typeof window.A11yUi.Theme === 'object' &&
-			window.A11yUi.Theme !== null &&
-			typeof window.A11yUi.Theme.cache === 'boolean' &&
-			typeof window.A11yUi.Theme.name === 'string' &&
-			typeof window.A11yUi.Theme.reset === 'boolean') === false &&
+		(typeof GLOBAL.A11yUi === 'object' &&
+			GLOBAL.A11yUi !== null &&
+			typeof (GLOBAL.A11yUi as Record<string, unknown>).Theme === 'object' &&
+			(GLOBAL.A11yUi as Record<string, unknown>).Theme !== null &&
+			typeof ((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).cache === 'boolean' &&
+			typeof ((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).name === 'string' &&
+			typeof ((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).reset === 'boolean') === false &&
 		typeof themeName === 'string' &&
 		(options.name === undefined || themeName === options.name) &&
 		typeof options === 'object' &&
@@ -145,10 +152,10 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions = {}
 			forceLog: true,
 		});
 
-		if (typeof window.A11yUi !== 'object' || window.A11yUi === null) {
-			window.A11yUi = {};
+		if (typeof GLOBAL.A11yUi !== 'object' || GLOBAL.A11yUi === null) {
+			GLOBAL.A11yUi = {};
 		}
-		window.A11yUi.Theme = {
+		(GLOBAL.A11yUi as Record<string, unknown>).Theme = {
 			cache: true,
 			name: options.name || themeName,
 			reset: true,
@@ -198,7 +205,7 @@ export const register = (
 	} else if (Array.isArray(loaders)) {
 		loaders = new Set(loaders);
 	}
-	const promises: Promise<void>[] = []
-	loaders.forEach((loader)=>promises.push(loader()))
+	const promises: Promise<void>[] = [];
+	loaders.forEach((loader) => promises.push(loader()));
 	return Promise.all(promises);
 };

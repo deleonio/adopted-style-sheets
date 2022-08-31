@@ -1,14 +1,3 @@
-/**
- * We try to store our date in the global window object.
- *
- * - Browser: window
- * - Node: global
- * - WebWorker: self
- * - ServiceWorker: self
- * - Other: object
- */
-const GLOBAL: Record<string, unknown> = typeof window === 'object' ? window : typeof global === 'object' ? global : typeof self === 'object' ? self : {};
-
 type RobustStoreSetItemOptions = {
 	enumerable?: boolean;
 	immutable?: boolean;
@@ -26,16 +15,16 @@ export class RobustStore {
 		this.store = this.createStore(object, identifier);
 	}
 
-	public static getInstance(identifier: string, object: Record<string, unknown> = GLOBAL): RobustStore {
+	public static getInstance(identifier: string, object: Record<string, unknown>): RobustStore {
 		let instance = RobustStore.instances.get(identifier);
 		if (instance === undefined) {
-			instance = new RobustStore(object, identifier);
+			instance = new RobustStore(object as Record<string, unknown>, identifier);
 			RobustStore.instances.set(identifier, instance);
 		}
 		return instance;
 	}
 
-	private createStore(object: Record<string, unknown>,identifier: string): Record<string, unknown> {
+	private createStore(object: Record<string, unknown>, identifier: string): Record<string, unknown> {
 		Object.defineProperty(object, identifier, {
 			enumerable: false,
 			value: {},

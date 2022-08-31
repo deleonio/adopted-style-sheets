@@ -1,5 +1,6 @@
 import { Generic } from '..';
 import { ThemeDetails } from '../theme';
+import { GLOBAL } from './window';
 
 type CSSStyleSheetW3C = CSSStyleSheet & {
 	replaceSync?: (css: string) => void;
@@ -19,16 +20,16 @@ const getCssStyleSheet = (themeCache: boolean, themeName: string, tagName: Gener
 		// Instantiate default StyleSheet
 		if (
 			// Search custom StyleSheet in Config
-			typeof window.A11yUi === 'object' &&
-			window.A11yUi !== null &&
-			typeof window.A11yUi.Themes === 'object' &&
-			window.A11yUi.Themes !== null &&
-			typeof window.A11yUi.Themes[themeName] === 'object' &&
-			window.A11yUi.Themes[themeName] !== null &&
-			typeof window.A11yUi.Themes[themeName][tagName] === 'string'
+			typeof GLOBAL.A11yUi === 'object' &&
+			GLOBAL.A11yUi !== null &&
+			typeof (GLOBAL.A11yUi as Record<string, unknown>).Themes === 'object' &&
+			(GLOBAL.A11yUi as Record<string, unknown>).Themes !== null &&
+			typeof ((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] === 'object' &&
+			((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] !== null &&
+			typeof (((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] === 'string'
 		) {
 			if ((tagName === 'GLOBAL' || tagName === 'PROPERTIES') && CSS_PROPERTIES_REGISTERED.has(themeName) === false) {
-				let css = window.A11yUi.Themes[themeName][tagName] as string;
+				let css = (((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] as string;
 				let properties = css.match(/--[^;]+/g);
 				if (Array.isArray(properties)) {
 					properties = properties.filter((property) => /:/.test(property));
@@ -43,7 +44,9 @@ const getCssStyleSheet = (themeCache: boolean, themeName: string, tagName: Gener
 			try {
 				style = new CSSStyleSheet();
 				if (typeof style.replaceSync === 'function') {
-					style.replaceSync(window.A11yUi.Themes[themeName][tagName] as string);
+					style.replaceSync(
+						(((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] as string
+					);
 				}
 
 				// Caching custom CSSStyleSheet
@@ -55,7 +58,9 @@ const getCssStyleSheet = (themeCache: boolean, themeName: string, tagName: Gener
 				}
 			} catch (e) {
 				style = document.createElement('style');
-				style.innerHTML = window.A11yUi.Themes[themeName][tagName] as string;
+				style.innerHTML = (((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[
+					tagName
+				] as string;
 
 				// Caching custom HTMLStyleElement
 
