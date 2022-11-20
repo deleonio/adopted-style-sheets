@@ -1,4 +1,5 @@
 {
-	"packages": ["packages/**"],
-	"version": "1.0.0-rc.15"
+	"packages": ["packages/core"],
+	"useNx": false,
+	"version": "1.0.1-rc.0"
 }

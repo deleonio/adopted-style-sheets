@@ -1,6 +1,6 @@
 {
 	"name": "@a11y-ui/core",
-	"version": "1.0.0-rc.15",
+	"version": "1.0.1-rc.0",
 	"license": "EUPL-1.2",
 	"description": "Contains the generic types and utils to provide an overall web component architecture.",
 	"author": {
@@ -8,43 +8,45 @@
 		"name": "Martin Oppitz",
 		"url": "https://martinoppitz.com"
 	},
-	"sideEffects": false,
+	"contributors": [
+		{
+			"email": "github@martinoppitz.com",
+			"name": "Martin Oppitz",
+			"url": "https://martinoppitz.com"
+		}
+	],
 	"scripts": {
-		"build:cjs": "tsc -m commonjs --outDir cjs",
-		"build:esm": "tsc -m esnext --outDir esm",
-		"build:types": "tsc -d --outDir types && rm -rf types/*.js types/*.map types/**/*.js types/**/*.map",
-		"build:umd": "tsc -m umd --outDir umd",
-		"build:cleanup": "rm -rf cjs esm types umd",
-		"build": "npm run build:cleanup && npm run build:cjs && npm run build:esm && npm run build:types && npm run build:umd",
-		"prepack": "npm run build",
-		"reinstall": "npm run remove && pnpm i",
-		"remove": "npm run remove:lock && git clean -f -d -X",
-		"remove:lock": "rm -rf package-lock.json",
-		":publish": "npm run reinstall && npm unpublish -f --registry=http://localhost:4873 && npm publish --registry=http://localhost:4873"
-	},
-	"main": "cjs/index.js",
-	"module": "esm/index.js",
-	"types": "types/index.d.ts",
-	"exports": {
-		"require": "./cjs/index.js",
-		"import": "./esm/index.js"
+		"build": "unbuild",
+		"prepack": "unbuild",
+		":install": "pnpm i && pnpm update",
+		":publish": "npm run :install && npm publish --registry=http://localhost:4873 || true",
+		":republish": "npm run :unpublish && npm run :publish",
+		":unpublish": "npm unpublish -f --registry=http://localhost:4873"
 	},
 	"dependencies": {
-		"@leanup/lib": "1.3.20"
+		"@leanup/lib": "1.3.39"
 	},
 	"devDependencies": {
-		"@types/node": "18.0.0",
-		"nodemon": "2.0.18",
-		"ts-node": "10.8.1",
-		"typescript": "4.7.4"
+		"@types/node": "18.11.9",
+		"@typescript-eslint/eslint-plugin": "5.43.0",
+		"@typescript-eslint/parser": "5.43.0",
+		"typescript": "4.9.3",
+		"eslint": "8.28.0",
+		"prettier": "2.7.1",
+		"unbuild": "1.0.1"
 	},
+	"sideEffects": false,
+	"type": "module",
+	"exports": {
+		".": {
+			"import": "./dist/index.mjs",
+			"require": "./dist/index.cjs"
+		}
+	},
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.ts",
 	"files": [
-		"cjs",
-		"esm",
-		"types",
-		"umd"
-	],
-	"publishConfig": {
-		"access": "public"
-	}
+		"dist"
+	]
 }

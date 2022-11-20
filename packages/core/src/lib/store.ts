@@ -18,7 +18,7 @@ export class RobustStore {
 	public static getInstance(identifier: string, object: Record<string, unknown>): RobustStore {
 		let instance = RobustStore.instances.get(identifier);
 		if (instance === undefined) {
-			instance = new RobustStore(object as Record<string, unknown>, identifier);
+			instance = new RobustStore(object , identifier);
 			RobustStore.instances.set(identifier, instance);
 		}
 		return instance;

@@ -26,7 +26,7 @@ export class Theme<Prefix extends string, Key extends string, Tag extends string
 		map: Generic.I18n.Map<Prefix, Key>
 	) => coreCreateTranslation(name, map);
 
-	public constructor(prefix: Prefix, keyEnum: Object, tagEnum: Object) {
+	public constructor(prefix: Prefix, keyEnum: unknown, tagEnum: unknown) {
 		this.Prefix = prefix;
 		this.Key = Object.getOwnPropertyNames(keyEnum) as unknown as Key;
 		this.Tag = Object.getOwnPropertyNames(tagEnum) as unknown as Tag;
@@ -34,4 +34,4 @@ export class Theme<Prefix extends string, Key extends string, Tag extends string
 }
 
 export { RobustStore, getTheme, getThemeDetails, patchTheme, patchThemeTag, register, setThemeStyle } from './lib';
-export { ThemeDetails } from './theme';
+export type { ThemeDetails } from './theme';

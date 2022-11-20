@@ -9,6 +9,8 @@ type CSSStyleSheetW3C = CSSStyleSheet & {
 const CSS_PROPERTIES_REGISTERED: Set<string> = new Set();
 const CSS_STYLE_SHEETS: Map<string, Map<string, CSSStyleSheetW3C>> = new Map();
 const HTML_STYLE_ELEMENTS: Map<string, Map<string, HTMLStyleElement>> = new Map();
+const REGEX_CSS_PROPERTIES = /--[^;]+/g;
+const REGEX_SPLT_CSS_PROPERTY = /:/;
 
 // Search custom StyleSheet in Cache
 const getCssStyleSheet = (themeCache: boolean, themeName: string, tagName: Generic.Theming.Props<string, string>): CSSStyleSheet | HTMLStyleElement | null => {
@@ -29,10 +31,10 @@ const getCssStyleSheet = (themeCache: boolean, themeName: string, tagName: Gener
 			typeof (((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] === 'string'
 		) {
 			if ((tagName === 'GLOBAL' || tagName === 'PROPERTIES') && CSS_PROPERTIES_REGISTERED.has(themeName) === false) {
-				let css = (((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] as string;
-				let properties = css.match(/--[^;]+/g);
+				const css = (((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] as string;
+				let properties: RegExpMatchArray | string[] | null = css.match(REGEX_CSS_PROPERTIES);
 				if (Array.isArray(properties)) {
-					properties = properties.filter((property) => /:/.test(property));
+					properties = properties.filter((property) => REGEX_SPLT_CSS_PROPERTY.test(property));
 					const style = document.createElement('style');
 					style.innerHTML = `.${themeName} {${properties.join(';')}}`;
 					document.querySelector('head')?.appendChild(style);
