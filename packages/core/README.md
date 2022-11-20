@@ -1,7 +1,5 @@
-# Core
+# Web Component Core-Library
 
-Das **Core**-Modul beinhaltet **generischen Typen** und **allgemeine Funktionalität** für eine beliebige Komponenten-Bibliothek.
+This library decouple the web component markup fully from the style sheets.
 
-Mehr zur **Modularisierung** kann im [Architekturkonzept](https://github.com/public-ui/kolibri/blob/main/docs/ARCHITECTURE.md) nachgelesen werden.
-
-Mehr zum **Projekt** kann in der [README](https://github.com/public-ui/kolibri/#readme) nachgelesen werden.
+You have a register method to register some component loader and style themes. About dataset in the HTML you can switch between registered style themes over the same components.

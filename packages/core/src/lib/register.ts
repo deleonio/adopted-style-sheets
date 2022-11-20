@@ -1,6 +1,6 @@
 import { Log } from '@leanup/lib';
 import { Generic } from '..';
-import { ThemeDetails, LoaderCallback, RegisterOptions, RegisterThemeOptions } from '../theme';
+import { ThemeDetails, LoaderCallback, RegisterOptions, RegisterThemeOptions, ThemeEncroachCss } from '../theme';
 import { GLOBAL } from './window';
 
 let lockThemePatching = true;
@@ -95,6 +95,20 @@ const getThemeNode = (element: HTMLElement | ParentNode | null): HTMLElement | n
 	}
 };
 
+const getEncroachCss = (dataset: DOMStringMap): false | ThemeEncroachCss => {
+	if (dataset.themeEncroachCss !== 'false' || dataset.themeReset !== 'false') {
+		return false;
+	} else if ((typeof dataset.themeEncroachCssMode === 'string' && dataset.themeEncroachCssMode === 'after') || dataset.themeEncroachCssMode === 'before') {
+		return {
+			mode: dataset.themeEncroachCssMode,
+		};
+	} else {
+		return {
+			mode: 'after',
+		};
+	}
+};
+
 export const getThemeDetails = (element: HTMLElement | ParentNode | null): ThemeDetails => {
 	if (
 		typeof GLOBAL.A11yUi === 'object' &&
@@ -108,19 +122,19 @@ export const getThemeDetails = (element: HTMLElement | ParentNode | null): Theme
 		return (GLOBAL.A11yUi as Record<string, unknown>).Theme as ThemeDetails;
 	} else {
 		const themeNode = getThemeNode(element);
+		const details: ThemeDetails = {
+			cache: true,
+			encroachCss: {
+				mode: 'after',
+			},
+			name: null,
+		};
 		if (themeNode instanceof HTMLElement) {
-			return {
-				cache: themeNode.dataset.themeCache !== 'false',
-				name: themeNode.dataset.theme || null,
-				reset: themeNode.dataset.themeReset !== 'false',
-			};
-		} else {
-			return {
-				cache: true,
-				name: null,
-				reset: true,
-			};
+			details.cache = themeNode.dataset.themeCache !== 'false';
+			details.encroachCss = getEncroachCss(themeNode.dataset);
+			details.name = themeNode.dataset.theme || null;
 		}
+		return details;
 	}
 };
 
@@ -145,7 +159,6 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions = {}
 		(options.name === undefined || themeName === options.name) &&
 		typeof options === 'object' &&
 		options !== null &&
-		options.detect === 'fixed' &&
 		options.detect === 'fixed'
 	) {
 		Log.debug(`[Theming] "${themeName}" was set as default theme.`, {
@@ -155,10 +168,13 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions = {}
 		if (typeof GLOBAL.A11yUi !== 'object' || GLOBAL.A11yUi === null) {
 			GLOBAL.A11yUi = {};
 		}
+		// TODO: hier ist was merkwürdig
 		(GLOBAL.A11yUi as Record<string, unknown>).Theme = {
 			cache: true,
+			encroachCss: {
+				mode: 'after',
+			},
 			name: options.name || themeName,
-			reset: true,
 		};
 	}
 };

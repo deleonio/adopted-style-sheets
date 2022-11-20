@@ -2,10 +2,29 @@ import { Generic } from '.';
 
 export type LoaderCallback = () => Promise<void>;
 export type ThemeName = string | null;
+export type ThemeEncroachCss = {
+	/**
+	 * Gibt an, das Basis-CSS in den Web Components wiederverwendet werden soll und wenn ja, ob
+	 * es entweder vor oder nach dem CSS des Themes eingefügt werden soll.
+	 *
+	 * - after:		Fügt das Basis-CSS nach dem CSS des Themes ein.
+	 * - before:	Fügt das Basis-CSS vor dem CSS des Themes ein.
+	 */
+	mode: 'after' | 'before';
+};
 export type ThemeDetails = {
+	/**
+	 * Gibt an, ob die Style-Sheets für die Web Components gecached werden sollen.
+	 */
 	cache: boolean;
+	/**
+	 * Gibt an, welches Theme initial fest gesetzt werden soll, wenn mehrere Themes geladen wurden.
+	 */
+	encroachCss: ThemeEncroachCss | false;
+	/**
+	 * Gibt an, welches Theme ausgewählt ist.
+	 */
 	name: ThemeName;
-	reset: boolean;
 };
 export type RegisterThemeOptions = {
 	/**
