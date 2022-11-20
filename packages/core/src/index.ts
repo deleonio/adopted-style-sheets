@@ -34,4 +34,4 @@ export class Theme<Prefix extends string, Key extends string, Tag extends string
 }
 
 export { RobustStore, getTheme, getThemeDetails, patchTheme, patchThemeTag, register, setThemeStyle } from './lib';
-export type { ThemeDetails } from './theme';
+export type { LoaderCallback, RegisterOptions, ThemeDetails } from './theme';

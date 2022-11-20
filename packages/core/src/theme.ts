@@ -1,7 +1,7 @@
 import { Generic } from '.';
 
 export type LoaderCallback = () => Promise<void>;
-export type ThemeName = string | null;
+type ThemeName = string | null;
 export type ThemeEncroachCss = {
 	/**
 	 * Gibt an, das Basis-CSS in den Web Components wiederverwendet werden soll und wenn ja, ob
@@ -42,7 +42,7 @@ export type RegisterThemeOptions = {
 	 */
 	name?: string;
 };
-export type RegisterTranslationOptions = {
+type RegisterTranslationOptions = {
 	/**
 	 * Gibt an, welches Sprache initial fest gesetzt werden soll, wenn mehrere Sprachen geladen wurden.
 	 */

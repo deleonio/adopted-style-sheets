@@ -1,5 +1,5 @@
 {
 	"packages": ["packages/core"],
 	"useNx": false,
-	"version": "1.0.1-rc.0"
+	"version": "1.0.1-rc.1"
 }
