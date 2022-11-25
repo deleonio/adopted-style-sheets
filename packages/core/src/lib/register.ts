@@ -1,4 +1,4 @@
-import { Log } from '@leanup/lib';
+import log from 'loglevel';
 import { Generic } from '..';
 import { ThemeDetails, LoaderCallback, RegisterOptions, RegisterThemeOptions, ThemeEncroachCss } from '../theme';
 import { GLOBAL } from './window';
@@ -9,7 +9,7 @@ let warrentyWarning = false;
 export const patchThemeTag = (themeName: string, tagName: Generic.Theming.Props<string, string>, css: string): void => {
 	if (lockThemePatching === true && warrentyWarning === false) {
 		warrentyWarning = true;
-		Log.warn(
+		log.warn(
 			`[Theming] The theme process is locked. This means that the theme "${themeName}" should not be patched.
 
 import { register } from '@a11y-ui/core';
@@ -24,10 +24,7 @@ register(THEME, defineCustomElements)
       root.render(<AppComponent />);
     }
   })
-  .catch(console.warn);`,
-			{
-				forceLog: true,
-			}
+  .catch(console.warn);`
 		);
 	}
 
@@ -109,16 +106,19 @@ const getEncroachCss = (dataset: DOMStringMap): false | ThemeEncroachCss => {
 	}
 };
 
+const isTheCurrentThemeConfigValid = () =>
+	typeof GLOBAL.A11yUi === 'object' &&
+	GLOBAL.A11yUi !== null &&
+	typeof (GLOBAL.A11yUi as Record<string, unknown>).Theme === 'object' &&
+	(GLOBAL.A11yUi as Record<string, unknown>).Theme !== null &&
+	typeof ((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).cache === 'boolean' &&
+	typeof ((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).encroachCss === 'object' &&
+	typeof ((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).encroachCss !== null &&
+	typeof (((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).encroachCss as Record<string, unknown>).mode === 'string' &&
+	typeof ((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).name === 'string';
+
 export const getThemeDetails = (element: HTMLElement | ParentNode | null): ThemeDetails => {
-	if (
-		typeof GLOBAL.A11yUi === 'object' &&
-		GLOBAL.A11yUi !== null &&
-		typeof (GLOBAL.A11yUi as Record<string, unknown>).Theme === 'object' &&
-		(GLOBAL.A11yUi as Record<string, unknown>).Theme !== null &&
-		typeof ((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).cache === 'boolean' &&
-		typeof ((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).name === 'string' &&
-		typeof ((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).reset === 'boolean'
-	) {
+	if (isTheCurrentThemeConfigValid()) {
 		return (GLOBAL.A11yUi as Record<string, unknown>).Theme as ThemeDetails;
 	} else {
 		const themeNode = getThemeNode(element);
@@ -148,22 +148,14 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions = {}
 		name: options.name,
 	};
 	if (
-		(typeof GLOBAL.A11yUi === 'object' &&
-			GLOBAL.A11yUi !== null &&
-			typeof (GLOBAL.A11yUi as Record<string, unknown>).Theme === 'object' &&
-			(GLOBAL.A11yUi as Record<string, unknown>).Theme !== null &&
-			typeof ((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).cache === 'boolean' &&
-			typeof ((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).name === 'string' &&
-			typeof ((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).reset === 'boolean') === false &&
+		isTheCurrentThemeConfigValid() === false &&
 		typeof themeName === 'string' &&
 		(options.name === undefined || themeName === options.name) &&
 		typeof options === 'object' &&
 		options !== null &&
 		options.detect === 'fixed'
 	) {
-		Log.debug(`[Theming] "${themeName}" was set as default theme.`, {
-			forceLog: true,
-		});
+		log.debug(`[Theming] "${themeName}" was set as default theme.`);
 
 		if (typeof GLOBAL.A11yUi !== 'object' || GLOBAL.A11yUi === null) {
 			GLOBAL.A11yUi = {};
@@ -209,9 +201,7 @@ export const register = (
 					name: options.theme?.name,
 				});
 			} else {
-				Log.error(`[Theming] Es wurde versucht eine nicht kompatibles Theme zu laden.`, {
-					forceLog: true,
-				});
+				log.error(`[Theming] Es wurde versucht eine nicht kompatibles Theme zu laden.`);
 			}
 		});
 	}
