@@ -50,7 +50,7 @@ export declare namespace Element {
 		nextHooks?: Map<string, Map<StateHooks, StateHooksCallback | NextStateHooksCallback>>;
 		nextState?: Map<string, unknown>;
 		state: Record<string, unknown>;
-		timeout?: NodeJS.Timeout;
+		timeout?: number;
 	}
 
 	/**
