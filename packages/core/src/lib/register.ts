@@ -6,7 +6,19 @@ import { GLOBAL } from './window';
 let lockThemePatching = true;
 let warrentyWarning = false;
 
+// https://regex101.com/r/nEcl8u/1
+const THEME_NAME_PATTERN = /^[a-z][a-z0-9]{2,}(-[a-z0-9]+)?$/;
+const isThemeNameValid = (name: unknown): boolean => {
+	return typeof name === 'string' && THEME_NAME_PATTERN.test(name);
+};
+const validateThemeName = (name: unknown) => {
+	if (isThemeNameValid(name) === false) {
+		throw new Error(`[Theming] The theme identifier is not valid. Please use only follow this pattern: /^[a-z][a-z0-9]{2,}(-[a-z0-9]+)?$/`);
+	}
+};
+
 export const patchThemeTag = (themeName: string, tagName: Generic.Theming.Props<string, string>, css: string): void => {
+	validateThemeName(themeName);
 	if (lockThemePatching === true && warrentyWarning === false) {
 		warrentyWarning = true;
 		log.warn(
@@ -62,6 +74,7 @@ register(THEME, defineCustomElements)
 };
 
 export const patchTheme = (name: string, map: Generic.Theming.Map<string, string>): string => {
+	validateThemeName(name);
 	if (typeof map === 'object' && map !== null) {
 		const tagNames = Object.getOwnPropertyNames(map) as Generic.Theming.Props<string, string>[];
 		tagNames.forEach((tagName) => {
