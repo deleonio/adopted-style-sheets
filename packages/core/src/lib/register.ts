@@ -7,13 +7,17 @@ let lockThemePatching = true;
 let warrentyWarning = false;
 
 // https://regex101.com/r/nEcl8u/1
-const THEME_NAME_PATTERN = /^[a-z][a-z0-9]{2,}(-[a-z0-9]+)?$/;
+const THEME_NAME_PATTERN = /^[a-z][a-z0-9]{1,}(-[a-z0-9]+)?$/;
 const isThemeNameValid = (name: unknown): boolean => {
 	return typeof name === 'string' && THEME_NAME_PATTERN.test(name);
 };
 const validateThemeName = (name: unknown) => {
 	if (isThemeNameValid(name) === false) {
-		throw new Error(`[Theming] The theme identifier is not valid. Please use only follow this pattern: /^[a-z][a-z0-9]{2,}(-[a-z0-9]+)?$/`);
+		throw new Error(
+			`[Theming] The theme identifier "${
+				typeof name === 'string' ? name : ''
+			}" (Type: ${typeof name}) is not valid. Please use only follow this pattern: /^[a-z][a-z0-9]{1,}(-[a-z0-9]+)?$/`
+		);
 	}
 };
 
