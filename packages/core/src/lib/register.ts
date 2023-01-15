@@ -110,9 +110,9 @@ const getThemeNode = (element: HTMLElement | ParentNode | null): HTMLElement | n
 };
 
 const getEncroachCss = (dataset: DOMStringMap): false | ThemeEncroachCss => {
-	if (dataset.themeEncroachCss !== 'false' || dataset.themeReset !== 'false') {
+	if (dataset.themeEncroachCss === 'false' || dataset.themeReset === 'false') {
 		return false;
-	} else if ((typeof dataset.themeEncroachCssMode === 'string' && dataset.themeEncroachCssMode === 'after') || dataset.themeEncroachCssMode === 'before') {
+	} else if (typeof dataset.themeEncroachCssMode === 'string' && (dataset.themeEncroachCssMode === 'after' || dataset.themeEncroachCssMode === 'before')) {
 		return {
 			mode: dataset.themeEncroachCssMode,
 		};
