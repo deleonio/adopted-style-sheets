@@ -109,7 +109,7 @@ const getThemeNode = (element: HTMLElement | ParentNode | null): HTMLElement | n
 	}
 };
 
-const getEncroachCss = (dataset: DOMStringMap): false | ThemeEncroachCss => {
+const getEncroachCss = (dataset: DOMStringMap = {}): false | ThemeEncroachCss => {
 	if (dataset.themeEncroachCss === 'false' || dataset.themeReset === 'false') {
 		return false;
 	} else if (typeof dataset.themeEncroachCssMode === 'string' && (dataset.themeEncroachCssMode === 'after' || dataset.themeEncroachCssMode === 'before')) {
@@ -118,7 +118,7 @@ const getEncroachCss = (dataset: DOMStringMap): false | ThemeEncroachCss => {
 		};
 	} else {
 		return {
-			mode: 'after',
+			mode: 'before',
 		};
 	}
 };
@@ -141,9 +141,7 @@ export const getThemeDetails = (element: HTMLElement | ParentNode | null): Theme
 		const themeNode = getThemeNode(element);
 		const details: ThemeDetails = {
 			cache: true,
-			encroachCss: {
-				mode: 'after',
-			},
+			encroachCss: getEncroachCss(),
 			name: null,
 		};
 		if (themeNode instanceof HTMLElement) {

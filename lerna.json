@@ -1,5 +1,6 @@
 {
+	"independent": true,
 	"packages": ["packages/core"],
 	"useNx": false,
-	"version": "1.0.1-rc.5"
+	"version": "1.0.1-rc.9"
 }

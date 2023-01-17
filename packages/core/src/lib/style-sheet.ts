@@ -1,6 +1,6 @@
-import { Generic } from '..';
-import { ThemeDetails } from '../theme';
-import { GLOBAL } from './window';
+import { Generic, ThemeDetails } from '..';
+
+const GLOBAL = window;
 
 type CSSStyleSheetW3C = CSSStyleSheet & {
 	replaceSync?: (css: string) => void;
@@ -108,7 +108,7 @@ const getCssStyleSheet = (themeCache: boolean, themeName: string, tagName: Gener
 
 const removeStyle = (shadow: ShadowRoot) => {
 	for (const childNode of Array.from(shadow.childNodes)) {
-		if (childNode instanceof HTMLElement && childNode.tagName === 'STYLE') {
+		if (childNode instanceof HTMLStyleElement && childNode.tagName === 'STYLE') {
 			shadow.removeChild(childNode);
 		} else {
 			break;
@@ -124,73 +124,56 @@ const GLOBAL_A11Y_STYLE = `* {
   word-spacing: inherit;
 }`;
 
-const patchAdopted = (
-	elm: HTMLElement,
-	shadow: ShadowRoot & { adoptedStyleSheets?: CSSStyleSheet[] },
-	adoptedStyleSheets: CSSStyleSheet[],
-	display: string
-) => {
-	const timeout = setTimeout(() => {
-		clearTimeout(timeout);
-		if (elm.classList.contains('hydrated')) {
-			removeStyle(shadow);
+const patchAdopted = (elm: HTMLElement, shadow: ShadowRoot, adoptedStyleSheets: CSSStyleSheet[], display: string) => {
+	removeStyle(shadow);
 
-			const style: CSSStyleSheetW3C = new CSSStyleSheet();
-			if (typeof style.replaceSync === 'function') {
-				style.replaceSync(GLOBAL_A11Y_STYLE);
-			}
-			adoptedStyleSheets.unshift(style);
-
-			shadow.adoptedStyleSheets = adoptedStyleSheets;
-			elm.style.display = display;
-		} else {
-			patchAdopted(elm, shadow, adoptedStyleSheets, display);
-		}
-	}, 25);
-};
-
-const patchStyle = (elm: HTMLElement, shadow: ShadowRoot & { adoptedStyleSheets?: CSSStyleSheet[] }, styleNodes: HTMLStyleElement[], display: string) => {
-	const timeout = setTimeout(() => {
-		clearTimeout(timeout);
-		if (elm.classList.contains('hydrated')) {
-			removeStyle(shadow);
-
-			const style: HTMLStyleElement = document.createElement('style');
-			style.innerHTML = GLOBAL_A11Y_STYLE;
-			styleNodes.unshift(style);
-
-			const firstNode = shadow.firstChild;
-			styleNodes.forEach((styleNode) => {
-				if (firstNode instanceof HTMLElement) {
-					shadow.insertBefore(styleNode, firstNode);
-				} else {
-					shadow.appendChild(styleNode);
-				}
-			});
-			elm.style.display = display;
-		} else {
-			patchStyle(elm, shadow, styleNodes, display);
-		}
-	}, 25);
-};
-
-const addEncroachCssStyleSheet = (shadow: ShadowRoot, adoptedStyleSheets: CSSStyleSheet[]) => {
-	shadow.adoptedStyleSheets?.forEach((adoptedStyle) => {
-		adoptedStyleSheets.push(adoptedStyle);
-	});
-};
-
-const addEncroachCssStyleElement = (shadow: ShadowRoot, styleNodes: HTMLStyleElement[]) => {
-	for (const childNode of Array.from(shadow.childNodes)) {
-		if (childNode instanceof HTMLStyleElement) {
-			styleNodes.push(childNode);
-		} else {
-			break;
-		}
+	const style: CSSStyleSheetW3C = new CSSStyleSheet();
+	if (typeof style.replaceSync === 'function') {
+		style.replaceSync(GLOBAL_A11Y_STYLE);
 	}
+	adoptedStyleSheets.unshift(style);
+
+	shadow.adoptedStyleSheets = adoptedStyleSheets;
+
+	elm.style.display = display;
 };
 
-export const setThemeStyle = (elm: HTMLElement, themeDetails: ThemeDetails) => {
+const patchStyle = (elm: HTMLElement, shadow: ShadowRoot, adoptedStyleNodes: HTMLStyleElement[], display: string) => {
+	removeStyle(shadow);
+
+	const style: HTMLStyleElement = document.createElement('style');
+	style.innerHTML = GLOBAL_A11Y_STYLE;
+	adoptedStyleNodes.unshift(style);
+
+	const firstNode = shadow.firstChild;
+	adoptedStyleNodes.forEach((styleNode) => {
+		if (firstNode instanceof HTMLElement) {
+			shadow.insertBefore(styleNode, firstNode);
+		} else {
+			shadow.appendChild(styleNode);
+		}
+	});
+
+	elm.style.display = display;
+};
+
+// const addEncroachCssStyleSheet = (shadow: ShadowRoot, adoptedStyleSheets: CSSStyleSheet[]) => {
+// 	shadow.adoptedStyleSheets?.forEach((adoptedStyle) => {
+// 		adoptedStyleSheets.push(adoptedStyle);
+// 	});
+// };
+
+// const addEncroachCssStyleElement = (shadow: ShadowRoot, adoptedStyleNodes: HTMLStyleElement[]) => {
+// 	for (const childNode of Array.from(shadow.childNodes)) {
+// 		if (childNode instanceof HTMLStyleElement) {
+// 			adoptedStyleNodes.push(childNode);
+// 		} else {
+// 			break;
+// 		}
+// 	}
+// };
+
+const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails, styleDisplay: string) => {
 	const themeCache = themeDetails.cache;
 	const themeEncroachCss = themeDetails.encroachCss;
 	const themeName: string = themeDetails.name || 'default';
@@ -201,8 +184,9 @@ export const setThemeStyle = (elm: HTMLElement, themeDetails: ThemeDetails) => {
 	const shadow: ShadowRoot & { adoptedStyleSheets?: CSSStyleSheet[] } = elm.shadowRoot as ShadowRoot;
 	if (componentStyle instanceof CSSStyleSheet && componentStyle.cssRules.length > 0) {
 		const adoptedStyleSheets: CSSStyleSheet[] = [];
+		const defaultStyleSheets: CSSStyleSheet[] = [...Array.from(new Set(shadow.adoptedStyleSheets))]; // is actually Proxy {}
 		if (themeEncroachCss !== false && themeEncroachCss?.mode === 'before') {
-			addEncroachCssStyleSheet(shadow, adoptedStyleSheets);
+			defaultStyleSheets.forEach((styleSheet) => adoptedStyleSheets.push(styleSheet));
 		}
 		if (globalStyle instanceof CSSStyleSheet && globalStyle.cssRules.length > 0 && adoptedStyleSheets.includes(globalStyle) === false) {
 			adoptedStyleSheets.push(globalStyle);
@@ -211,33 +195,51 @@ export const setThemeStyle = (elm: HTMLElement, themeDetails: ThemeDetails) => {
 			adoptedStyleSheets.push(componentStyle);
 		}
 		if (themeEncroachCss !== false && themeEncroachCss?.mode === 'after') {
-			addEncroachCssStyleSheet(shadow, adoptedStyleSheets);
+			defaultStyleSheets.forEach((styleSheet) => adoptedStyleSheets.push(styleSheet));
 		}
-		const display = elm.style.display;
-		elm.style.display = 'none';
-		patchAdopted(elm, shadow, adoptedStyleSheets, display);
+		patchAdopted(elm, shadow, adoptedStyleSheets, styleDisplay);
 	} else if (componentStyle instanceof HTMLStyleElement && componentStyle.innerHTML.length > 0) {
-		const styleNodes: HTMLStyleElement[] = [];
+		const adoptedStyleNodes: HTMLStyleElement[] = [];
+		const defaultStyleNodes: HTMLStyleElement[] = [
+			...Array.from(shadow.childNodes).filter((node) => node instanceof HTMLStyleElement && node.tagName === 'STYLE'),
+		] as HTMLStyleElement[];
 		if (themeEncroachCss !== false && themeEncroachCss?.mode === 'before') {
-			addEncroachCssStyleElement(shadow, styleNodes);
+			defaultStyleNodes.forEach((styleNode) => adoptedStyleNodes.push(styleNode));
 		}
-		if (globalStyle instanceof HTMLStyleElement && globalStyle.innerHTML.length > 0 && styleNodes.includes(globalStyle) === false) {
-			styleNodes.push(globalStyle);
+		if (globalStyle instanceof HTMLStyleElement && globalStyle.innerHTML.length > 0 && adoptedStyleNodes.includes(globalStyle) === false) {
+			adoptedStyleNodes.push(globalStyle);
 		}
-		if (componentStyle instanceof HTMLStyleElement && componentStyle.innerHTML.length > 0 && styleNodes.includes(componentStyle) === false) {
-			styleNodes.push(componentStyle);
+		if (componentStyle instanceof HTMLStyleElement && componentStyle.innerHTML.length > 0 && adoptedStyleNodes.includes(componentStyle) === false) {
+			adoptedStyleNodes.push(componentStyle);
 		}
 		if (themeEncroachCss !== false && themeEncroachCss?.mode === 'after') {
-			addEncroachCssStyleElement(shadow, styleNodes);
+			adoptedStyleNodes.concat(defaultStyleNodes);
 		}
-		/**
-		 * Das Element soll solange nicht sichtbar bleiben
-		 * bis der Style im DOM gesetzt ist.
-		 */
-		const display = elm.style.display;
-		elm.style.display = 'none';
-		patchStyle(elm, shadow, styleNodes, display);
+		patchStyle(elm, shadow, adoptedStyleNodes, styleDisplay);
+	} else {
+		elm.style.display = styleDisplay;
 	}
+};
+
+const waitForHydrated = (elm: HTMLElement, themeDetails: ThemeDetails, styleDisplay: string) => {
+	const T = setTimeout(() => {
+		clearTimeout(T);
+		if (elm.classList.contains('hydrated')) {
+			setThemeStyleAfterHydrated(elm, themeDetails, styleDisplay);
+		} else {
+			waitForHydrated(elm, themeDetails, styleDisplay);
+		}
+	}, 25);
+};
+
+export const setThemeStyle = (elm: HTMLElement, themeDetails: ThemeDetails) => {
+	/**
+	 * Das Element soll solange nicht sichtbar bleiben
+	 * bis der Style im DOM gesetzt ist.
+	 */
+	const DISPLAY = `${elm.style.display}`;
+	elm.style.display = 'none';
+	waitForHydrated(elm, themeDetails, DISPLAY);
 };
 
 // const getThemeDetailsAsync = (elm: HTMLElement, retries = 0): Promise<A11yUiThemeDetails> => {
