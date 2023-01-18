@@ -208,6 +208,17 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): vo
 				log.warn(`[Theming] The presetting of theme options is only relevant by using 'fixed' detection mode.`);
 			}
 		}
+		// if (typeof STORE.A11yUi !== 'object' || STORE.A11yUi === null) {
+		// 	STORE.A11yUi = {};
+		// }
+		// // TODO: hier ist was merkwürdig
+		// (STORE.A11yUi as Record<string, unknown>).Theme = {
+		// 	cache: true,
+		// 	encroachCss: {
+		// 		mode: 'after',
+		// 	},
+		// 	name: options.name || themeName,
+		// };
 	}
 };
 
