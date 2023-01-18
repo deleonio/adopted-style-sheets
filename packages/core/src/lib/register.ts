@@ -1,7 +1,7 @@
 import log from 'loglevel';
 import { Generic } from '..';
 import { ThemeDetails, LoaderCallback, RegisterOptions, RegisterThemeOptions, ThemeEncroachCss } from '../theme';
-import { GLOBAL } from './window';
+import { STORE } from './window';
 
 let lockThemePatching = true;
 let warrentyWarning = false;
@@ -44,36 +44,36 @@ register(THEME, defineCustomElements)
 		);
 	}
 
-	if (typeof GLOBAL.A11yUi !== 'object' || GLOBAL.A11yUi === null) {
-		GLOBAL.A11yUi = {};
+	if (typeof STORE.A11yUi !== 'object' || STORE.A11yUi === null) {
+		STORE.A11yUi = {};
 	}
 	if (
-		typeof GLOBAL.A11yUi === 'object' &&
-		GLOBAL.A11yUi !== null &&
-		(typeof ((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) !== 'object' ||
-			((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) === null)
+		typeof STORE.A11yUi === 'object' &&
+		STORE.A11yUi !== null &&
+		(typeof ((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) !== 'object' ||
+			((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) === null)
 	) {
-		((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) = {};
+		((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) = {};
 	}
 	if (
-		typeof GLOBAL.A11yUi === 'object' &&
-		GLOBAL.A11yUi !== null &&
-		typeof ((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) === 'object' &&
-		((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) !== null &&
-		(typeof ((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] !== 'object' ||
-			((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] === null)
+		typeof STORE.A11yUi === 'object' &&
+		STORE.A11yUi !== null &&
+		typeof ((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) === 'object' &&
+		((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) !== null &&
+		(typeof ((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] !== 'object' ||
+			((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] === null)
 	) {
-		((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] = {};
+		((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] = {};
 	}
 	if (
-		typeof GLOBAL.A11yUi === 'object' &&
-		GLOBAL.A11yUi !== null &&
-		typeof ((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) === 'object' &&
-		((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) !== null &&
-		typeof ((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] === 'object' &&
-		((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] !== null
+		typeof STORE.A11yUi === 'object' &&
+		STORE.A11yUi !== null &&
+		typeof ((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) === 'object' &&
+		((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) !== null &&
+		typeof ((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] === 'object' &&
+		((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] !== null
 	) {
-		(((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] = css;
+		(((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] = css;
 	}
 };
 
@@ -120,19 +120,19 @@ const getEncroachCss = (dataset: DOMStringMap = {}): false | ThemeEncroachCss =>
 };
 
 const isTheCurrentThemeConfigValid = () =>
-	typeof GLOBAL.A11yUi === 'object' &&
-	GLOBAL.A11yUi !== null &&
-	typeof (GLOBAL.A11yUi as Record<string, unknown>).Theme === 'object' &&
-	(GLOBAL.A11yUi as Record<string, unknown>).Theme !== null &&
-	typeof ((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).cache === 'boolean' &&
-	typeof ((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).encroachCss === 'object' &&
-	typeof ((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).encroachCss !== null &&
-	typeof (((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).encroachCss as Record<string, unknown>).mode === 'string' &&
-	typeof ((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).name === 'string';
+	typeof STORE.A11yUi === 'object' &&
+	STORE.A11yUi !== null &&
+	typeof (STORE.A11yUi as Record<string, unknown>).Theme === 'object' &&
+	(STORE.A11yUi as Record<string, unknown>).Theme !== null &&
+	typeof ((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).cache === 'boolean' &&
+	typeof ((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).encroachCss === 'object' &&
+	typeof ((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).encroachCss !== null &&
+	typeof (((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).encroachCss as Record<string, unknown>).mode === 'string' &&
+	typeof ((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).name === 'string';
 
 export const getThemeDetails = (element: HTMLElement | ParentNode | null): ThemeDetails => {
 	if (isTheCurrentThemeConfigValid()) {
-		return (GLOBAL.A11yUi as Record<string, unknown>).Theme as ThemeDetails;
+		return (STORE.A11yUi as Record<string, unknown>).Theme as ThemeDetails;
 	} else {
 		const themeNode = getThemeNode(element);
 		const details: ThemeDetails = {
@@ -158,32 +158,11 @@ export const getTheme = (element: HTMLElement | ParentNode | null): string | nul
  */
 const getThemeOptionDefaults = (options: RegisterThemeOptions): Required<RegisterThemeOptions> => {
 	return {
-		cache: options.cache === true,
-		detect: options.detect === 'fixed' ? 'fixed' : 'auto',
-		encroachCss: options.encroachCss === undefined ? false : options.encroachCss,
-		name: typeof options.name === 'string' ? options.name : null,
+		cache: options.cache !== false, // default: true
+		detect: options.detect === 'auto' ? 'auto' : 'fixed', // default: true
+		encroachCss: options.encroachCss === undefined ? false : options.encroachCss, // default: false
+		name: typeof options.name === 'string' ? options.name : null, // default: null
 	};
-};
-
-/**
- * Implements a facade for define properties on records.
- *
- * @param object		Record reference
- * @param name			Property name
- * @param getValue	Property get value
- * @param writable	Could that property overwrite
- */
-const defineProperty = <T>(object: Record<string, unknown>, name: string, getValue: T, writable = false) => {
-	try {
-		Object.defineProperty(object, name, {
-			get: function () {
-				return getValue;
-			},
-			writable,
-		});
-	} catch (e) {
-		log.debug(`The property ${name} is already bind.`);
-	}
 };
 
 const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): void => {
@@ -191,22 +170,43 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): vo
 	 * Die ThemeOptions werden nur einmal gesetzt, wenn Sie valide sind.
 	 */
 	if (isTheCurrentThemeConfigValid() === false) {
-		/**
-		 * Set the theming option defaults, if they are undefined or invalid.
-		 */
-		options = getThemeOptionDefaults(options);
 		if (
 			// Die Options müssen ein Objekt sein.
 			typeof options === 'object' &&
-			options !== null &&
-			// Nur wenn die Detection 'fixed' ist, müssen die Options gesetzt werden.
-			options.detect === 'fixed' &&
-			// Wenn mehrere Themes geladen werden, dann wird nur der Theme-Name gesetzt, der mit dem Name eines Themes übereinstimmt.
-			themeName === options.name
+			options !== null
 		) {
-			defineProperty(GLOBAL, 'A11yUi', {});
-			defineProperty(GLOBAL.A11yUi as Record<string, unknown>, 'Theme', options);
-			log.debug(`[Theming] "${themeName}" was set as default theme.`);
+			/**
+			 * Set the theming option defaults, if they are undefined or invalid.
+			 */
+			options = getThemeOptionDefaults(options);
+
+			if (
+				/**
+				 * The presetting of theme options is only relevant by using 'fixed'
+				 * detection mode.
+				 */ options.detect === 'fixed'
+			) {
+				if (options.name === null && typeof themeName === 'string') {
+					options.name = themeName;
+				}
+
+				if (
+					/**
+					 * Wenn mehrere Themes geladen werden, dann wird nur der Theme-Name gesetzt,
+					 * der mit dem Name eines Themes übereinstimmt.
+					 */
+					themeName === options.name
+				) {
+					if (typeof STORE.A11yUi !== 'object' || STORE.A11yUi === null) {
+						STORE.A11yUi = {};
+					}
+					(STORE.A11yUi as Record<string, unknown>).Theme = options;
+					console.log(`[Theming] Theme "${themeName}" was set as default theme.`, STORE.A11yUi);
+					log.info(`[Theming] Theme "${themeName}" was set as default theme.`);
+				}
+			} else {
+				log.warn(`[Theming] The presetting of theme options is only relevant by using 'fixed' detection mode.`);
+			}
 		}
 	}
 };

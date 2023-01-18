@@ -7,4 +7,4 @@
  * - ServiceWorker: self
  * - Other: object
  */
-export const GLOBAL: Record<string, unknown> = typeof window === 'object' ? window : typeof global === 'object' ? global : typeof self === 'object' ? self : {};
+export const STORE: Record<string, unknown> = typeof window === 'object' ? window : typeof global === 'object' ? global : typeof self === 'object' ? self : {};
