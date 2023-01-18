@@ -1,6 +1,4 @@
-import { Generic, ThemeDetails } from '..';
-
-const GLOBAL = window;
+import { Generic, ThemeDetails, STORE } from '..';
 
 type CSSStyleSheetW3C = CSSStyleSheet & {
 	replaceSync?: (css: string) => void;
@@ -22,16 +20,16 @@ const getCssStyleSheet = (themeCache: boolean, themeName: string, tagName: Gener
 		// Instantiate default StyleSheet
 		if (
 			// Search custom StyleSheet in Config
-			typeof GLOBAL.A11yUi === 'object' &&
-			GLOBAL.A11yUi !== null &&
-			typeof (GLOBAL.A11yUi as Record<string, unknown>).Themes === 'object' &&
-			(GLOBAL.A11yUi as Record<string, unknown>).Themes !== null &&
-			typeof ((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] === 'object' &&
-			((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] !== null &&
-			typeof (((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] === 'string'
+			typeof STORE.A11yUi === 'object' &&
+			STORE.A11yUi !== null &&
+			typeof (STORE.A11yUi as Record<string, unknown>).Themes === 'object' &&
+			(STORE.A11yUi as Record<string, unknown>).Themes !== null &&
+			typeof ((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] === 'object' &&
+			((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] !== null &&
+			typeof (((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] === 'string'
 		) {
 			if ((tagName === 'GLOBAL' || tagName === 'PROPERTIES') && CSS_PROPERTIES_REGISTERED.has(themeName) === false) {
-				const css = (((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] as string;
+				const css = (((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] as string;
 				let properties: RegExpMatchArray | string[] | null = css.match(REGEX_CSS_PROPERTIES);
 				if (Array.isArray(properties)) {
 					properties = properties.filter((property) => REGEX_SPLT_CSS_PROPERTY.test(property));
@@ -47,7 +45,7 @@ const getCssStyleSheet = (themeCache: boolean, themeName: string, tagName: Gener
 				style = new CSSStyleSheet();
 				if (typeof style.replaceSync === 'function') {
 					style.replaceSync(
-						(((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] as string
+						(((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] as string
 					);
 				}
 
@@ -60,7 +58,7 @@ const getCssStyleSheet = (themeCache: boolean, themeName: string, tagName: Gener
 				}
 			} catch (e) {
 				style = document.createElement('style');
-				style.innerHTML = (((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[
+				style.innerHTML = (((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[
 					tagName
 				] as string;
 

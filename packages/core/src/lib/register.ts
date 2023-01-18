@@ -1,7 +1,7 @@
 import log from 'loglevel';
 import { Generic } from '..';
 import { ThemeDetails, LoaderCallback, RegisterOptions, RegisterThemeOptions, ThemeEncroachCss } from '../theme';
-import { GLOBAL } from './window';
+import { STORE } from './window';
 
 let lockThemePatching = true;
 let warrentyWarning = false;
@@ -44,36 +44,36 @@ register(THEME, defineCustomElements)
 		);
 	}
 
-	if (typeof GLOBAL.A11yUi !== 'object' || GLOBAL.A11yUi === null) {
-		GLOBAL.A11yUi = {};
+	if (typeof STORE.A11yUi !== 'object' || STORE.A11yUi === null) {
+		STORE.A11yUi = {};
 	}
 	if (
-		typeof GLOBAL.A11yUi === 'object' &&
-		GLOBAL.A11yUi !== null &&
-		(typeof ((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) !== 'object' ||
-			((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) === null)
+		typeof STORE.A11yUi === 'object' &&
+		STORE.A11yUi !== null &&
+		(typeof ((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) !== 'object' ||
+			((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) === null)
 	) {
-		((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) = {};
+		((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) = {};
 	}
 	if (
-		typeof GLOBAL.A11yUi === 'object' &&
-		GLOBAL.A11yUi !== null &&
-		typeof ((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) === 'object' &&
-		((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) !== null &&
-		(typeof ((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] !== 'object' ||
-			((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] === null)
+		typeof STORE.A11yUi === 'object' &&
+		STORE.A11yUi !== null &&
+		typeof ((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) === 'object' &&
+		((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) !== null &&
+		(typeof ((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] !== 'object' ||
+			((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] === null)
 	) {
-		((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] = {};
+		((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] = {};
 	}
 	if (
-		typeof GLOBAL.A11yUi === 'object' &&
-		GLOBAL.A11yUi !== null &&
-		typeof ((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) === 'object' &&
-		((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) !== null &&
-		typeof ((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] === 'object' &&
-		((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] !== null
+		typeof STORE.A11yUi === 'object' &&
+		STORE.A11yUi !== null &&
+		typeof ((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) === 'object' &&
+		((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) !== null &&
+		typeof ((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] === 'object' &&
+		((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] !== null
 	) {
-		(((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] = css;
+		(((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] = css;
 	}
 };
 
@@ -124,19 +124,19 @@ const getEncroachCss = (dataset: DOMStringMap = {}): false | ThemeEncroachCss =>
 };
 
 const isTheCurrentThemeConfigValid = () =>
-	typeof GLOBAL.A11yUi === 'object' &&
-	GLOBAL.A11yUi !== null &&
-	typeof (GLOBAL.A11yUi as Record<string, unknown>).Theme === 'object' &&
-	(GLOBAL.A11yUi as Record<string, unknown>).Theme !== null &&
-	typeof ((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).cache === 'boolean' &&
-	typeof ((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).encroachCss === 'object' &&
-	typeof ((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).encroachCss !== null &&
-	typeof (((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).encroachCss as Record<string, unknown>).mode === 'string' &&
-	typeof ((GLOBAL.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).name === 'string';
+	typeof STORE.A11yUi === 'object' &&
+	STORE.A11yUi !== null &&
+	typeof (STORE.A11yUi as Record<string, unknown>).Theme === 'object' &&
+	(STORE.A11yUi as Record<string, unknown>).Theme !== null &&
+	typeof ((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).cache === 'boolean' &&
+	typeof ((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).encroachCss === 'object' &&
+	typeof ((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).encroachCss !== null &&
+	typeof (((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).encroachCss as Record<string, unknown>).mode === 'string' &&
+	typeof ((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).name === 'string';
 
 export const getThemeDetails = (element: HTMLElement | ParentNode | null): ThemeDetails => {
 	if (isTheCurrentThemeConfigValid()) {
-		return (GLOBAL.A11yUi as Record<string, unknown>).Theme as ThemeDetails;
+		return (STORE.A11yUi as Record<string, unknown>).Theme as ThemeDetails;
 	} else {
 		const themeNode = getThemeNode(element);
 		const details: ThemeDetails = {
@@ -172,11 +172,11 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions = {}
 	) {
 		log.debug(`[Theming] "${themeName}" was set as default theme.`);
 
-		if (typeof GLOBAL.A11yUi !== 'object' || GLOBAL.A11yUi === null) {
-			GLOBAL.A11yUi = {};
+		if (typeof STORE.A11yUi !== 'object' || STORE.A11yUi === null) {
+			STORE.A11yUi = {};
 		}
 		// TODO: hier ist was merkwürdig
-		(GLOBAL.A11yUi as Record<string, unknown>).Theme = {
+		(STORE.A11yUi as Record<string, unknown>).Theme = {
 			cache: true,
 			encroachCss: {
 				mode: 'after',
