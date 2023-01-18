@@ -1,6 +1,4 @@
-import { Generic, ThemeDetails } from '..';
-
-const GLOBAL = window;
+import { Generic, STORE, ThemeDetails } from '..';
 
 type CSSStyleSheetW3C = CSSStyleSheet & {
 	replaceSync?: (css: string) => void;
@@ -14,6 +12,7 @@ const REGEX_SPLT_CSS_PROPERTY = /:/;
 
 // Search custom StyleSheet in Cache
 const getCssStyleSheet = (themeCache: boolean, themeName: string, tagName: Generic.Theming.Props<string, string>): CSSStyleSheet | HTMLStyleElement | null => {
+	console.log('STORE.A11yUi', STORE.A11yUi, themeCache, themeName, tagName);
 	if (themeCache === true && CSS_STYLE_SHEETS.has(themeName) && CSS_STYLE_SHEETS.get(themeName)?.has(tagName)) {
 		return CSS_STYLE_SHEETS.get(themeName)?.get(tagName) as CSSStyleSheetW3C;
 	} else if (themeCache === true && HTML_STYLE_ELEMENTS.has(themeName) && HTML_STYLE_ELEMENTS.get(themeName)?.has(tagName)) {
@@ -22,16 +21,16 @@ const getCssStyleSheet = (themeCache: boolean, themeName: string, tagName: Gener
 		// Instantiate default StyleSheet
 		if (
 			// Search custom StyleSheet in Config
-			typeof GLOBAL.A11yUi === 'object' &&
-			GLOBAL.A11yUi !== null &&
-			typeof (GLOBAL.A11yUi as Record<string, unknown>).Themes === 'object' &&
-			(GLOBAL.A11yUi as Record<string, unknown>).Themes !== null &&
-			typeof ((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] === 'object' &&
-			((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] !== null &&
-			typeof (((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] === 'string'
+			typeof STORE.A11yUi === 'object' &&
+			STORE.A11yUi !== null &&
+			typeof (STORE.A11yUi as Record<string, unknown>).Themes === 'object' &&
+			(STORE.A11yUi as Record<string, unknown>).Themes !== null &&
+			typeof ((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] === 'object' &&
+			((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] !== null &&
+			typeof (((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] === 'string'
 		) {
 			if ((tagName === 'GLOBAL' || tagName === 'PROPERTIES') && CSS_PROPERTIES_REGISTERED.has(themeName) === false) {
-				const css = (((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] as string;
+				const css = (((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] as string;
 				let properties: RegExpMatchArray | string[] | null = css.match(REGEX_CSS_PROPERTIES);
 				if (Array.isArray(properties)) {
 					properties = properties.filter((property) => REGEX_SPLT_CSS_PROPERTY.test(property));
@@ -47,7 +46,7 @@ const getCssStyleSheet = (themeCache: boolean, themeName: string, tagName: Gener
 				style = new CSSStyleSheet();
 				if (typeof style.replaceSync === 'function') {
 					style.replaceSync(
-						(((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] as string
+						(((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] as string
 					);
 				}
 
@@ -60,7 +59,7 @@ const getCssStyleSheet = (themeCache: boolean, themeName: string, tagName: Gener
 				}
 			} catch (e) {
 				style = document.createElement('style');
-				style.innerHTML = (((GLOBAL.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[
+				style.innerHTML = (((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[
 					tagName
 				] as string;
 
@@ -172,10 +171,13 @@ const patchStyle = (elm: HTMLElement, shadow: ShadowRoot, adoptedStyleNodes: HTM
 const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails, styleDisplay: string) => {
 	const themeCache = themeDetails.cache;
 	const themeEncroachCss = themeDetails.encroachCss;
-	const themeName: string = themeDetails.name || 'default';
+	const themeName = themeDetails.name || 'default';
 
 	const globalStyle = getCssStyleSheet(themeCache, themeName, 'GLOBAL');
 	const componentStyle = getCssStyleSheet(themeCache, themeName, elm.tagName as Generic.Theming.Props<string, string>);
+
+	console.log('globalStyle', globalStyle);
+	console.log('componentStyle', componentStyle);
 
 	const shadow: ShadowRoot & { adoptedStyleSheets?: CSSStyleSheet[] } = elm.shadowRoot as ShadowRoot;
 

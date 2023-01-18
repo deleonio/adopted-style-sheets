@@ -159,7 +159,7 @@ export const getTheme = (element: HTMLElement | ParentNode | null): string | nul
 const getThemeOptionDefaults = (options: RegisterThemeOptions): Required<RegisterThemeOptions> => {
 	return {
 		cache: options.cache !== false, // default: true
-		detect: options.detect === 'auto' ? 'auto' : 'fixed', // default: true
+		detect: options.detect === 'auto' ? 'auto' : 'fixed', // default: 'fixed'
 		encroachCss: options.encroachCss === undefined ? false : options.encroachCss, // default: false
 		name: typeof options.name === 'string' ? options.name : null, // default: null
 	};
