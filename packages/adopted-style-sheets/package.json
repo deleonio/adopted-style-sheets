@@ -1,0 +1,24 @@
+{
+  "name": "adopted-style-sheets",
+  "version": "0.0.0",
+  "description": "This library implements features to use the adopted style of web components for multiple themes.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "webcomponents",
+    "style",
+    "css",
+    "theme",
+    "accessibility",
+    "custom",
+    "elements",
+    "w3c",
+    "adopted",
+    "style",
+    "sheets"
+  ],
+  "author": "Martin Oppitz",
+  "license": "MIT"
+}

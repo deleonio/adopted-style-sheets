@@ -125,8 +125,6 @@ const GLOBAL_A11Y_STYLE = `* {
 }`;
 
 const patchAdopted = (elm: HTMLElement, shadow: ShadowRoot, adoptedStyleSheets: CSSStyleSheet[], display: string) => {
-	removeStyle(shadow);
-
 	const style: CSSStyleSheetW3C = new CSSStyleSheet();
 	if (typeof style.replaceSync === 'function') {
 		style.replaceSync(GLOBAL_A11Y_STYLE);
@@ -139,8 +137,6 @@ const patchAdopted = (elm: HTMLElement, shadow: ShadowRoot, adoptedStyleSheets: 
 };
 
 const patchStyle = (elm: HTMLElement, shadow: ShadowRoot, adoptedStyleNodes: HTMLStyleElement[], display: string) => {
-	removeStyle(shadow);
-
 	const style: HTMLStyleElement = document.createElement('style');
 	style.innerHTML = GLOBAL_A11Y_STYLE;
 	adoptedStyleNodes.unshift(style);
@@ -182,6 +178,11 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 	const componentStyle = getCssStyleSheet(themeCache, themeName, elm.tagName as Generic.Theming.Props<string, string>);
 
 	const shadow: ShadowRoot & { adoptedStyleSheets?: CSSStyleSheet[] } = elm.shadowRoot as ShadowRoot;
+
+	if (themeEncroachCss !== false) {
+		removeStyle(shadow);
+	}
+
 	if (componentStyle instanceof CSSStyleSheet && componentStyle.cssRules.length > 0) {
 		const adoptedStyleSheets: CSSStyleSheet[] = [];
 		const defaultStyleSheets: CSSStyleSheet[] = [...Array.from(new Set(shadow.adoptedStyleSheets))]; // is actually Proxy {}

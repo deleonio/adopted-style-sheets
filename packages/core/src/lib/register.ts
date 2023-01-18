@@ -110,16 +110,12 @@ const getThemeNode = (element: HTMLElement | ParentNode | null): HTMLElement | n
 };
 
 const getEncroachCss = (dataset: DOMStringMap = {}): false | ThemeEncroachCss => {
-	if (dataset.themeEncroachCss === 'false' || dataset.themeReset === 'false') {
-		return false;
-	} else if (typeof dataset.themeEncroachCssMode === 'string' && (dataset.themeEncroachCssMode === 'after' || dataset.themeEncroachCssMode === 'before')) {
+	if (typeof dataset.themeEncroachCssMode === 'string' && (dataset.themeEncroachCssMode === 'after' || dataset.themeEncroachCssMode === 'before')) {
 		return {
 			mode: dataset.themeEncroachCssMode,
 		};
 	} else {
-		return {
-			mode: 'before',
-		};
+		return false;
 	}
 };
 
@@ -157,38 +153,69 @@ export const getTheme = (element: HTMLElement | ParentNode | null): string | nul
 	return getThemeDetails(element).name;
 };
 
-const setConfigureTheme = (themeName: string, options: RegisterThemeOptions = {}): void => {
-	options = {
-		detect: options.detect || 'fixed',
-		name: options.name,
+/**
+ * Set the theming option defaults.
+ */
+const getThemeOptionDefaults = (options: RegisterThemeOptions): Required<RegisterThemeOptions> => {
+	return {
+		cache: options.cache === true,
+		detect: options.detect === 'fixed' ? 'fixed' : 'auto',
+		encroachCss: options.encroachCss === undefined ? false : options.encroachCss,
+		name: typeof options.name === 'string' ? options.name : null,
 	};
-	if (
-		isTheCurrentThemeConfigValid() === false &&
-		typeof themeName === 'string' &&
-		(options.name === undefined || themeName === options.name) &&
-		typeof options === 'object' &&
-		options !== null &&
-		options.detect === 'fixed'
-	) {
-		log.debug(`[Theming] "${themeName}" was set as default theme.`);
+};
 
-		if (typeof GLOBAL.A11yUi !== 'object' || GLOBAL.A11yUi === null) {
-			GLOBAL.A11yUi = {};
-		}
-		// TODO: hier ist was merkwürdig
-		(GLOBAL.A11yUi as Record<string, unknown>).Theme = {
-			cache: true,
-			encroachCss: {
-				mode: 'after',
+/**
+ * Implements a facade for define properties on records.
+ *
+ * @param object		Record reference
+ * @param name			Property name
+ * @param getValue	Property get value
+ * @param writable	Could that property overwrite
+ */
+const defineProperty = <T>(object: Record<string, unknown>, name: string, getValue: T, writable = false) => {
+	try {
+		Object.defineProperty(object, name, {
+			get: function () {
+				return getValue;
 			},
-			name: options.name || themeName,
-		};
+			writable,
+		});
+	} catch (e) {
+		log.debug(`The property ${name} is already bind.`);
 	}
 };
+
+const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): void => {
+	/**
+	 * Die ThemeOptions werden nur einmal gesetzt, wenn Sie valide sind.
+	 */
+	if (isTheCurrentThemeConfigValid() === false) {
+		/**
+		 * Set the theming option defaults, if they are undefined or invalid.
+		 */
+		options = getThemeOptionDefaults(options);
+		if (
+			// Die Options müssen ein Objekt sein.
+			typeof options === 'object' &&
+			options !== null &&
+			// Nur wenn die Detection 'fixed' ist, müssen die Options gesetzt werden.
+			options.detect === 'fixed' &&
+			// Wenn mehrere Themes geladen werden, dann wird nur der Theme-Name gesetzt, der mit dem Name eines Themes übereinstimmt.
+			themeName === options.name
+		) {
+			defineProperty(GLOBAL, 'A11yUi', {});
+			defineProperty(GLOBAL.A11yUi as Record<string, unknown>, 'Theme', options);
+			log.debug(`[Theming] "${themeName}" was set as default theme.`);
+		}
+	}
+};
+
 // const loadTheme = (theme: A11yUiTheme, options: RegisterOptions) => {
 //   setConfiguredTheme(theme, options);
 //   return import(`../themes/${theme}.json`);
 // };
+
 let registered = false;
 
 export const register = (
@@ -212,7 +239,9 @@ export const register = (
 		themes.forEach((theme: (patchTheme: Generic.Theming.Patch<string, string, string>) => string) => {
 			if (typeof theme === 'function' && theme.length === 1) {
 				setConfigureTheme(theme(patchTheme), {
+					cache: options.theme?.cache,
 					detect: options.theme?.detect,
+					encroachCss: options.theme?.encroachCss,
 					name: options.theme?.name,
 				});
 			} else {
