@@ -189,7 +189,13 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): vo
 				 * detection mode.
 				 */ options.detect === 'fixed'
 			) {
-				if (typeof themeName === 'string' && (options.name === undefined || themeName === options.name)) {
+				if (
+					/**
+					 * Wenn mehrere Themes geladen werden, dann wird nur der Theme-Name gesetzt,
+					 * der mit dem Name eines Themes übereinstimmt.
+					 */
+					themeName === options.name
+				) {
 					if (typeof STORE.A11yUi !== 'object' || STORE.A11yUi === null) {
 						STORE.A11yUi = {};
 					}
