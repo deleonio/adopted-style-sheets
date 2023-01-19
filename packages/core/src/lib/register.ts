@@ -160,6 +160,7 @@ const getThemeOptionDefaults = (options: RegisterThemeOptions): Required<Registe
 	return {
 		cache: options.cache !== false, // default: true
 		detect: options.detect === 'auto' ? 'auto' : 'fixed', // default: 'fixed'
+		// encroachCss: typeof options.encroachCss === 'object' && options.encroachCss != null ? options.encroachCss : false, // default: false
 		encroachCss: options.encroachCss === undefined ? false : options.encroachCss, // default: false
 		name: typeof options.name === 'string' ? options.name : null, // default: null
 	};
