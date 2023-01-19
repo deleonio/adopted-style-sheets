@@ -196,7 +196,14 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): vo
 					if (typeof STORE.A11yUi !== 'object' || STORE.A11yUi === null) {
 						STORE.A11yUi = {};
 					}
-					(STORE.A11yUi as Record<string, unknown>).Theme = options;
+					// TODO: hier ist was merkwürdig
+					(STORE.A11yUi as Record<string, unknown>).Theme = {
+						cache: true,
+						encroachCss: {
+							mode: 'after',
+						},
+						name: options.name || themeName,
+					};
 					console.log(`[Theming] Theme "${themeName}" was set as default theme.`, STORE.A11yUi);
 					log.info(`[Theming] Theme "${themeName}" was set as default theme.`);
 				}
