@@ -193,19 +193,12 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): vo
 				 */ options.detect === 'fixed'
 			) {
 				if (typeof themeName === 'string' && (options.name === undefined || themeName === options.name)) {
-					log.debug(`[Theming] "${themeName}" was set as default theme.`);
-
 					if (typeof STORE.A11yUi !== 'object' || STORE.A11yUi === null) {
 						STORE.A11yUi = {};
 					}
-					// TODO: hier ist was merkwürdig
-					(STORE.A11yUi as Record<string, unknown>).Theme = {
-						cache: true,
-						encroachCss: {
-							mode: 'after',
-						},
-						name: options.name || themeName,
-					};
+					(STORE.A11yUi as Record<string, unknown>).Theme = options;
+					console.log(`[Theming] Theme "${themeName}" was set as default theme.`, STORE.A11yUi);
+					log.info(`[Theming] Theme "${themeName}" was set as default theme.`);
 				}
 			} else {
 				log.warn(`[Theming] The presetting of theme options is only relevant by using 'fixed' detection mode.`);
