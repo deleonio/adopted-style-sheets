@@ -157,16 +157,21 @@ export const getTheme = (element: HTMLElement | ParentNode | null): string | nul
  * Set the theming option defaults.
  */
 const getThemeOptionDefaults = (options: RegisterThemeOptions): Required<RegisterThemeOptions> => {
-	return {
-		cache: options.cache !== false, // default: true
-		detect: options.detect === 'auto' ? 'auto' : 'fixed', // default: 'fixed'
-		// encroachCss: typeof options.encroachCss === 'object' && options.encroachCss != null ? options.encroachCss : false, // default: false
-		encroachCss: options.encroachCss === undefined ? false : options.encroachCss, // default: false
-		name: typeof options.name === 'string' ? options.name : null, // default: null
+	// options = {
+	// 	cache: options.cache !== false, // default: true
+	// 	detect: options.detect === 'auto' ? 'auto' : 'fixed', // default: 'fixed'
+	// 	// encroachCss: typeof options.encroachCss === 'object' && options.encroachCss != null ? options.encroachCss : false, // default: false
+	// 	encroachCss: options.encroachCss === undefined ? false : options.encroachCss, // default: false
+	// 	name: typeof options.name === 'string' ? options.name : null, // default: null
+	// };
+	options = {
+		detect: options.detect || 'fixed',
+		name: options.name,
 	};
+	return options as Required<RegisterThemeOptions>;
 };
 
-const setConfigureTheme = (themeName: string, options: RegisterThemeOptions = {}): void => {
+const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): void => {
 	/**
 	 * Set the theming option defaults, if they are undefined or invalid.
 	 */
