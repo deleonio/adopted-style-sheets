@@ -160,11 +160,9 @@ const getThemeOptionDefaults = (themeName: string, options: RegisterThemeOptions
 	return {
 		cache: options.cache !== false, // default: true
 		detect: options.detect === 'auto' ? 'auto' : 'fixed', // default: 'fixed'
-		// 	encroachCss: typeof options.encroachCss === 'object' && options.encroachCss != null ? options.encroachCss : false, // default: false
-		encroachCss: options.encroachCss === undefined ? false : options.encroachCss, // default: false
+		encroachCss: typeof options.encroachCss === 'object' && options.encroachCss != null ? options.encroachCss : false, // default: false
 		name: typeof options.name === 'string' ? options.name : themeName, // default: themeName
-		// 	name: typeof options.name === 'string' ? options.name : null, // default: null
-	} as Required<RegisterThemeOptions>;
+	};
 };
 
 const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): void => {
@@ -199,42 +197,20 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): vo
 						STORE.A11yUi = {};
 					}
 
-					// TODO: hier ist was merkwürdig
-					(STORE.A11yUi as Record<string, unknown>).Theme = {
-						cache: true,
-						encroachCss: {
-							mode: 'after',
-						},
-						name: options.name || themeName,
-					};
-					console.log('SETUP OK A11yUi.Theme', JSON.parse(JSON.stringify(STORE.A11yUi)));
-
 					(STORE.A11yUi as Record<string, unknown>).Theme = {
 						...options,
+						// TODO: hier ist was merkwürdig
 						encroachCss: {
 							mode: 'after',
 						},
 					};
-					console.log('SETUP NOK A11yUi.Theme', JSON.parse(JSON.stringify(STORE.A11yUi)));
-
-					console.log(`[Theming] Theme "${themeName}" was set as default theme.`, STORE.A11yUi);
+					console.log('SETUP A11yUi.Theme', JSON.parse(JSON.stringify(STORE.A11yUi)));
 					log.info(`[Theming] Theme "${themeName}" was set as default theme.`);
 				}
 			} else {
 				log.warn(`[Theming] The presetting of theme options is only relevant by using 'fixed' detection mode.`);
 			}
 		}
-		// if (typeof STORE.A11yUi !== 'object' || STORE.A11yUi === null) {
-		// 	STORE.A11yUi = {};
-		// }
-		// // TODO: hier ist was merkwürdig
-		// (STORE.A11yUi as Record<string, unknown>).Theme = {
-		// 	cache: true,
-		// 	encroachCss: {
-		// 		mode: 'after',
-		// 	},
-		// 	name: options.name || themeName,
-		// };
 	}
 };
 

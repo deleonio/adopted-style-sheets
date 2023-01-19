@@ -181,9 +181,9 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 
 	const shadow: ShadowRoot & { adoptedStyleSheets?: CSSStyleSheet[] } = elm.shadowRoot as ShadowRoot;
 
-	if (themeEncroachCss !== false) {
-		removeStyle(shadow);
-	}
+	// if (themeEncroachCss !== false) {
+	removeStyle(shadow);
+	// }
 
 	if (componentStyle instanceof CSSStyleSheet && componentStyle.cssRules.length > 0) {
 		const adoptedStyleSheets: CSSStyleSheet[] = [];
