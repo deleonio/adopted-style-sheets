@@ -12,6 +12,7 @@ const REGEX_SPLT_CSS_PROPERTY = /:/;
 
 // Search custom StyleSheet in Cache
 const getCssStyleSheet = (themeCache: boolean, themeName: string, tagName: Generic.Theming.Props<string, string>): CSSStyleSheet | HTMLStyleElement | null => {
+	console.log('STORE.A11yUi', STORE.A11yUi, themeCache, themeName, tagName);
 	if (themeCache === true && CSS_STYLE_SHEETS.has(themeName) && CSS_STYLE_SHEETS.get(themeName)?.has(tagName)) {
 		return CSS_STYLE_SHEETS.get(themeName)?.get(tagName) as CSSStyleSheetW3C;
 	} else if (themeCache === true && HTML_STYLE_ELEMENTS.has(themeName) && HTML_STYLE_ELEMENTS.get(themeName)?.has(tagName)) {
@@ -174,6 +175,9 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 
 	const globalStyle = getCssStyleSheet(themeCache, themeName, 'GLOBAL');
 	const componentStyle = getCssStyleSheet(themeCache, themeName, elm.tagName as Generic.Theming.Props<string, string>);
+
+	console.log('globalStyle', globalStyle);
+	console.log('componentStyle', componentStyle);
 
 	const shadow: ShadowRoot & { adoptedStyleSheets?: CSSStyleSheet[] } = elm.shadowRoot as ShadowRoot;
 
