@@ -197,12 +197,25 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): vo
 			},
 			name: options.name || themeName,
 		};
+		// if (typeof STORE.A11yUi !== 'object' || STORE.A11yUi === null) {
+		// 	STORE.A11yUi = {};
+		// }
+		// // TODO: hier ist was merkwürdig
+		// (STORE.A11yUi as Record<string, unknown>).Theme = {
+		// 	cache: true,
+		// 	encroachCss: {
+		// 		mode: 'after',
+		// 	},
+		// 	name: options.name || themeName,
+		// };
 	}
 };
+
 // const loadTheme = (theme: A11yUiTheme, options: RegisterOptions) => {
 //   setConfiguredTheme(theme, options);
 //   return import(`../themes/${theme}.json`);
 // };
+
 let registered = false;
 
 export const register = (
@@ -226,7 +239,9 @@ export const register = (
 		themes.forEach((theme: (patchTheme: Generic.Theming.Patch<string, string, string>) => string) => {
 			if (typeof theme === 'function' && theme.length === 1) {
 				setConfigureTheme(theme(patchTheme), {
+					cache: options.theme?.cache,
 					detect: options.theme?.detect,
+					encroachCss: options.theme?.encroachCss,
 					name: options.theme?.name,
 				});
 			} else {
