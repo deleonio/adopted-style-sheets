@@ -158,14 +158,11 @@ export const getTheme = (element: HTMLElement | ParentNode | null): string | nul
  */
 const getThemeOptionDefaults = (themeName: string, options: RegisterThemeOptions): Required<RegisterThemeOptions> => {
 	return {
-		// 	cache: options.cache !== false, // default: true
-		detect: options.detect || 'fixed',
-		// 	detect: options.detect === 'auto' ? 'auto' : 'fixed', // default: 'fixed'
-		// 	// encroachCss: typeof options.encroachCss === 'object' && options.encroachCss != null ? options.encroachCss : false, // default: false
-		// 	encroachCss: options.encroachCss === undefined ? false : options.encroachCss, // default: false
+		cache: options.cache !== false, // default: true
+		detect: options.detect === 'auto' ? 'auto' : 'fixed', // default: 'fixed'
+		encroachCss: typeof options.encroachCss === 'object' && options.encroachCss != null ? options.encroachCss : false, // default: false
 		name: typeof options.name === 'string' ? options.name : themeName, // default: themeName
-		// 	name: typeof options.name === 'string' ? options.name : null, // default: null
-	} as Required<RegisterThemeOptions>;
+	};
 };
 
 const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): void => {
@@ -204,24 +201,12 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): vo
 						STORE.A11yUi = {};
 					}
 					(STORE.A11yUi as Record<string, unknown>).Theme = options;
-					console.log(`[Theming] Theme "${themeName}" was set as default theme.`, STORE.A11yUi);
 					log.info(`[Theming] Theme "${themeName}" was set as default theme.`);
 				}
 			} else {
 				log.warn(`[Theming] The presetting of theme options is only relevant by using 'fixed' detection mode.`);
 			}
 		}
-		// if (typeof STORE.A11yUi !== 'object' || STORE.A11yUi === null) {
-		// 	STORE.A11yUi = {};
-		// }
-		// // TODO: hier ist was merkwürdig
-		// (STORE.A11yUi as Record<string, unknown>).Theme = {
-		// 	cache: true,
-		// 	encroachCss: {
-		// 		mode: 'after',
-		// 	},
-		// 	name: options.name || themeName,
-		// };
 	}
 };
 
