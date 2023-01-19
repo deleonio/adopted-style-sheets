@@ -176,30 +176,30 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): vo
 	 * Die ThemeOptions werden nur einmal gesetzt, wenn Sie valide sind.
 	 */
 	if (isTheCurrentThemeConfigValid() === false) {
-		/**
-		 * Set the theming option defaults, if they are undefined or invalid.
-		 */
-		options = getThemeOptionDefaults(options);
 		if (
-			typeof themeName === 'string' &&
-			(options.name === undefined || themeName === options.name) &&
+			// Die Options müssen ein Objekt sein.
 			typeof options === 'object' &&
-			options !== null &&
-			options.detect === 'fixed'
+			options !== null
 		) {
-			log.debug(`[Theming] "${themeName}" was set as default theme.`);
+			/**
+			 * Set the theming option defaults, if they are undefined or invalid.
+			 */
+			options = getThemeOptionDefaults(options);
+			if (typeof themeName === 'string' && (options.name === undefined || themeName === options.name) && options.detect === 'fixed') {
+				log.debug(`[Theming] "${themeName}" was set as default theme.`);
 
-			if (typeof STORE.A11yUi !== 'object' || STORE.A11yUi === null) {
-				STORE.A11yUi = {};
+				if (typeof STORE.A11yUi !== 'object' || STORE.A11yUi === null) {
+					STORE.A11yUi = {};
+				}
+				// TODO: hier ist was merkwürdig
+				(STORE.A11yUi as Record<string, unknown>).Theme = {
+					cache: true,
+					encroachCss: {
+						mode: 'after',
+					},
+					name: options.name || themeName,
+				};
 			}
-			// TODO: hier ist was merkwürdig
-			(STORE.A11yUi as Record<string, unknown>).Theme = {
-				cache: true,
-				encroachCss: {
-					mode: 'after',
-				},
-				name: options.name || themeName,
-			};
 		}
 		// if (typeof STORE.A11yUi !== 'object' || STORE.A11yUi === null) {
 		// 	STORE.A11yUi = {};
