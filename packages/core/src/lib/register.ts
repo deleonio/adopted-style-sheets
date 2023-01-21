@@ -160,7 +160,16 @@ const getThemeOptionDefaults = (themeName: string, options: RegisterThemeOptions
 	return {
 		cache: options.cache !== false, // default: true
 		detect: options.detect === 'auto' ? 'auto' : 'fixed', // default: 'fixed'
-		encroachCss: typeof options.encroachCss === 'object' && options.encroachCss != null ? options.encroachCss : false, // default: false
+		encroachCss:
+			options.encroachCss === false
+				? false
+				: typeof options.encroachCss === 'object' &&
+				  options.encroachCss != null &&
+				  (options.encroachCss.mode === 'after' || options.encroachCss.mode === 'before')
+				? options.encroachCss
+				: {
+						mode: 'before', // default: 'before'
+				  },
 		name: typeof options.name === 'string' ? options.name : themeName, // default: themeName
 	};
 };
