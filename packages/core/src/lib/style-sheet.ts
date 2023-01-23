@@ -95,12 +95,12 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 
 		const STYLES: string[] = [GLOBAL_STYLE, TAG_STYLE];
 
-		const defaultStyleNodes: HTMLStyleElement[] = [
-			...Array.from(shadow.childNodes).filter((node) => node instanceof HTMLStyleElement && node.tagName === 'STYLE'),
-		] as HTMLStyleElement[];
-		const defaultStyleSheets: CSSStyleSheet[] = [...Array.from(shadow.adoptedStyleSheets)];
-
 		if (themeEncroachCss !== false) {
+			const defaultStyleNodes: HTMLStyleElement[] = [
+				...Array.from(shadow.childNodes).filter((node) => node instanceof HTMLStyleElement && node.tagName === 'STYLE'),
+			] as HTMLStyleElement[];
+			const defaultStyleSheets: CSSStyleSheet[] = [...Array.from(shadow.adoptedStyleSheets)];
+
 			if (themeEncroachCss?.mode === 'before') {
 				defaultStyleNodes.reverse().forEach((style) => STYLES.unshift(style.innerHTML));
 				defaultStyleSheets.reverse().forEach((style) =>
@@ -123,6 +123,10 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 		}
 
 		STYLES.unshift(GLOBAL_A11Y_STYLE);
+
+		if (themeDetails.loglevel === 'debug') {
+			console.log(elm.tagName, STYLES);
+		}
 
 		css = STYLES.join('');
 

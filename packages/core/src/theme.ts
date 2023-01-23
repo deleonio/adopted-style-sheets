@@ -36,6 +36,10 @@ export type OptionalThemeDetails = {
 	 */
 	encroachCss?: ThemeEncroachCss | false;
 	/**
+	 * Gibt an, ob das Theming im Debug-Modus laufen sollen.
+	 */
+	loglevel?: 'debug' | 'info' | 'warn' | 'error' | 'silent';
+	/**
 	 * Gibt den eindeutigen Namen eines Themes an.
 	 */
 	name?: ThemeName;

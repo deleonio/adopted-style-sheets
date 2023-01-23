@@ -34,10 +34,10 @@ import { THEME } from '...';
 
 register(THEME, defineCustomElements)
 	.then(() => {
-		const htmlDivElement: HTMLDivElement | null = document.querySelector<HTMLDivElement>('div#app');
-    if (htmlDivElement instanceof HTMLDivElement) {
+		const htmlDivElement: HTMLElement | null = document.querySelector<HTMLElement>('#my-app');
+    if (htmlDivElement instanceof HTMLElement) {
       const root = createRoot(htmlDivElement);
-      root.render(<AppComponent />);
+      root.render(<App />);
     }
   })
   .catch(console.warn);`
@@ -110,12 +110,12 @@ const getThemeNode = (element: HTMLElement | ParentNode | null): HTMLElement | n
 };
 
 const getEncroachCss = (dataset: DOMStringMap = {}): false | ThemeEncroachCss => {
-	if (typeof dataset.themeEncroachCssMode === 'string' && (dataset.themeEncroachCssMode === 'after' || dataset.themeEncroachCssMode === 'before')) {
-		return {
-			mode: dataset.themeEncroachCssMode,
-		};
-	} else {
+	if (dataset.themeEncroachCss === 'false' || dataset.themeReset === 'true') {
 		return false;
+	} else {
+		return {
+			mode: dataset.themeEncroachCssMode === 'after' || dataset.themeEncroachCssMode === 'before' ? dataset.themeEncroachCssMode : 'before',
+		};
 	}
 };
 
@@ -134,15 +134,18 @@ export const getThemeDetails = (element: HTMLElement | ParentNode | null): Theme
 	if (isTheCurrentThemeConfigValid()) {
 		return (STORE.A11yUi as Record<string, unknown>).Theme as ThemeDetails;
 	} else {
-		const themeNode = getThemeNode(element);
 		const details: ThemeDetails = {
 			cache: true,
 			encroachCss: getEncroachCss(),
+			loglevel: 'silent',
 			name: null,
 		};
+
+		const themeNode = getThemeNode(element);
 		if (themeNode instanceof HTMLElement) {
 			details.cache = themeNode.dataset.themeCache !== 'false';
 			details.encroachCss = getEncroachCss(themeNode.dataset);
+			details.loglevel = themeNode.dataset.themeLoglevel === 'debug' ? themeNode.dataset.themeLoglevel : 'silent';
 			details.name = themeNode.dataset.theme || null;
 		}
 		return details;
@@ -170,6 +173,7 @@ const getThemeOptionDefaults = (themeName: string, options: RegisterThemeOptions
 				: {
 						mode: 'before', // default: 'before'
 				  },
+		loglevel: options.loglevel === 'debug' ? options.loglevel : 'silent', // default: 'silent'
 		name: typeof options.name === 'string' ? options.name : themeName, // default: themeName
 	};
 };

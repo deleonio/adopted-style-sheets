@@ -1,6 +1,6 @@
 {
 	"name": "@a11y-ui/core",
-	"version": "1.0.1-rc.54",
+	"version": "1.0.1-rc.55",
 	"license": "EUPL-1.2",
 	"description": "Contains the generic types and utils to provide an overall web component architecture.",
 	"author": {
