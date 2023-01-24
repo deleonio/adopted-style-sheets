@@ -1,13 +1,11 @@
 import { Generic, STORE, ThemeDetails } from '..';
-
-type CSSStyleSheetW3C = CSSStyleSheet & {
-	replaceSync?: (css: string) => void;
-};
+// import CleanCSS from 'clean-css';
 
 const CSS_PROPERTIES_REGISTERED: Set<string> = new Set();
-const CSS_STYLE_CACHE: Map<string, Map<string, string>> = new Map();
+const CSS_STYLE_CACHE: Map<string, Map<string, string[]>> = new Map();
 const REGEX_CSS_PROPERTIES = /--[^;]+/g;
 const REGEX_SPLIT_CSS_PROPERTY = /:/;
+// const CSS_MINIFIER = new CleanCSS();
 
 const extractProperties = (themeName: string, css: string) => {
 	/**
@@ -56,25 +54,42 @@ const removeStyle = (shadow: ShadowRoot) => {
 	}
 };
 
-const GLOBAL_A11Y_STYLE = `:host * {
-  font-size: inherit;
+const GLOBAL_A11Y_STYLE = `* {
   hyphens: auto;
   letter-spacing: inherit;
   word-break: break-word;
   word-spacing: inherit;
 }`.replace(/\r?\n/g, '');
 
-const patchStyle = (shadow: ShadowRoot, css: string) => {
+const patchStyle = (shadow: ShadowRoot, styles: string[]) => {
 	try {
-		const style: CSSStyleSheetW3C = new CSSStyleSheet();
-		style.replaceSync(css);
-		shadow.adoptedStyleSheets = [style];
+		const styleSheets: CSSStyleSheet[] = [];
+		styles.forEach((style) => {
+			const styleSheet: CSSStyleSheet = new CSSStyleSheet();
+			styleSheet.replaceSync(style);
+			styleSheets.push(styleSheet);
+		});
+		shadow.adoptedStyleSheets = styleSheets;
 	} catch (e) {
-		const style: HTMLStyleElement = document.createElement('style');
-		style.innerHTML = css;
-		const firstNode = shadow.firstChild;
-		shadow.insertBefore(style, firstNode);
+		styles.reverse().forEach((style) => {
+			const styleElement: HTMLStyleElement = document.createElement('style');
+			styleElement.innerHTML = style;
+			shadow.insertBefore(styleElement, shadow.firstChild);
+		});
 	}
+};
+
+const minifyCss = (styles: string[], cb: (styles: string[]) => void) => {
+	cb(styles);
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+	// CSS_MINIFIER.minify(styles.join(''), (error, output) => {
+	// 	console.log(output);
+	// 	if (error) {
+	// 		cb(styles);
+	// 	} else {
+	// 		cb([output.styles]);
+	// 	}
+	// });
 };
 
 const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails, styleDisplay: string) => {
@@ -82,9 +97,10 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 	const themeEncroachCss = themeDetails.encroachCss;
 	const themeName = themeDetails.name || 'default';
 	const shadow: ShadowRoot & { adoptedStyleSheets?: CSSStyleSheet[] } = elm.shadowRoot as ShadowRoot;
-	let css = '';
+	let STYLES: string[];
 	if (CSS_STYLE_CACHE.get(themeName)?.has(elm.tagName)) {
-		css = CSS_STYLE_CACHE.get(themeName)?.get(elm.tagName) as string;
+		STYLES = CSS_STYLE_CACHE.get(themeName)?.get(elm.tagName) as string[];
+		switchStyle(elm, shadow, STYLES, styleDisplay);
 	} else {
 		const GLOBAL_STYLE = getCssStyle(themeName, 'GLOBAL');
 		const TAG_STYLE = getCssStyle(themeName, elm.tagName as Generic.Theming.Props<string, string>);
@@ -93,7 +109,7 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 			extractProperties(themeName, GLOBAL_STYLE);
 		}
 
-		const STYLES: string[] = [GLOBAL_STYLE, TAG_STYLE];
+		STYLES = [GLOBAL_STYLE, TAG_STYLE];
 
 		if (themeEncroachCss !== false) {
 			const defaultStyleNodes: HTMLStyleElement[] = [
@@ -124,21 +140,26 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 
 		STYLES.unshift(GLOBAL_A11Y_STYLE);
 
-		if (themeDetails.loglevel === 'debug') {
-			console.log(elm.tagName, STYLES);
-		}
-
-		css = STYLES.join('');
-
-		if (themeCache === true) {
-			if (CSS_STYLE_CACHE.has(themeName) === false) {
-				CSS_STYLE_CACHE.set(themeName, new Map());
+		minifyCss(STYLES, (styles) => {
+			if (themeDetails.loglevel === 'debug') {
+				console.log(elm.tagName, styles);
 			}
-			CSS_STYLE_CACHE.get(themeName)?.set(elm.tagName, css);
-		}
+
+			if (themeCache === true) {
+				if (CSS_STYLE_CACHE.has(themeName) === false) {
+					CSS_STYLE_CACHE.set(themeName, new Map());
+				}
+				CSS_STYLE_CACHE.get(themeName)?.set(elm.tagName, styles);
+			}
+
+			switchStyle(elm, shadow, styles, styleDisplay);
+		});
 	}
+};
+
+const switchStyle = (elm: HTMLElement, shadow: ShadowRoot, styles: string[], styleDisplay: string) => {
 	removeStyle(shadow);
-	patchStyle(shadow, css);
+	patchStyle(shadow, styles);
 	elm.style.display = styleDisplay;
 };
 
