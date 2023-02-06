@@ -130,6 +130,13 @@ const isTheCurrentThemeConfigValid = () =>
 	typeof (((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).encroachCss as Record<string, unknown>).mode === 'string' &&
 	typeof ((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).name === 'string';
 
+const isTheCurrentThemeNotDefault = () =>
+	typeof STORE.A11yUi === 'object' &&
+	STORE.A11yUi !== null &&
+	typeof (STORE.A11yUi as Record<string, unknown>).Theme === 'object' &&
+	(STORE.A11yUi as Record<string, unknown>).Theme !== null &&
+	((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).name !== 'default';
+
 export const getThemeDetails = (element: HTMLElement | ParentNode | null): ThemeDetails => {
 	if (isTheCurrentThemeConfigValid()) {
 		return (STORE.A11yUi as Record<string, unknown>).Theme as ThemeDetails;
@@ -180,9 +187,10 @@ const getThemeOptionDefaults = (themeName: string, options: RegisterThemeOptions
 
 const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): void => {
 	/**
-	 * Die ThemeOptions werden nur einmal gesetzt, wenn Sie valide sind.
+	 * Die ThemeOptions werden nur gesetzt, wenn sie noch nicht valide gesetzt wurden oder
+	 * noch immer ein Default-Theme gesetzt ist.
 	 */
-	if (isTheCurrentThemeConfigValid() === false) {
+	if (isTheCurrentThemeConfigValid() === false && themeName !== 'default' && isTheCurrentThemeNotDefault()) {
 		if (
 			// Die Options müssen ein Objekt sein.
 			typeof options === 'object' &&

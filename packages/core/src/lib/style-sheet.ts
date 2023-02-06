@@ -1,11 +1,31 @@
 import { Generic, STORE, ThemeDetails } from '..';
 // import CleanCSS from 'clean-css';
 
+type StylingTask = {
+	styleDisplay: string;
+	themeDetails: ThemeDetails;
+};
+const STYLING_TASK_QUEUE: Map<HTMLElement, StylingTask> = new Map();
+
+type History = {
+	timestamp: number;
+	numberOfTasks: number;
+};
+const HYDRATED_HISTORY: History[] = [];
+
 const CSS_PROPERTIES_REGISTERED: Set<string> = new Set();
 const CSS_STYLE_CACHE: Map<string, Map<string, string[]>> = new Map();
 const REGEX_CSS_PROPERTIES = /--[^;]+/g;
 const REGEX_SPLIT_CSS_PROPERTY = /:/;
 // const CSS_MINIFIER = new CleanCSS();
+
+if (typeof STORE.A11yUi !== 'object' || STORE.A11yUi === null) {
+	STORE.A11yUi = {
+		CSS_STYLE_CACHE,
+		HYDRATED_HISTORY,
+		STYLING_TASK_QUEUE,
+	};
+}
 
 const extractProperties = (themeName: string, css: string) => {
 	/**
@@ -163,23 +183,90 @@ const switchStyle = (elm: HTMLElement, shadow: ShadowRoot, styles: string[], sty
 	elm.style.display = styleDisplay;
 };
 
-const waitForHydrated = (elm: HTMLElement, themeDetails: ThemeDetails, styleDisplay: string) => {
+const pushToDoTask = (elm: HTMLElement, themeDetails: ThemeDetails) => {
+	STYLING_TASK_QUEUE.set(elm, {
+		/**
+		 * Das Element soll solange nicht sichtbar bleiben
+		 * bis der Style im DOM gesetzt ist.
+		 */
+		styleDisplay: `${elm.style.display}`,
+		themeDetails,
+	});
+	HYDRATED_HISTORY.push({
+		timestamp: Date.now(),
+		numberOfTasks: STYLING_TASK_QUEUE.size,
+	});
+};
+
+const deleteDoneTask = (elm: HTMLElement) => {
+	STYLING_TASK_QUEUE.delete(elm);
+	HYDRATED_HISTORY.push({
+		timestamp: Date.now(),
+		numberOfTasks: STYLING_TASK_QUEUE.size,
+	});
+};
+
+const waitForHydrated = (elm: HTMLElement) => {
 	const T = setTimeout(() => {
 		clearTimeout(T);
-		if (elm.classList.contains('hydrated')) {
+		if (STYLING_TASK_QUEUE.has(elm) && elm.classList.contains('hydrated')) {
+			const { styleDisplay, themeDetails } = STYLING_TASK_QUEUE.get(elm) as StylingTask;
 			setThemeStyleAfterHydrated(elm, themeDetails, styleDisplay);
+			deleteDoneTask(elm);
 		} else {
-			waitForHydrated(elm, themeDetails, styleDisplay);
+			waitForHydrated(elm);
 		}
 	}, 25);
 };
 
+const observerCallback = (mutationsList: MutationRecord[]) => {
+	for (const mutation of mutationsList) {
+		if (
+			/**
+			 * Save by observer config
+			 */
+			// mutation.type === 'attributes' &&
+			// mutation.attributeName === 'class' &&
+			/**
+			 * Implizit check for HTMLElement
+			 */
+			// mutation.target &&
+			STYLING_TASK_QUEUE.has(mutation.target as HTMLElement) &&
+			(mutation.target as HTMLElement).classList.contains('hydrated')
+		) {
+			const { styleDisplay, themeDetails } = STYLING_TASK_QUEUE.get(mutation.target as HTMLElement) as StylingTask;
+			setThemeStyleAfterHydrated(mutation.target as HTMLElement, themeDetails, styleDisplay);
+			deleteDoneTask(mutation.target as HTMLElement);
+		}
+	}
+};
+
+const observerOptions = {
+	attributes: true,
+	attributeFilter: ['class'],
+	childList: false,
+	subtree: false,
+};
+
+/**
+ * MutationObserver is not supported in IE11 and Test
+ * - https://caniuse.com/#feat=mutationobserver
+ * - https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
+ * - https://stackoverflow.com/questions/3219758/detect-changes-in-the-dom
+ */
+let observer: MutationObserver | null;
+try {
+	new MutationObserver(observerCallback);
+} catch (e) {
+	observer = null;
+}
+
 export const setThemeStyle = (elm: HTMLElement, themeDetails: ThemeDetails) => {
-	/**
-	 * Das Element soll solange nicht sichtbar bleiben
-	 * bis der Style im DOM gesetzt ist.
-	 */
-	const DISPLAY = `${elm.style.display}`;
+	pushToDoTask(elm, themeDetails);
+	if (observer) {
+		observer.observe(elm, observerOptions);
+	} else {
+		waitForHydrated(elm);
+	}
 	elm.style.display = 'none';
-	waitForHydrated(elm, themeDetails, DISPLAY);
 };
