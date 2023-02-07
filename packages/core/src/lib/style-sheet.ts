@@ -1,5 +1,4 @@
 import { Generic, STORE, ThemeDetails } from '..';
-// import CleanCSS from 'clean-css';
 
 type StylingTask = {
 	styleDisplay: string;
@@ -17,7 +16,6 @@ const CSS_PROPERTIES_REGISTERED: Set<string> = new Set();
 const CSS_STYLE_CACHE: Map<string, Map<string, string[]>> = new Map();
 const REGEX_CSS_PROPERTIES = /--[^;]+/g;
 const REGEX_SPLIT_CSS_PROPERTY = /:/;
-// const CSS_MINIFIER = new CleanCSS();
 
 if (typeof STORE.A11yUi !== 'object' || STORE.A11yUi === null) {
 	STORE.A11yUi = {
@@ -74,13 +72,6 @@ const removeStyle = (shadow: ShadowRoot) => {
 	}
 };
 
-const GLOBAL_A11Y_STYLE = `* {
-  hyphens: auto;
-  letter-spacing: inherit;
-  word-break: break-word;
-  word-spacing: inherit;
-}`.replace(/\r?\n/g, '');
-
 const patchStyle = (shadow: ShadowRoot, styles: string[]) => {
 	try {
 		const styleSheets: CSSStyleSheet[] = [];
@@ -99,19 +90,6 @@ const patchStyle = (shadow: ShadowRoot, styles: string[]) => {
 	}
 };
 
-const minifyCss = (styles: string[], cb: (styles: string[]) => void) => {
-	cb(styles);
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-	// CSS_MINIFIER.minify(styles.join(''), (error, output) => {
-	// 	console.log(output);
-	// 	if (error) {
-	// 		cb(styles);
-	// 	} else {
-	// 		cb([output.styles]);
-	// 	}
-	// });
-};
-
 const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails, styleDisplay: string) => {
 	const themeCache = themeDetails.cache;
 	const themeEncroachCss = themeDetails.encroachCss;
@@ -122,6 +100,7 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 		STYLES = CSS_STYLE_CACHE.get(themeName)?.get(elm.tagName) as string[];
 		switchStyle(elm, shadow, STYLES, styleDisplay);
 	} else {
+		const PROPERTY_STYLE = getCssStyle(themeName, 'PROPERTIES');
 		const GLOBAL_STYLE = getCssStyle(themeName, 'GLOBAL');
 		const TAG_STYLE = getCssStyle(themeName, elm.tagName as Generic.Theming.Props<string, string>);
 
@@ -129,7 +108,7 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 			extractProperties(themeName, GLOBAL_STYLE);
 		}
 
-		STYLES = [GLOBAL_STYLE, TAG_STYLE];
+		STYLES = [PROPERTY_STYLE, GLOBAL_STYLE, TAG_STYLE];
 
 		if (themeEncroachCss !== false) {
 			const defaultStyleNodes: HTMLStyleElement[] = [
@@ -158,22 +137,18 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 			}
 		}
 
-		STYLES.unshift(GLOBAL_A11Y_STYLE);
+		if (themeDetails.loglevel === 'debug') {
+			console.log(elm.tagName, STYLES);
+		}
 
-		minifyCss(STYLES, (styles) => {
-			if (themeDetails.loglevel === 'debug') {
-				console.log(elm.tagName, styles);
+		if (themeCache === true) {
+			if (CSS_STYLE_CACHE.has(themeName) === false) {
+				CSS_STYLE_CACHE.set(themeName, new Map());
 			}
+			CSS_STYLE_CACHE.get(themeName)?.set(elm.tagName, STYLES);
+		}
 
-			if (themeCache === true) {
-				if (CSS_STYLE_CACHE.has(themeName) === false) {
-					CSS_STYLE_CACHE.set(themeName, new Map());
-				}
-				CSS_STYLE_CACHE.get(themeName)?.set(elm.tagName, styles);
-			}
-
-			switchStyle(elm, shadow, styles, styleDisplay);
-		});
+		switchStyle(elm, shadow, STYLES, styleDisplay);
 	}
 };
 
@@ -181,6 +156,15 @@ const switchStyle = (elm: HTMLElement, shadow: ShadowRoot, styles: string[], sty
 	removeStyle(shadow);
 	patchStyle(shadow, styles);
 	elm.style.display = styleDisplay;
+};
+
+const logHydratedHistory = (themeDetails: ThemeDetails) => {
+	if (themeDetails.loglevel === 'debug') {
+		HYDRATED_HISTORY.push({
+			timestamp: Date.now(),
+			numberOfTasks: STYLING_TASK_QUEUE.size,
+		});
+	}
 };
 
 const pushToDoTask = (elm: HTMLElement, themeDetails: ThemeDetails) => {
@@ -192,18 +176,18 @@ const pushToDoTask = (elm: HTMLElement, themeDetails: ThemeDetails) => {
 		styleDisplay: `${elm.style.display}`,
 		themeDetails,
 	});
-	HYDRATED_HISTORY.push({
-		timestamp: Date.now(),
-		numberOfTasks: STYLING_TASK_QUEUE.size,
-	});
+};
+const loggedPushToDoTask = (elm: HTMLElement, themeDetails: ThemeDetails) => {
+	pushToDoTask(elm, themeDetails);
+	logHydratedHistory(themeDetails);
 };
 
 const deleteDoneTask = (elm: HTMLElement) => {
 	STYLING_TASK_QUEUE.delete(elm);
-	HYDRATED_HISTORY.push({
-		timestamp: Date.now(),
-		numberOfTasks: STYLING_TASK_QUEUE.size,
-	});
+};
+const loggedDeleteDoneTask = (elm: HTMLElement, themeDetails: ThemeDetails) => {
+	deleteDoneTask(elm);
+	logHydratedHistory(themeDetails);
 };
 
 const waitForHydrated = (elm: HTMLElement) => {
@@ -212,7 +196,7 @@ const waitForHydrated = (elm: HTMLElement) => {
 		if (STYLING_TASK_QUEUE.has(elm) && elm.classList.contains('hydrated')) {
 			const { styleDisplay, themeDetails } = STYLING_TASK_QUEUE.get(elm) as StylingTask;
 			setThemeStyleAfterHydrated(elm, themeDetails, styleDisplay);
-			deleteDoneTask(elm);
+			loggedDeleteDoneTask(elm, themeDetails);
 		} else {
 			waitForHydrated(elm);
 		}
@@ -236,7 +220,7 @@ const observerCallback = (mutationsList: MutationRecord[]) => {
 		) {
 			const { styleDisplay, themeDetails } = STYLING_TASK_QUEUE.get(mutation.target as HTMLElement) as StylingTask;
 			setThemeStyleAfterHydrated(mutation.target as HTMLElement, themeDetails, styleDisplay);
-			deleteDoneTask(mutation.target as HTMLElement);
+			loggedDeleteDoneTask(mutation.target as HTMLElement, themeDetails);
 		}
 	}
 };
@@ -262,7 +246,7 @@ try {
 }
 
 export const setThemeStyle = (elm: HTMLElement, themeDetails: ThemeDetails) => {
-	pushToDoTask(elm, themeDetails);
+	loggedPushToDoTask(elm, themeDetails);
 	if (observer) {
 		observer.observe(elm, observerOptions);
 	} else {

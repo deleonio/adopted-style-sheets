@@ -1,6 +1,6 @@
 {
 	"name": "@a11y-ui/core",
-	"version": "1.0.1-rc.59",
+	"version": "1.0.1-rc.61",
 	"license": "EUPL-1.2",
 	"description": "Contains the generic types and utils to provide an overall web component architecture.",
 	"author": {
@@ -28,7 +28,6 @@
 		"@typescript-eslint/eslint-plugin": "5.50.0",
 		"@typescript-eslint/parser": "5.50.0",
 		"chai": "4.3.7",
-		"clean-css": "5.3.2",
 		"esbuild": "0.17.5",
 		"esbuild-register": "3.4.2",
 		"eslint": "8.33.0",
