@@ -1,4 +1,5 @@
 import { Generic, STORE, ThemeDetails } from '..';
+import { ThemeEncroachCss } from '../theme';
 
 type StylingTask = {
 	styleDisplay: string;
@@ -27,7 +28,7 @@ if (typeof STORE.A11yUi !== 'object' || STORE.A11yUi === null) {
 
 const extractProperties = (themeName: string, css: string) => {
 	/**
-	 * We should do that in the register method!
+	 * We could do that in the register method!
 	 */
 	let properties: RegExpMatchArray | string[] | null = css.match(REGEX_CSS_PROPERTIES);
 	if (Array.isArray(properties)) {
@@ -62,7 +63,7 @@ const getCssStyle = (themeName: string, tagName: Generic.Theming.Props<string, s
 	}
 };
 
-const removeStyle = (shadow: ShadowRoot) => {
+const removeStyle = (shadow: HTMLElement | ShadowRoot) => {
 	for (const childNode of Array.from(shadow.childNodes)) {
 		if (childNode instanceof HTMLStyleElement && childNode.tagName === 'STYLE') {
 			shadow.removeChild(childNode);
@@ -72,7 +73,7 @@ const removeStyle = (shadow: ShadowRoot) => {
 	}
 };
 
-const patchStyle = (shadow: ShadowRoot, styles: string[]) => {
+const patchStyle = (shadow: HTMLElement | ShadowRoot, styles: string[]) => {
 	try {
 		const styleSheets: CSSStyleSheet[] = [];
 		styles.forEach((style) => {
@@ -80,7 +81,7 @@ const patchStyle = (shadow: ShadowRoot, styles: string[]) => {
 			styleSheet.replaceSync(style);
 			styleSheets.push(styleSheet);
 		});
-		shadow.adoptedStyleSheets = styleSheets;
+		(shadow as ShadowRoot).adoptedStyleSheets = styleSheets;
 	} catch (e) {
 		styles.reverse().forEach((style) => {
 			const styleElement: HTMLStyleElement = document.createElement('style');
@@ -90,15 +91,56 @@ const patchStyle = (shadow: ShadowRoot, styles: string[]) => {
 	}
 };
 
+const encroachStyles = (shadow: HTMLElement | ShadowRoot, styles: string[], encroachCss?: ThemeEncroachCss | false) => {
+	if (encroachCss !== false) {
+		const defaultStyleNodes: HTMLStyleElement[] = [
+			...Array.from(shadow.childNodes).filter((node) => node instanceof HTMLStyleElement && node.tagName === 'STYLE'),
+		] as HTMLStyleElement[];
+
+		let defaultStyleSheets: CSSStyleSheet[];
+		try {
+			defaultStyleSheets = [...Array.from((shadow as ShadowRoot).adoptedStyleSheets)];
+		} catch (e) {
+			defaultStyleSheets = [];
+		}
+
+		if (encroachCss?.mode === 'before') {
+			defaultStyleNodes.reverse().forEach((style) => styles.unshift(style.innerHTML));
+			defaultStyleSheets.reverse().forEach((style) =>
+				styles.unshift(
+					Array.from(style.cssRules)
+						.map((rule) => rule.cssText)
+						.join('')
+				)
+			);
+		} else if (encroachCss?.mode === 'after') {
+			defaultStyleNodes.forEach((style) => styles.push(style.innerHTML));
+			defaultStyleSheets.forEach((style) =>
+				styles.push(
+					Array.from(style.cssRules)
+						.map((rule) => rule.cssText)
+						.join('')
+				)
+			);
+		}
+	}
+};
+
 const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails, styleDisplay: string) => {
-	const themeCache = themeDetails.cache;
-	const themeEncroachCss = themeDetails.encroachCss;
 	const themeName = themeDetails.name || 'default';
-	const shadow: ShadowRoot & { adoptedStyleSheets?: CSSStyleSheet[] } = elm.shadowRoot as ShadowRoot;
-	let STYLES: string[];
+
+	let shadow: HTMLElement | ShadowRoot;
+	try {
+		if (elm.shadowRoot === null) {
+			throw new Error('ShadowRoot is null');
+		}
+		shadow = elm.shadowRoot;
+	} catch (e) {
+		shadow = elm;
+	}
+
 	if (CSS_STYLE_CACHE.get(themeName)?.has(elm.tagName)) {
-		STYLES = CSS_STYLE_CACHE.get(themeName)?.get(elm.tagName) as string[];
-		switchStyle(elm, shadow, STYLES, styleDisplay);
+		switchStyle(elm, shadow, CSS_STYLE_CACHE.get(themeName)?.get(elm.tagName) as string[], styleDisplay);
 	} else {
 		const PROPERTY_STYLE = getCssStyle(themeName, 'PROPERTIES');
 		const GLOBAL_STYLE = getCssStyle(themeName, 'GLOBAL');
@@ -108,40 +150,15 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 			extractProperties(themeName, GLOBAL_STYLE);
 		}
 
-		STYLES = [PROPERTY_STYLE, GLOBAL_STYLE, TAG_STYLE];
+		const STYLES = [PROPERTY_STYLE, GLOBAL_STYLE, TAG_STYLE];
 
-		if (themeEncroachCss !== false) {
-			const defaultStyleNodes: HTMLStyleElement[] = [
-				...Array.from(shadow.childNodes).filter((node) => node instanceof HTMLStyleElement && node.tagName === 'STYLE'),
-			] as HTMLStyleElement[];
-			const defaultStyleSheets: CSSStyleSheet[] = [...Array.from(shadow.adoptedStyleSheets)];
-
-			if (themeEncroachCss?.mode === 'before') {
-				defaultStyleNodes.reverse().forEach((style) => STYLES.unshift(style.innerHTML));
-				defaultStyleSheets.reverse().forEach((style) =>
-					STYLES.unshift(
-						Array.from(style.cssRules)
-							.map((rule) => rule.cssText)
-							.join('')
-					)
-				);
-			} else if (themeEncroachCss?.mode === 'after') {
-				defaultStyleNodes.forEach((style) => STYLES.push(style.innerHTML));
-				defaultStyleSheets.forEach((style) =>
-					STYLES.push(
-						Array.from(style.cssRules)
-							.map((rule) => rule.cssText)
-							.join('')
-					)
-				);
-			}
-		}
+		encroachStyles(shadow, STYLES, themeDetails.encroachCss);
 
 		if (themeDetails.loglevel === 'debug') {
 			console.log(elm.tagName, STYLES);
 		}
 
-		if (themeCache === true) {
+		if (themeDetails.cache === true) {
 			if (CSS_STYLE_CACHE.has(themeName) === false) {
 				CSS_STYLE_CACHE.set(themeName, new Map());
 			}
@@ -152,7 +169,7 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 	}
 };
 
-const switchStyle = (elm: HTMLElement, shadow: ShadowRoot, styles: string[], styleDisplay: string) => {
+const switchStyle = (elm: HTMLElement, shadow: HTMLElement | ShadowRoot, styles: string[], styleDisplay: string) => {
 	removeStyle(shadow);
 	patchStyle(shadow, styles);
 	elm.style.display = styleDisplay;
