@@ -257,7 +257,7 @@ const observerOptions = {
  */
 let observer: MutationObserver | null;
 try {
-	new MutationObserver(observerCallback);
+	observer = new MutationObserver(observerCallback);
 } catch (e) {
 	observer = null;
 }

@@ -89,7 +89,6 @@ export const patchTheme = (name: string, map: Generic.Theming.Map<string, string
 			}
 		});
 	}
-
 	return name;
 };
 
@@ -131,10 +130,8 @@ const isTheCurrentThemeConfigValid = () =>
 	typeof ((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).name === 'string';
 
 const isTheCurrentThemeNotDefault = () =>
-	typeof STORE.A11yUi === 'object' &&
-	STORE.A11yUi !== null &&
-	typeof (STORE.A11yUi as Record<string, unknown>).Theme === 'object' &&
-	(STORE.A11yUi as Record<string, unknown>).Theme !== null &&
+	(typeof STORE.A11yUi === 'object' && STORE.A11yUi !== null) === false ||
+	(typeof (STORE.A11yUi as Record<string, unknown>).Theme === 'object' && (STORE.A11yUi as Record<string, unknown>).Theme !== null) === false ||
 	((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).name !== 'default';
 
 export const getThemeDetails = (element: HTMLElement | ParentNode | null): ThemeDetails => {
@@ -190,7 +187,7 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): vo
 	 * Die ThemeOptions werden nur gesetzt, wenn sie noch nicht valide gesetzt wurden oder
 	 * noch immer ein Default-Theme gesetzt ist.
 	 */
-	if (isTheCurrentThemeConfigValid() === false && themeName !== 'default' && isTheCurrentThemeNotDefault()) {
+	if (isTheCurrentThemeConfigValid() === false && isTheCurrentThemeNotDefault()) {
 		if (
 			// Die Options müssen ein Objekt sein.
 			typeof options === 'object' &&
