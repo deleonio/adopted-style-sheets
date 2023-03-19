@@ -1,7 +1,3 @@
 # Adopted Style Sheets
 
-This library implements features to use the adopted style of web components for multiple themes.
-
-## Used by
-
-- [KoliBri - The accessible Webcomponents Standard](https://github.com/public-ui/kolibri)
+This library implements functions to use the adopted style of web components for multiple themes. It makes it possible to reuse a web component with multiple style guides (themes).
