@@ -2,7 +2,7 @@ import { Generic, STORE, ThemeDetails } from '..';
 import { ThemeEncroachCss } from '../theme';
 
 type StylingTask = {
-	styleDisplay: string;
+	styleDisplay: string | null;
 	themeDetails: ThemeDetails;
 };
 const STYLING_TASK_QUEUE: Map<HTMLElement, StylingTask> = new Map();
@@ -126,7 +126,7 @@ const encroachStyles = (shadow: HTMLElement | ShadowRoot, styles: string[], encr
 	}
 };
 
-const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails, styleDisplay: string) => {
+const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails, styleDisplay: string | null) => {
 	const themeName = themeDetails.name || 'default';
 
 	let shadow: HTMLElement | ShadowRoot;
@@ -169,10 +169,10 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 	}
 };
 
-const switchStyle = (elm: HTMLElement, shadow: HTMLElement | ShadowRoot, styles: string[], styleDisplay: string) => {
+const switchStyle = (elm: HTMLElement, shadow: HTMLElement | ShadowRoot, styles: string[], styleDisplay: string | null) => {
 	removeStyle(shadow);
 	patchStyle(shadow, styles);
-	elm.style.display = styleDisplay;
+	elm.style.display = styleDisplay as string; // null remove the style property display
 };
 
 const logHydratedHistory = (themeDetails: ThemeDetails) => {
@@ -190,7 +190,7 @@ const pushToDoTask = (elm: HTMLElement, themeDetails: ThemeDetails) => {
 		 * Das Element soll solange nicht sichtbar bleiben
 		 * bis der Style im DOM gesetzt ist.
 		 */
-		styleDisplay: `${elm.style.display}`,
+		styleDisplay: elm.style.display ? `${elm.style.display}` : null,
 		themeDetails,
 	});
 };

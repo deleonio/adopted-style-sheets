@@ -1,6 +1,6 @@
 {
 	"name": "adopted-style-sheets",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"license": "EUPL-1.2",
 	"description": "This library implements functions to use the adopted style of web components for multiple themes.",
 	"keywords": [
