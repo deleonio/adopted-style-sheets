@@ -1,6 +1,6 @@
 {
 	"name": "@a11y-ui/core",
-	"version": "1.0.3",
+	"version": "1.0.5",
 	"license": "EUPL-1.2",
 	"description": "This library implements functions to use the adopted style of web components for multiple themes.",
 	"author": {
@@ -20,7 +20,7 @@
 		"prepack": "npm run build"
 	},
 	"dependencies": {
-		"adopted-style-sheets": "^1.0.3"
+		"adopted-style-sheets": "^1.0.5"
 	},
 	"devDependencies": {
 		"@types/node": "18.17.5",
