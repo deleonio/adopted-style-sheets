@@ -34,10 +34,10 @@ import { THEME } from '...';
 
 register(THEME, defineCustomElements)
 	.then(() => {
-		const htmlDivElement: HTMLDivElement | null = document.querySelector<HTMLDivElement>('div#app');
-    if (htmlDivElement instanceof HTMLDivElement) {
+		const htmlDivElement: HTMLElement | null = document.querySelector<HTMLElement>('#my-app');
+    if (htmlDivElement instanceof HTMLElement) {
       const root = createRoot(htmlDivElement);
-      root.render(<AppComponent />);
+      root.render(<App />);
     }
   })
   .catch(console.warn);`
@@ -89,7 +89,6 @@ export const patchTheme = (name: string, map: Generic.Theming.Map<string, string
 			}
 		});
 	}
-
 	return name;
 };
 
@@ -110,12 +109,12 @@ const getThemeNode = (element: HTMLElement | ParentNode | null): HTMLElement | n
 };
 
 const getEncroachCss = (dataset: DOMStringMap = {}): false | ThemeEncroachCss => {
-	if (typeof dataset.themeEncroachCssMode === 'string' && (dataset.themeEncroachCssMode === 'after' || dataset.themeEncroachCssMode === 'before')) {
-		return {
-			mode: dataset.themeEncroachCssMode,
-		};
-	} else {
+	if (dataset.themeEncroachCss === 'false' || dataset.themeReset === 'true') {
 		return false;
+	} else {
+		return {
+			mode: dataset.themeEncroachCssMode === 'after' || dataset.themeEncroachCssMode === 'before' ? dataset.themeEncroachCssMode : 'before',
+		};
 	}
 };
 
@@ -130,19 +129,27 @@ const isTheCurrentThemeConfigValid = () =>
 	typeof (((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).encroachCss as Record<string, unknown>).mode === 'string' &&
 	typeof ((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).name === 'string';
 
+const isTheCurrentThemeNotDefault = () =>
+	(typeof STORE.A11yUi === 'object' && STORE.A11yUi !== null) === false ||
+	(typeof (STORE.A11yUi as Record<string, unknown>).Theme === 'object' && (STORE.A11yUi as Record<string, unknown>).Theme !== null) === false ||
+	((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).name !== 'default';
+
 export const getThemeDetails = (element: HTMLElement | ParentNode | null): ThemeDetails => {
 	if (isTheCurrentThemeConfigValid()) {
 		return (STORE.A11yUi as Record<string, unknown>).Theme as ThemeDetails;
 	} else {
-		const themeNode = getThemeNode(element);
 		const details: ThemeDetails = {
 			cache: true,
 			encroachCss: getEncroachCss(),
+			loglevel: 'silent',
 			name: null,
 		};
+
+		const themeNode = getThemeNode(element);
 		if (themeNode instanceof HTMLElement) {
 			details.cache = themeNode.dataset.themeCache !== 'false';
 			details.encroachCss = getEncroachCss(themeNode.dataset);
+			details.loglevel = themeNode.dataset.themeLoglevel === 'debug' ? themeNode.dataset.themeLoglevel : 'silent';
 			details.name = themeNode.dataset.theme || null;
 		}
 		return details;
@@ -160,16 +167,27 @@ const getThemeOptionDefaults = (themeName: string, options: RegisterThemeOptions
 	return {
 		cache: options.cache !== false, // default: true
 		detect: options.detect === 'auto' ? 'auto' : 'fixed', // default: 'fixed'
-		encroachCss: typeof options.encroachCss === 'object' && options.encroachCss != null ? options.encroachCss : false, // default: false
+		encroachCss:
+			options.encroachCss === false
+				? false
+				: typeof options.encroachCss === 'object' &&
+				  options.encroachCss != null &&
+				  (options.encroachCss.mode === 'after' || options.encroachCss.mode === 'before')
+				? options.encroachCss
+				: {
+						mode: 'before', // default: 'before'
+				  },
+		loglevel: options.loglevel === 'debug' ? options.loglevel : 'silent', // default: 'silent'
 		name: typeof options.name === 'string' ? options.name : themeName, // default: themeName
 	};
 };
 
 const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): void => {
 	/**
-	 * Die ThemeOptions werden nur einmal gesetzt, wenn Sie valide sind.
+	 * Die ThemeOptions werden nur gesetzt, wenn sie noch nicht valide gesetzt wurden oder
+	 * noch immer ein Default-Theme gesetzt ist.
 	 */
-	if (isTheCurrentThemeConfigValid() === false) {
+	if (isTheCurrentThemeConfigValid() === false && isTheCurrentThemeNotDefault()) {
 		if (
 			// Die Options müssen ein Objekt sein.
 			typeof options === 'object' &&
@@ -186,6 +204,10 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): vo
 				 * detection mode.
 				 */ options.detect === 'fixed'
 			) {
+				if (options.name === null && typeof themeName === 'string') {
+					options.name = themeName;
+				}
+
 				if (
 					/**
 					 * Wenn mehrere Themes geladen werden, dann wird nur der Theme-Name gesetzt,
@@ -196,15 +218,7 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): vo
 					if (typeof STORE.A11yUi !== 'object' || STORE.A11yUi === null) {
 						STORE.A11yUi = {};
 					}
-
-					(STORE.A11yUi as Record<string, unknown>).Theme = {
-						...options,
-						// TODO: hier ist was merkwürdig
-						encroachCss: {
-							mode: 'after',
-						},
-					};
-					console.log('SETUP A11yUi.Theme', JSON.parse(JSON.stringify(STORE.A11yUi)));
+					(STORE.A11yUi as Record<string, unknown>).Theme = options;
 					log.info(`[Theming] Theme "${themeName}" was set as default theme.`);
 				}
 			} else {

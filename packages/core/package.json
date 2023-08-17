@@ -1,8 +1,8 @@
 {
 	"name": "@a11y-ui/core",
-	"version": "1.0.1-rc.52",
+	"version": "1.0.5",
 	"license": "EUPL-1.2",
-	"description": "Contains the generic types and utils to provide an overall web component architecture.",
+	"description": "This library implements functions to use the adopted style of web components for multiple themes.",
 	"author": {
 		"email": "github@martinoppitz.com",
 		"name": "Martin Oppitz",
@@ -17,27 +17,19 @@
 	],
 	"scripts": {
 		"build": "unbuild",
-		"prepack": "unbuild"
+		"prepack": "npm run build"
 	},
 	"dependencies": {
-		"loglevel": "1.8.1"
+		"adopted-style-sheets": "^1.0.5"
 	},
 	"devDependencies": {
-		"@types/node": "18.11.18",
-		"@typescript-eslint/eslint-plugin": "5.48.1",
-		"@typescript-eslint/parser": "5.48.1",
-		"chai": "4.3.7",
-		"esbuild": "0.16.10",
-		"esbuild-register": "3.4.2",
-		"eslint": "8.32.0",
-		"jsdom": "19.0.0",
-		"jsdom-global": "3.0.2",
-		"mocha": "9.2.2",
-		"mock-local-storage": "1.1.23",
-		"nyc": "15.1.0",
-		"prettier": "2.8.3",
-		"typescript": "4.9.4",
-		"unbuild": "1.1.1"
+		"@types/node": "18.17.5",
+		"@typescript-eslint/eslint-plugin": "5.62.0",
+		"@typescript-eslint/parser": "5.62.0",
+		"eslint": "8.47.0",
+		"prettier": "2.8.8",
+		"typescript": "5.1.6",
+		"unbuild": "1.2.1"
 	},
 	"sideEffects": false,
 	"type": "module",

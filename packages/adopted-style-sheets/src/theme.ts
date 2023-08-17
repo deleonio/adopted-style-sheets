@@ -6,7 +6,7 @@ export type Required<T> = {
 	[P in keyof T]-?: T[P];
 };
 
-export type LoaderCallback = () => Promise<void>;
+export type LoaderCallback = () => any;
 
 export type ThemeEncroachCss = {
 	/**
@@ -35,6 +35,10 @@ export type OptionalThemeDetails = {
 	 * - 'after':		Basis-Styling wird danach eingefügt
 	 */
 	encroachCss?: ThemeEncroachCss | false;
+	/**
+	 * Gibt an, ob das Theming im Debug-Modus laufen sollen.
+	 */
+	loglevel?: 'debug' | 'info' | 'warn' | 'error' | 'silent';
 	/**
 	 * Gibt den eindeutigen Namen eines Themes an.
 	 */
