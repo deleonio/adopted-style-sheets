@@ -26,8 +26,8 @@ devDependencies:
     specifier: 6.4.0
     version: 6.4.0
   npm-check-updates:
-    specifier: 16.13.1
-    version: 16.13.1
+    specifier: 16.13.2
+    version: 16.13.2
   prettier:
     specifier: 3.0.2
     version: 3.0.2
@@ -1719,7 +1719,7 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       dot-prop: 6.0.1
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       unique-string: 3.0.0
       write-file-atomic: 3.0.3
       xdg-basedir: 5.1.0
@@ -3189,7 +3189,7 @@ packages:
     dependencies:
       universalify: 2.0.0
     optionalDependencies:
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
     dev: true
 
   /jsonlines@0.1.1:
@@ -3940,8 +3940,8 @@ packages:
       npm-normalize-package-bin: 3.0.1
     dev: true
 
-  /npm-check-updates@16.13.1:
-    resolution: {integrity: sha512-RIKBemiyAOEAUfzgYzDffLQwXI/Zo4CMSGHtup9fUoBpHqPNtD0pPFjpxDnt/sFpGiV5iANdE2Ck6xOxuQFfJg==}
+  /npm-check-updates@16.13.2:
+    resolution: {integrity: sha512-0pQI+k1y0JVwenB2gBc69tXFYfkckSVrNrlcn7TIrZfis4LnfdzakY/LYzZKt/lx37edN2isk3d2Zw4csptu/w==}
     engines: {node: '>=14.14'}
     hasBin: true
     dependencies:
