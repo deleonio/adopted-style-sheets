@@ -2,5 +2,5 @@
 	"independent": false,
 	"packages": ["packages/adopted-style-sheets", "packages/core"],
 	"useNx": false,
-	"version": "1.0.5"
+	"version": "1.0.6"
 }
