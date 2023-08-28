@@ -56,7 +56,7 @@ const getCssStyle = (themeName: string, tagName: Generic.Theming.Props<string, s
 	) {
 		return ((((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] as string).replace(
 			/\r?\n/g,
-			''
+			'',
 		);
 	} else {
 		return '';
@@ -110,8 +110,8 @@ const encroachStyles = (shadow: HTMLElement | ShadowRoot, styles: string[], encr
 				styles.unshift(
 					Array.from(style.cssRules)
 						.map((rule) => rule.cssText)
-						.join('')
-				)
+						.join(''),
+				),
 			);
 		} else if (encroachCss?.mode === 'after') {
 			defaultStyleNodes.forEach((style) => styles.push(style.innerHTML));
@@ -119,8 +119,8 @@ const encroachStyles = (shadow: HTMLElement | ShadowRoot, styles: string[], encr
 				styles.push(
 					Array.from(style.cssRules)
 						.map((rule) => rule.cssText)
-						.join('')
-				)
+						.join(''),
+				),
 			);
 		}
 	}

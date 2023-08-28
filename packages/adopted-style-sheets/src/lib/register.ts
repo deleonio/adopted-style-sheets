@@ -16,7 +16,7 @@ const validateThemeName = (name: unknown) => {
 		throw new Error(
 			`[Theming] The theme identifier "${
 				typeof name === 'string' ? name : ''
-			}" (Type: ${typeof name}) is not valid. Please use only follow this pattern: /^[a-z][a-z0-9]{1,}(-[a-z0-9]+)?$/`
+			}" (Type: ${typeof name}) is not valid. Please use only follow this pattern: /^[a-z][a-z0-9]{1,}(-[a-z0-9]+)?$/`,
 		);
 	}
 };
@@ -40,7 +40,7 @@ register(THEME, defineCustomElements)
       root.render(<App />);
     }
   })
-  .catch(console.warn);`
+  .catch(console.warn);`,
 		);
 	}
 
@@ -241,7 +241,7 @@ export const register = (
 		| Generic.Theming.RegisterPatch<string, string, string>[]
 		| Set<Generic.Theming.RegisterPatch<string, string, string>>,
 	loaders: LoaderCallback | LoaderCallback[] | Set<LoaderCallback>,
-	options: RegisterOptions = {}
+	options: RegisterOptions = {},
 ): Promise<void[]> => {
 	if (registered === false) {
 		registered = true;
