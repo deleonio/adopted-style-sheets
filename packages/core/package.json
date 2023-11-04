@@ -1,6 +1,6 @@
 {
 	"name": "@a11y-ui/core",
-	"version": "1.0.5",
+	"version": "1.1.0",
 	"license": "EUPL-1.2",
 	"description": "This library implements functions to use the adopted style of web components for multiple themes.",
 	"author": {
@@ -20,15 +20,15 @@
 		"prepack": "npm run build"
 	},
 	"dependencies": {
-		"adopted-style-sheets": "^1.0.5"
+		"adopted-style-sheets": "^1.1.0"
 	},
 	"devDependencies": {
-		"@types/node": "18.17.5",
-		"@typescript-eslint/eslint-plugin": "5.62.0",
-		"@typescript-eslint/parser": "5.62.0",
-		"eslint": "8.47.0",
-		"prettier": "2.8.8",
-		"typescript": "5.1.6",
+		"@types/node": "20.8.10",
+		"@typescript-eslint/eslint-plugin": "6.9.1",
+		"@typescript-eslint/parser": "6.9.1",
+		"eslint": "8.53.0",
+		"prettier": "3.0.3",
+		"typescript": "5.2.2",
 		"unbuild": "1.2.1"
 	},
 	"sideEffects": false,
@@ -36,7 +36,8 @@
 	"exports": {
 		".": {
 			"import": "./dist/index.mjs",
-			"require": "./dist/index.cjs"
+			"require": "./dist/index.cjs",
+			"types": "./dist/index.d.ts"
 		}
 	},
 	"main": "./dist/index.cjs",

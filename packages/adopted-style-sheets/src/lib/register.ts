@@ -16,31 +16,27 @@ const validateThemeName = (name: unknown) => {
 		throw new Error(
 			`[Theming] The theme identifier "${
 				typeof name === 'string' ? name : ''
-			}" (Type: ${typeof name}) is not valid. Please use only follow this pattern: /^[a-z][a-z0-9]{1,}(-[a-z0-9]+)?$/`
+			}" (Type: ${typeof name}) is not valid. Please use only follow this pattern: /^[a-z][a-z0-9]{1,}(-[a-z0-9]+)?$/`,
 		);
 	}
 };
 
-export const patchThemeTag = (themeName: string, tagName: Generic.Theming.Props<string, string>, css: string): void => {
+export const patchThemeTag = (themeName: string, tagName: Generic.Theming.Props<string, string>, css: string, append = false): void => {
 	validateThemeName(themeName);
 	if (lockThemePatching === true && warrentyWarning === false) {
 		warrentyWarning = true;
 		log.warn(
 			`[Theming] The theme process is locked. This means that the theme "${themeName}" should not be patched.
 
-import { register } from '@a11y-ui/core';
-import { defineCustomElements } from '...';
-import { THEME } from '...';
+	import { register } from 'adopted-style-sheets';
+	import { defineCustomElements } from '...';
+	import { THEME } from '...';
 
-register(THEME, defineCustomElements)
+	register(THEME, defineCustomElements)
 	.then(() => {
-		const htmlDivElement: HTMLElement | null = document.querySelector<HTMLElement>('#my-app');
-    if (htmlDivElement instanceof HTMLElement) {
-      const root = createRoot(htmlDivElement);
-      root.render(<App />);
-    }
-  })
-  .catch(console.warn);`
+		// run your app or website
+	})
+	.catch(console.warn);`,
 		);
 	}
 
@@ -73,11 +69,22 @@ register(THEME, defineCustomElements)
 		typeof ((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] === 'object' &&
 		((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] !== null
 	) {
-		(((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] = css;
+		if (
+			append &&
+			typeof (((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] === 'string'
+		) {
+			((((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] as string) += css;
+		} else {
+			(((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] = css;
+		}
 	}
 };
 
-export const patchTheme = (name: string, map: Generic.Theming.Map<string, string>): string => {
+export const appendThemeTag = (themeName: string, tagName: Generic.Theming.Props<string, string>, css: string): void => {
+	patchThemeTag(themeName, tagName, css, true);
+};
+
+export const patchTheme = (name: string, map: Generic.Theming.Map<string, string>, append = false): string => {
 	validateThemeName(name);
 	if (typeof map === 'object' && map !== null) {
 		const tagNames = Object.getOwnPropertyNames(map) as Generic.Theming.Props<string, string>[];
@@ -85,11 +92,15 @@ export const patchTheme = (name: string, map: Generic.Theming.Map<string, string
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			const cssStyle = map[tagName] as string;
 			if (typeof cssStyle === 'string' && cssStyle.length > 0) {
-				patchThemeTag(name, tagName, cssStyle);
+				patchThemeTag(name, tagName, cssStyle, append);
 			}
 		});
 	}
 	return name;
+};
+
+export const appendTheme = (name: string, map: Generic.Theming.Map<string, string>): string => {
+	return patchTheme(name, map, true);
 };
 
 const getThemeNode = (element: HTMLElement | ParentNode | null): HTMLElement | null => {
@@ -241,7 +252,7 @@ export const register = (
 		| Generic.Theming.RegisterPatch<string, string, string>[]
 		| Set<Generic.Theming.RegisterPatch<string, string, string>>,
 	loaders: LoaderCallback | LoaderCallback[] | Set<LoaderCallback>,
-	options: RegisterOptions = {}
+	options: RegisterOptions = {},
 ): Promise<void[]> => {
 	if (registered === false) {
 		registered = true;
