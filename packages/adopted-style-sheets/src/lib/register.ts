@@ -21,7 +21,8 @@ const validateThemeName = (name: unknown) => {
 	}
 };
 
-export const patchThemeTag = (themeName: string, tagName: Generic.Theming.Props<string, string>, css: string, options: Generic.Theming.PatchOptions): void => {
+export const patchThemeTag = (themeName: string, tagName: Generic.Theming.Props<string, string>, css: string, options?: Generic.Theming.PatchOptions): void => {
+	options = options ?? {};
 	options.append = options.append ?? false;
 
 	validateThemeName(themeName);
@@ -82,7 +83,7 @@ export const patchThemeTag = (themeName: string, tagName: Generic.Theming.Props<
 	}
 };
 
-export const patchTheme = (name: string, map: Generic.Theming.Map<string, string>, options: Generic.Theming.PatchOptions): string => {
+export const patchTheme = (name: string, map: Generic.Theming.Map<string, string>, options?: Generic.Theming.PatchOptions): string => {
 	validateThemeName(name);
 	if (typeof map === 'object' && map !== null) {
 		const tagNames = Object.getOwnPropertyNames(map) as Generic.Theming.Props<string, string>[];
