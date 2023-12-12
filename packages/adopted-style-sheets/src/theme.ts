@@ -6,7 +6,7 @@ export type Required<T> = {
 	[P in keyof T]-?: T[P];
 };
 
-export type LoaderCallback = () => any;
+export type LoaderCallback = () => void | Promise<void>;
 
 export type ThemeEncroachCss = {
 	/**
