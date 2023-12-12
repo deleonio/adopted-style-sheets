@@ -8,6 +8,7 @@ module.exports = {
 	plugins: ['@typescript-eslint'],
 	extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'plugin:@typescript-eslint/recommended-requiring-type-checking'],
 	rules: {
+		'no-mixed-spaces-and-tabs': 'off',
 		'@typescript-eslint/no-namespace': 'off',
 	},
 };
