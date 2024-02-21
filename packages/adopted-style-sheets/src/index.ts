@@ -23,7 +23,7 @@ export class Theme<Prefix extends string, Key extends string, Tag extends string
 		coreCreateTheme(name, map);
 	public readonly createTranslation: Generic.I18n.Register<I18n.Locale.ISO_639_1, Prefix, Key> = <Name extends Generic.I18n.Locale.ISO_639_1>(
 		name: Name,
-		map: Generic.I18n.Map<Prefix, Key>
+		map: Generic.I18n.Map<Prefix, Key>,
 	) => coreCreateTranslation(name, map);
 
 	public constructor(prefix: Prefix, keyEnum: unknown, tagEnum: unknown) {

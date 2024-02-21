@@ -21,7 +21,10 @@ const validateThemeName = (name: unknown) => {
 	}
 };
 
-export const patchThemeTag = (themeName: string, tagName: Generic.Theming.Props<string, string>, css: string, append = false): void => {
+export const patchThemeTag = (themeName: string, tagName: Generic.Theming.Props<string, string>, css: string, options?: Generic.Theming.PatchOptions): void => {
+	options = options ?? {};
+	options.append = options.append ?? false;
+
 	validateThemeName(themeName);
 	if (lockThemePatching === true && warrentyWarning === false) {
 		warrentyWarning = true;
@@ -70,7 +73,7 @@ export const patchThemeTag = (themeName: string, tagName: Generic.Theming.Props<
 		((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] !== null
 	) {
 		if (
-			append &&
+			options.append &&
 			typeof (((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] === 'string'
 		) {
 			((((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] as string) += css;
@@ -80,11 +83,7 @@ export const patchThemeTag = (themeName: string, tagName: Generic.Theming.Props<
 	}
 };
 
-export const appendThemeTag = (themeName: string, tagName: Generic.Theming.Props<string, string>, css: string): void => {
-	patchThemeTag(themeName, tagName, css, true);
-};
-
-export const patchTheme = (name: string, map: Generic.Theming.Map<string, string>, append = false): string => {
+export const patchTheme = (name: string, map: Generic.Theming.Map<string, string>, options?: Generic.Theming.PatchOptions): string => {
 	validateThemeName(name);
 	if (typeof map === 'object' && map !== null) {
 		const tagNames = Object.getOwnPropertyNames(map) as Generic.Theming.Props<string, string>[];
@@ -92,15 +91,11 @@ export const patchTheme = (name: string, map: Generic.Theming.Map<string, string
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			const cssStyle = map[tagName] as string;
 			if (typeof cssStyle === 'string' && cssStyle.length > 0) {
-				patchThemeTag(name, tagName, cssStyle, append);
+				patchThemeTag(name, tagName, cssStyle, options);
 			}
 		});
 	}
 	return name;
-};
-
-export const appendTheme = (name: string, map: Generic.Theming.Map<string, string>): string => {
-	return patchTheme(name, map, true);
 };
 
 const getThemeNode = (element: HTMLElement | ParentNode | null): HTMLElement | null => {
@@ -136,7 +131,7 @@ const isTheCurrentThemeConfigValid = () =>
 	(STORE.A11yUi as Record<string, unknown>).Theme !== null &&
 	typeof ((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).cache === 'boolean' &&
 	typeof ((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).encroachCss === 'object' &&
-	typeof ((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).encroachCss !== null &&
+	((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).encroachCss !== null &&
 	typeof (((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).encroachCss as Record<string, unknown>).mode === 'string' &&
 	typeof ((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).name === 'string';
 
@@ -182,12 +177,12 @@ const getThemeOptionDefaults = (themeName: string, options: RegisterThemeOptions
 			options.encroachCss === false
 				? false
 				: typeof options.encroachCss === 'object' &&
-				  options.encroachCss != null &&
-				  (options.encroachCss.mode === 'after' || options.encroachCss.mode === 'before')
-				? options.encroachCss
-				: {
-						mode: 'before', // default: 'before'
-				  },
+				    options.encroachCss != null &&
+				    (options.encroachCss.mode === 'after' || options.encroachCss.mode === 'before')
+				  ? options.encroachCss
+				  : {
+							mode: 'before', // default: 'before'
+				    },
 		loglevel: options.loglevel === 'debug' ? options.loglevel : 'silent', // default: 'silent'
 		name: typeof options.name === 'string' ? options.name : themeName, // default: themeName
 	};
@@ -284,6 +279,11 @@ export const register = (
 		loaders = new Set(loaders);
 	}
 	const promises: Promise<void>[] = [];
-	loaders.forEach((loader) => promises.push(loader()));
+	loaders.forEach((loader) => {
+		const result = loader();
+		if (result instanceof Promise) {
+			promises.push(result);
+		}
+	});
 	return Promise.all(promises);
 };

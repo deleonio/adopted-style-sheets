@@ -6,7 +6,8 @@ export type Required<T> = {
 	[P in keyof T]-?: T[P];
 };
 
-export type LoaderCallback = () => any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-redundant-type-constituents
+export type LoaderCallback = () => any | Promise<any>;
 
 export type ThemeEncroachCss = {
 	/**
