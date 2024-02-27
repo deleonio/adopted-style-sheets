@@ -83,15 +83,25 @@ export const patchThemeTag = (themeName: string, tagName: Generic.Theming.Props<
 	}
 };
 
-export const patchTheme = (name: string, map: Generic.Theming.Map<string, string>, options?: Generic.Theming.PatchOptions): string => {
+export const patchTheme = (
+	name: string,
+	map: Generic.Theming.Map<string, string>,
+	options?: Generic.Theming.PatchOptions,
+	registerOptions?: RegisterOptions,
+): string => {
 	validateThemeName(name);
 	if (typeof map === 'object' && map !== null) {
 		const tagNames = Object.getOwnPropertyNames(map) as Generic.Theming.Props<string, string>[];
 		tagNames.forEach((tagName) => {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-			const cssStyle = map[tagName] as string;
+			const cssStyle = map[tagName];
+			const normalizedTagName = tagName.toLowerCase();
+			const domTagName =
+				typeof registerOptions?.transformTagName === 'function' && !['GLOBAL', 'PROPERTIES'].includes(tagName)
+					? registerOptions.transformTagName(normalizedTagName)
+					: tagName;
+
 			if (typeof cssStyle === 'string' && cssStyle.length > 0) {
-				patchThemeTag(name, tagName, cssStyle, options);
+				patchThemeTag(name, domTagName.toUpperCase() as Generic.Theming.Props<string, string>, cssStyle, options);
 			}
 		});
 	}
@@ -177,12 +187,12 @@ const getThemeOptionDefaults = (themeName: string, options: RegisterThemeOptions
 			options.encroachCss === false
 				? false
 				: typeof options.encroachCss === 'object' &&
-				    options.encroachCss != null &&
-				    (options.encroachCss.mode === 'after' || options.encroachCss.mode === 'before')
-				  ? options.encroachCss
-				  : {
+					  options.encroachCss != null &&
+					  (options.encroachCss.mode === 'after' || options.encroachCss.mode === 'before')
+					? options.encroachCss
+					: {
 							mode: 'before', // default: 'before'
-				    },
+						},
 		loglevel: options.loglevel === 'debug' ? options.loglevel : 'silent', // default: 'silent'
 		name: typeof options.name === 'string' ? options.name : themeName, // default: themeName
 	};
@@ -261,12 +271,17 @@ export const register = (
 	if (themes instanceof Set) {
 		themes.forEach((theme: (patchTheme: Generic.Theming.Patch<string, string, string>) => string) => {
 			if (typeof theme === 'function' && theme.length === 1) {
-				setConfigureTheme(theme(patchTheme), {
-					cache: options.theme?.cache,
-					detect: options.theme?.detect,
-					encroachCss: options.theme?.encroachCss,
-					name: options.theme?.name,
-				});
+				setConfigureTheme(
+					theme((name: string, map: Generic.Theming.Map<string, string>, patchOptions?: Generic.Theming.PatchOptions) =>
+						patchTheme(name, map, patchOptions, options),
+					),
+					{
+						cache: options.theme?.cache,
+						detect: options.theme?.detect,
+						encroachCss: options.theme?.encroachCss,
+						name: options.theme?.name,
+					},
+				);
 			} else {
 				log.error(`[Theming] Es wurde versucht eine nicht kompatibles Theme zu laden.`);
 			}
