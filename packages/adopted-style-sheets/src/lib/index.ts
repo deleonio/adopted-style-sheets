@@ -1,3 +1,3 @@
-export { getTheme, getThemeDetails, patchTheme, patchThemeTag, register } from './register';
+export { getTheme, getThemeDetails, setTheme, patchTheme, setThemeTag, patchThemeTag, register } from './register';
 export { RobustStore } from './store';
-export { setThemeStyle } from './style-sheet';
+export { getCssStyle, setThemeStyle } from './style-sheet';

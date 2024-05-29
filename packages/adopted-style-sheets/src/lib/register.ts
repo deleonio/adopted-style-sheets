@@ -21,7 +21,13 @@ const validateThemeName = (name: unknown) => {
 	}
 };
 
-export const patchThemeTag = (themeName: string, tagName: Generic.Theming.Props<string, string>, css: string, options?: Generic.Theming.PatchOptions): void => {
+/**
+ * @deprecated use setThemeTag instead
+ */
+export const patchThemeTag = (themeName: string, tagName: Generic.Theming.Props<string, string>, css: string, options?: Generic.Theming.PatchOptions): void =>
+	setThemeTag(themeName, tagName, css, options);
+
+export const setThemeTag = (themeName: string, tagName: Generic.Theming.Props<string, string>, css: string, options?: Generic.Theming.PatchOptions): void => {
 	options = options ?? {};
 	options.append = options.append ?? false;
 
@@ -83,7 +89,17 @@ export const patchThemeTag = (themeName: string, tagName: Generic.Theming.Props<
 	}
 };
 
+/**
+ * @deprecated use setTheme instead
+ */
 export const patchTheme = (
+	name: string,
+	map: Generic.Theming.Map<string, string>,
+	options?: Generic.Theming.PatchOptions,
+	registerOptions?: RegisterOptions,
+): string => setTheme(name, map, options, registerOptions);
+
+export const setTheme = (
 	name: string,
 	map: Generic.Theming.Map<string, string>,
 	options?: Generic.Theming.PatchOptions,
@@ -101,7 +117,7 @@ export const patchTheme = (
 					: tagName;
 
 			if (typeof cssStyle === 'string' && cssStyle.length > 0) {
-				patchThemeTag(name, domTagName.toUpperCase() as Generic.Theming.Props<string, string>, cssStyle, options);
+				setThemeTag(name, domTagName.toUpperCase() as Generic.Theming.Props<string, string>, cssStyle, options);
 			}
 		});
 	}
@@ -273,7 +289,7 @@ export const register = (
 			if (typeof theme === 'function' && theme.length === 1) {
 				setConfigureTheme(
 					theme((name: string, map: Generic.Theming.Map<string, string>, patchOptions?: Generic.Theming.PatchOptions) =>
-						patchTheme(name, map, patchOptions, options),
+						setTheme(name, map, patchOptions, options),
 					),
 					{
 						cache: options.theme?.cache,

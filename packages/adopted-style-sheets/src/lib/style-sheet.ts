@@ -40,7 +40,7 @@ const extractProperties = (themeName: string, css: string) => {
 	CSS_PROPERTIES_REGISTERED.add(themeName);
 };
 
-const getCssStyle = (themeName: string, tagName: Generic.Theming.Props<string, string>): string => {
+export const getCssStyle = (themeName: string, tagName: Generic.Theming.Props<string, string>): string => {
 	if (
 		/**
 		 * Search custom StyleSheet in Config
