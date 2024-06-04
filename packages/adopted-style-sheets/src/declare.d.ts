@@ -1,5 +1,5 @@
-import { Generic } from './';
-import { ThemeDetails } from './theme';
+import type { Generic } from './';
+import type { ThemeDetails } from './theme';
 
 declare global {
 	interface Window {

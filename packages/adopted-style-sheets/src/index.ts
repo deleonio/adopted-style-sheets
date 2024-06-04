@@ -1,8 +1,8 @@
 import type { Common } from './common';
 import type { Element } from './element';
 import type { I18n } from './i18n';
-import type { Theming } from './theming';
 import { createTranslation as coreCreateTranslation } from './i18n';
+import type { Theming } from './theming';
 import { createTheme as coreCreateTheme } from './theming';
 
 export declare namespace Generic {
@@ -33,6 +33,6 @@ export class Theme<Prefix extends string, Key extends string, Tag extends string
 	}
 }
 
+export { RobustStore, getCssStyle, getTheme, getThemeDetails, patchTheme, patchThemeTag, register, setTheme, setThemeStyle, setThemeTag } from './lib';
 export { STORE } from './lib/window';
-export { RobustStore, getTheme, getThemeDetails, patchTheme, patchThemeTag, register, setThemeStyle } from './lib';
 export type { LoaderCallback, RegisterOptions, ThemeDetails } from './theme';

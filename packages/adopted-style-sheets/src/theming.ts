@@ -1,4 +1,4 @@
-import { Common } from './common';
+import type { Common } from './common';
 
 export declare namespace Theming {
 	export type PatchOptions = {

@@ -1,5 +1,6 @@
-import { Generic, STORE, ThemeDetails } from '..';
-import { ThemeEncroachCss } from '../theme';
+import type { Generic, ThemeDetails } from '../';
+import { STORE } from '../';
+import type { ThemeEncroachCss } from '../theme';
 
 type StylingTask = {
 	styleDisplay: string | null;

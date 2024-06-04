@@ -1,6 +1,6 @@
 {
 	"name": "adopted-style-sheets",
-	"version": "1.1.4",
+	"version": "1.1.5-rc.2",
 	"license": "EUPL-1.2",
 	"description": "This library implements functions to use the adopted style of web components for multiple themes.",
 	"keywords": [
@@ -29,18 +29,21 @@
 		}
 	],
 	"scripts": {
-		"build": "unbuild",
+		"build": "tsup src/index.ts --clean --minify --dts --format cjs,esm --out-dir dist",
+		"format": "prettier --check src",
+		"lint": "tsc --noemit && eslint src",
 		"prepack": "npm run build"
 	},
 	"dependencies": {
 		"loglevel": "1.9.1"
 	},
 	"devDependencies": {
+		"@swc/core": "1.5.24",
 		"@types/clean-css": "4.2.11",
 		"@types/mocha": "10.0.6",
 		"@types/node": "ts5.4",
-		"@typescript-eslint/eslint-plugin": "7.11.0",
-		"@typescript-eslint/parser": "7.11.0",
+		"@typescript-eslint/eslint-plugin": "7.12.0",
+		"@typescript-eslint/parser": "7.12.0",
 		"chai": "5.1.1",
 		"esbuild": "0.21.4",
 		"esbuild-register": "3.5.0",
@@ -50,9 +53,9 @@
 		"mocha": "10.4.0",
 		"mock-local-storage": "1.1.24",
 		"nyc": "15.1.0",
-		"prettier": "3.2.5",
-		"typescript": "5.4.5",
-		"unbuild": "1.2.1"
+		"prettier": "3.3.0",
+		"tsup": "8.1.0",
+		"typescript": "5.4.5"
 	},
 	"sideEffects": false,
 	"type": "module",

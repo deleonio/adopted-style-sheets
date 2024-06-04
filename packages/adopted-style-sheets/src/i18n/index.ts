@@ -1,4 +1,4 @@
-import { Common } from '../common';
+import type { Common } from '../common';
 import { Locale } from './locale';
 
 export declare namespace I18n {

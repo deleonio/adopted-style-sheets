@@ -19,8 +19,7 @@
 		"target": "es2015",
 		"forceConsistentCasingInFileNames": false,
 		"importHelpers": false,
-		"strict": true
-	},
-	"compileOnSave": false,
-	"buildOnSave": false
+		"strict": true,
+		"skipLibCheck": true
+	}
 }

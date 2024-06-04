@@ -1,4 +1,4 @@
-import { Generic } from '.';
+import type { Generic } from './';
 
 type ThemeName = string | null;
 

@@ -1,6 +1,7 @@
 import log from 'loglevel';
-import { Generic } from '..';
-import { ThemeDetails, LoaderCallback, RegisterOptions, RegisterThemeOptions, ThemeEncroachCss } from '../theme';
+
+import type { Generic } from '../';
+import type { LoaderCallback, RegisterOptions, RegisterThemeOptions, ThemeDetails, ThemeEncroachCss } from '../theme';
 import { STORE } from './window';
 
 let lockThemePatching = true;
@@ -311,7 +312,7 @@ export const register = (
 	}
 	const promises: Promise<void>[] = [];
 	loaders.forEach((loader) => {
-		const result = loader();
+		const result = loader() as () => void;
 		if (result instanceof Promise) {
 			promises.push(result);
 		}
