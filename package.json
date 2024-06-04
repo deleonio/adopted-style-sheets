@@ -2,14 +2,10 @@
 	"devDependencies": {
 		"@commitlint/cli": "19.3.0",
 		"@commitlint/config-conventional": "19.2.2",
-		"@types/node": "ts5.4",
-		"depcheck": "1.4.7",
 		"husky": "9.0.11",
 		"npm-check-updates": "16.14.20",
-		"prettier": "3.3.0",
-		"rimraf": "3.0.2",
-		"ts-prune": "0.10.3",
-		"typescript": "5.4.5"
+		"npm-run-all": "4.1.5",
+		"prettier": "3.3.0"
 	},
 	"engines": {
 		"node": "^20",
@@ -25,7 +21,12 @@
 		"ncu:minor": "ncu -t minor -u && pnpm -r exec ncu -t minor -u",
 		"ncu:patch": "ncu -t patch -u && pnpm -r exec ncu -t patch -u",
 		"pack": "pnpm -r exec npm pack",
-		"prepare": "rimraf .husky && husky && echo \"npx commitlint --edit $1\" >> .husky/commit-msg && echo \"pnpm -r lint\" >> .husky/pre-commit && echo \"pnpm -r format\" >> .husky/pre-commit && echo \"pnpm ts-prune\" >> .husky/pre-commit",
+		"prepare": "pnpm prepare:husky",
+		"prepare:husky": "rimraf .husky && husky && npm-run-all prepare:husky:*",
+		"prepare:husky:commitlint": "echo \"npx commitlint --edit $1\" >> .husky/commit-msg",
+		"prepare:husky:format": "echo \"pnpm -r format\" >> .husky/pre-push",
+		"prepare:husky:lint": "echo \"pnpm -r lint\" >> .husky/pre-commit",
+		"prepare:husky:unused": "echo \"pnpm -r unused\" >> .husky/pre-push",
 		"publish": "pnpm -r exec npm publish --access public",
 		"ts-prune": "pnpm -r exec ts-prune src",
 		"depcheck": "pnpm -r exec depcheck --ignore-bin-package --skip-missing",

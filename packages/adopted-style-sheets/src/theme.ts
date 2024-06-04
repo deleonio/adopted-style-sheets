@@ -2,7 +2,7 @@ import type { Generic } from './';
 
 type ThemeName = string | null;
 
-export type Required<T> = {
+type Required<T> = {
 	[P in keyof T]-?: T[P];
 };
 
@@ -19,7 +19,7 @@ export type ThemeEncroachCss = {
 	 */
 	mode: 'after' | 'before';
 };
-export type OptionalThemeDetails = {
+type OptionalThemeDetails = {
 	/**
 	 * Gibt an, ob die Styling der Web Components gecached werden sollen.
 	 *

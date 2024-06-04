@@ -19,7 +19,8 @@
 		"build": "tsup src/index.ts --clean --minify --dts --format cjs,esm --out-dir dist",
 		"format": "prettier --check src",
 		"lint": "tsc --noemit && eslint src",
-		"prepack": "npm run build"
+		"prepack": "npm run build",
+		"unused": "knip"
 	},
 	"dependencies": {
 		"adopted-style-sheets": "workspace:*"
@@ -30,6 +31,7 @@
 		"@typescript-eslint/eslint-plugin": "7.12.0",
 		"@typescript-eslint/parser": "7.12.0",
 		"eslint": "8.57.0",
+		"knip": "5.17.4",
 		"prettier": "3.3.0",
 		"tsup": "8.1.0",
 		"typescript": "5.4.5"
