@@ -50,43 +50,14 @@ export const setThemeTag = (themeName: string, tagName: Generic.Theming.Props<st
 		);
 	}
 
-	if (typeof STORE.A11yUi !== 'object' || STORE.A11yUi === null) {
-		STORE.A11yUi = {};
+	if (typeof STORE.A11yUi.Themes[themeName] !== 'object' || STORE.A11yUi.Themes[themeName] === null) {
+		STORE.A11yUi.Themes[themeName] = {};
 	}
-	if (
-		typeof STORE.A11yUi === 'object' &&
-		STORE.A11yUi !== null &&
-		(typeof ((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) !== 'object' ||
-			((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) === null)
-	) {
-		((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) = {};
-	}
-	if (
-		typeof STORE.A11yUi === 'object' &&
-		STORE.A11yUi !== null &&
-		typeof ((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) === 'object' &&
-		((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) !== null &&
-		(typeof ((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] !== 'object' ||
-			((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] === null)
-	) {
-		((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] = {};
-	}
-	if (
-		typeof STORE.A11yUi === 'object' &&
-		STORE.A11yUi !== null &&
-		typeof ((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) === 'object' &&
-		((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>) !== null &&
-		typeof ((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] === 'object' &&
-		((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] !== null
-	) {
-		if (
-			options.append &&
-			typeof (((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] === 'string'
-		) {
-			((((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] as string) += css;
-		} else {
-			(((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] = css;
-		}
+
+	if (options.append && typeof (STORE.A11yUi.Themes[themeName] as Record<string, unknown>)[tagName] === 'string') {
+		((STORE.A11yUi.Themes[themeName] as Record<string, unknown>)[tagName] as string) += css;
+	} else {
+		(STORE.A11yUi.Themes[themeName] as Record<string, unknown>)[tagName] = css;
 	}
 };
 
@@ -154,22 +125,22 @@ const getEncroachCss = (dataset: DOMStringMap = {}): false | ThemeEncroachCss =>
 const isTheCurrentThemeConfigValid = () =>
 	typeof STORE.A11yUi === 'object' &&
 	STORE.A11yUi !== null &&
-	typeof (STORE.A11yUi as Record<string, unknown>).Theme === 'object' &&
-	(STORE.A11yUi as Record<string, unknown>).Theme !== null &&
-	typeof ((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).cache === 'boolean' &&
-	typeof ((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).encroachCss === 'object' &&
-	((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).encroachCss !== null &&
-	typeof (((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).encroachCss as Record<string, unknown>).mode === 'string' &&
-	typeof ((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).name === 'string';
+	typeof STORE.A11yUi.Theme === 'object' &&
+	STORE.A11yUi.Theme !== null &&
+	typeof (STORE.A11yUi.Theme as Record<string, unknown>).cache === 'boolean' &&
+	typeof (STORE.A11yUi.Theme as Record<string, unknown>).encroachCss === 'object' &&
+	(STORE.A11yUi.Theme as Record<string, unknown>).encroachCss !== null &&
+	typeof ((STORE.A11yUi.Theme as Record<string, unknown>).encroachCss as Record<string, unknown>).mode === 'string' &&
+	typeof (STORE.A11yUi.Theme as Record<string, unknown>).name === 'string';
 
 const isTheCurrentThemeNotDefault = () =>
 	(typeof STORE.A11yUi === 'object' && STORE.A11yUi !== null) === false ||
-	(typeof (STORE.A11yUi as Record<string, unknown>).Theme === 'object' && (STORE.A11yUi as Record<string, unknown>).Theme !== null) === false ||
-	((STORE.A11yUi as Record<string, unknown>).Theme as Record<string, unknown>).name !== 'default';
+	(typeof STORE.A11yUi.Theme === 'object' && STORE.A11yUi.Theme !== null) === false ||
+	(STORE.A11yUi.Theme as Record<string, unknown>).name !== 'default';
 
 export const getThemeDetails = (element: HTMLElement | ParentNode | null): ThemeDetails => {
 	if (isTheCurrentThemeConfigValid()) {
-		return (STORE.A11yUi as Record<string, unknown>).Theme as ThemeDetails;
+		return STORE.A11yUi.Theme as ThemeDetails;
 	} else {
 		const details: ThemeDetails = {
 			cache: true,
@@ -248,10 +219,7 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): vo
 					 */
 					themeName === options.name
 				) {
-					if (typeof STORE.A11yUi !== 'object' || STORE.A11yUi === null) {
-						STORE.A11yUi = {};
-					}
-					(STORE.A11yUi as Record<string, unknown>).Theme = options;
+					STORE.A11yUi.Theme = options;
 					log.info(`[Theming] Theme "${themeName}" was set as default theme.`);
 				}
 			} else {
@@ -261,10 +229,15 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): vo
 	}
 };
 
-// const loadTheme = (theme: A11yUiTheme, options: RegisterOptions) => {
-//   setConfiguredTheme(theme, options);
-//   return import(`../themes/${theme}.json`);
-// };
+export const loadThemeNames = () => {
+	return Object.keys(STORE.A11yUi.Themes);
+};
+export const loadThemes = () => {
+	return STORE.A11yUi.Themes;
+};
+export const loadTheme = (themeName: string) => {
+	return STORE.A11yUi.Themes[themeName];
+};
 
 let registered = false;
 
@@ -274,7 +247,9 @@ export const register = (
 		| Generic.Theming.RegisterPatch<string, string, string>[]
 		| Set<Generic.Theming.RegisterPatch<string, string, string>>,
 	loaders: LoaderCallback | LoaderCallback[] | Set<LoaderCallback>,
-	options: RegisterOptions = {},
+	options: RegisterOptions = {
+		debug: false,
+	},
 ): Promise<void[]> => {
 	if (registered === false) {
 		registered = true;

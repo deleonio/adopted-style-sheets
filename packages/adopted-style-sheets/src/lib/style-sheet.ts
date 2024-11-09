@@ -1,31 +1,11 @@
 import type { Generic, ThemeDetails } from '../';
 import { STORE } from '../';
 import type { ThemeEncroachCss } from '../theme';
-
-type StylingTask = {
-	styleDisplay: string | null;
-	themeDetails: ThemeDetails;
-};
-const STYLING_TASK_QUEUE: Map<HTMLElement, StylingTask> = new Map();
-
-type History = {
-	timestamp: number;
-	numberOfTasks: number;
-};
-const HYDRATED_HISTORY: History[] = [];
+import { StylingTask } from './window';
 
 const CSS_PROPERTIES_REGISTERED: Set<string> = new Set();
-const CSS_STYLE_CACHE: Map<string, Map<string, string[]>> = new Map();
 const REGEX_CSS_PROPERTIES = /--[^;]+/g;
 const REGEX_SPLIT_CSS_PROPERTY = /:/;
-
-if (typeof STORE.A11yUi !== 'object' || STORE.A11yUi === null) {
-	STORE.A11yUi = {
-		CSS_STYLE_CACHE,
-		HYDRATED_HISTORY,
-		STYLING_TASK_QUEUE,
-	};
-}
 
 const extractProperties = (themeName: string, css: string) => {
 	/**
@@ -49,16 +29,13 @@ export const getCssStyle = (themeName: string, tagName: Generic.Theming.Props<st
 		 */
 		typeof STORE.A11yUi === 'object' &&
 		STORE.A11yUi !== null &&
-		typeof (STORE.A11yUi as Record<string, unknown>).Themes === 'object' &&
-		(STORE.A11yUi as Record<string, unknown>).Themes !== null &&
-		typeof ((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] === 'object' &&
-		((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] !== null &&
-		typeof (((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] === 'string'
+		typeof STORE.A11yUi.Themes === 'object' &&
+		STORE.A11yUi.Themes !== null &&
+		typeof STORE.A11yUi.Themes[themeName] === 'object' &&
+		STORE.A11yUi.Themes[themeName] !== null &&
+		typeof (STORE.A11yUi.Themes[themeName] as Record<string, unknown>)[tagName] === 'string'
 	) {
-		return ((((STORE.A11yUi as Record<string, unknown>).Themes as Record<string, unknown>)[themeName] as Record<string, unknown>)[tagName] as string).replace(
-			/\r?\n/g,
-			'',
-		);
+		return ((STORE.A11yUi.Themes[themeName] as Record<string, unknown>)[tagName] as string).replace(/\r?\n/g, '');
 	} else {
 		return '';
 	}
@@ -140,8 +117,8 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 		shadow = elm;
 	}
 
-	if (CSS_STYLE_CACHE.get(themeName)?.has(elm.tagName)) {
-		switchStyle(elm, shadow, CSS_STYLE_CACHE.get(themeName)?.get(elm.tagName) as string[], styleDisplay);
+	if (STORE.A11yUi.CSS_STYLE_CACHE.get(themeName)?.has(elm.tagName)) {
+		switchStyle(elm, shadow, STORE.A11yUi.CSS_STYLE_CACHE.get(themeName)?.get(elm.tagName) as string[], styleDisplay);
 	} else {
 		const PROPERTY_STYLE = getCssStyle(themeName, 'PROPERTIES');
 		const GLOBAL_STYLE = getCssStyle(themeName, 'GLOBAL');
@@ -160,10 +137,10 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 		}
 
 		if (themeDetails.cache === true) {
-			if (CSS_STYLE_CACHE.has(themeName) === false) {
-				CSS_STYLE_CACHE.set(themeName, new Map());
+			if (STORE.A11yUi.CSS_STYLE_CACHE.has(themeName) === false) {
+				STORE.A11yUi.CSS_STYLE_CACHE.set(themeName, new Map());
 			}
-			CSS_STYLE_CACHE.get(themeName)?.set(elm.tagName, STYLES);
+			STORE.A11yUi.CSS_STYLE_CACHE.get(themeName)?.set(elm.tagName, STYLES);
 		}
 
 		switchStyle(elm, shadow, STYLES, styleDisplay);
@@ -178,15 +155,15 @@ const switchStyle = (elm: HTMLElement, shadow: HTMLElement | ShadowRoot, styles:
 
 const logHydratedHistory = (themeDetails: ThemeDetails) => {
 	if (themeDetails.loglevel === 'debug') {
-		HYDRATED_HISTORY.push({
+		STORE.A11yUi.HYDRATED_HISTORY.push({
 			timestamp: Date.now(),
-			numberOfTasks: STYLING_TASK_QUEUE.size,
+			numberOfTasks: STORE.A11yUi.STYLING_TASK_QUEUE.size,
 		});
 	}
 };
 
 const pushToDoTask = (elm: HTMLElement, themeDetails: ThemeDetails) => {
-	STYLING_TASK_QUEUE.set(elm, {
+	STORE.A11yUi.STYLING_TASK_QUEUE.set(elm, {
 		/**
 		 * Das Element soll solange nicht sichtbar bleiben
 		 * bis der Style im DOM gesetzt ist.
@@ -201,7 +178,7 @@ const loggedPushToDoTask = (elm: HTMLElement, themeDetails: ThemeDetails) => {
 };
 
 const deleteDoneTask = (elm: HTMLElement) => {
-	STYLING_TASK_QUEUE.delete(elm);
+	STORE.A11yUi.STYLING_TASK_QUEUE.delete(elm);
 };
 const loggedDeleteDoneTask = (elm: HTMLElement, themeDetails: ThemeDetails) => {
 	deleteDoneTask(elm);
@@ -211,8 +188,8 @@ const loggedDeleteDoneTask = (elm: HTMLElement, themeDetails: ThemeDetails) => {
 const waitForHydrated = (elm: HTMLElement) => {
 	const T = setTimeout(() => {
 		clearTimeout(T);
-		if (STYLING_TASK_QUEUE.has(elm) && elm.classList.contains('hydrated')) {
-			const { styleDisplay, themeDetails } = STYLING_TASK_QUEUE.get(elm) as StylingTask;
+		if (STORE.A11yUi.STYLING_TASK_QUEUE.has(elm) && elm.classList.contains('hydrated')) {
+			const { styleDisplay, themeDetails } = STORE.A11yUi.STYLING_TASK_QUEUE.get(elm) as StylingTask;
 			setThemeStyleAfterHydrated(elm, themeDetails, styleDisplay);
 			loggedDeleteDoneTask(elm, themeDetails);
 		} else {
@@ -233,10 +210,10 @@ const observerCallback = (mutationsList: MutationRecord[]) => {
 			 * Implizit check for HTMLElement
 			 */
 			// mutation.target &&
-			STYLING_TASK_QUEUE.has(mutation.target as HTMLElement) &&
+			STORE.A11yUi.STYLING_TASK_QUEUE.has(mutation.target as HTMLElement) &&
 			(mutation.target as HTMLElement).classList.contains('hydrated')
 		) {
-			const { styleDisplay, themeDetails } = STYLING_TASK_QUEUE.get(mutation.target as HTMLElement) as StylingTask;
+			const { styleDisplay, themeDetails } = STORE.A11yUi.STYLING_TASK_QUEUE.get(mutation.target as HTMLElement) as StylingTask;
 			setThemeStyleAfterHydrated(mutation.target as HTMLElement, themeDetails, styleDisplay);
 			loggedDeleteDoneTask(mutation.target as HTMLElement, themeDetails);
 		}
