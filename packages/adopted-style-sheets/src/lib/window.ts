@@ -1,11 +1,11 @@
-import { RegisterThemeOptions, ThemeDetails } from '../theme';
+import type { RegisterThemeOptions, ThemeDetails } from '../theme';
 
 export type StylingTask = {
 	styleDisplay: string | null;
 	themeDetails: ThemeDetails;
 };
 
-export type History = {
+type History = {
 	timestamp: number;
 	numberOfTasks: number;
 };
