@@ -1,6 +1,6 @@
 {
 	"name": "adopted-style-sheets",
-	"version": "1.1.5-rc.4",
+	"version": "1.1.5",
 	"license": "EUPL-1.2",
 	"description": "This library implements functions to use the adopted style of web components for multiple themes.",
 	"keywords": [
@@ -41,16 +41,16 @@
 		"loglevel": "1.9.2"
 	},
 	"devDependencies": {
-		"@swc/core": "1.7.26",
-		"@types/mocha": "10.0.8",
+		"@swc/core": "1.9.1",
+		"@types/mocha": "10.0.9",
 		"@typescript-eslint/eslint-plugin": "7.18.0",
 		"@typescript-eslint/parser": "7.18.0",
 		"eslint": "8.57.1",
-		"knip": "5.30.2",
-		"mocha": "10.7.3",
+		"knip": "5.36.3",
+		"mocha": "10.8.2",
 		"prettier": "3.3.3",
-		"tsup": "8.3.0",
-		"typescript": "5.6.2",
+		"tsup": "8.3.5",
+		"typescript": "5.6.3",
 		"unbuild": "1.2.1"
 	},
 	"sideEffects": false,
