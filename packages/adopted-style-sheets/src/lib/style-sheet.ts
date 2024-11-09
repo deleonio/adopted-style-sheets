@@ -150,6 +150,9 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 const switchStyle = (elm: HTMLElement, shadow: HTMLElement | ShadowRoot, styles: string[], styleDisplay: string | null) => {
 	removeStyle(shadow);
 	patchStyle(shadow, styles);
+	if (STORE.A11yUi.DEBUG) {
+		console.log(elm.tagName, elm, shadow, styles);
+	}
 	elm.style.display = styleDisplay as string; // null remove the style property display
 };
 

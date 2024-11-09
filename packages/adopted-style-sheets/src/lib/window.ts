@@ -13,6 +13,7 @@ export type History = {
 type Store = {
 	A11yUi: {
 		CSS_STYLE_CACHE: Map<string, Map<string, string[]>>;
+		DEBUG: boolean;
 		HYDRATED_HISTORY: History[];
 		STYLING_TASK_QUEUE: Map<HTMLElement, StylingTask>;
 		Theme?: RegisterThemeOptions;
@@ -36,6 +37,7 @@ const STYLING_TASK_QUEUE: Map<HTMLElement, StylingTask> = new Map();
 export const STORE: Store = {
 	A11yUi: {
 		CSS_STYLE_CACHE,
+		DEBUG: false,
 		HYDRATED_HISTORY,
 		STYLING_TASK_QUEUE,
 		Themes: {},

@@ -292,5 +292,8 @@ export const register = (
 			promises.push(result);
 		}
 	});
+
+	STORE.A11yUi.DEBUG = options.debug === true;
+
 	return Promise.all(promises);
 };
