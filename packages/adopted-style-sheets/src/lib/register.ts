@@ -229,13 +229,13 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): vo
 	}
 };
 
-export const loadThemeNames = () => {
+export const getRegisteredThemeNames = () => {
 	return Object.keys(STORE.A11yUi.Themes);
 };
-export const loadThemes = () => {
+export const getRegisteredThemes = () => {
 	return STORE.A11yUi.Themes;
 };
-export const loadTheme = (themeName: string) => {
+export const getRegisteredThemeByName = (themeName: string) => {
 	return STORE.A11yUi.Themes[themeName];
 };
 
