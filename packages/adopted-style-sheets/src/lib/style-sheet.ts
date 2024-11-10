@@ -1,7 +1,7 @@
 import type { Generic, ThemeDetails } from '../';
 import { STORE } from '../';
 import type { ThemeEncroachCss } from '../theme';
-import { StylingTask } from './window';
+import type { StylingTask } from './window';
 
 const CSS_PROPERTIES_REGISTERED: Set<string> = new Set();
 const REGEX_CSS_PROPERTIES = /--[^;]+/g;
@@ -42,8 +42,8 @@ export const getCssStyle = (themeName: string, tagName: Generic.Theming.Props<st
 };
 
 const removeStyle = (shadow: HTMLElement | ShadowRoot) => {
-	for (const childNode of Array.from(shadow.childNodes)) {
-		if (childNode instanceof HTMLStyleElement && childNode.tagName === 'STYLE') {
+	for (const childNode of Array.from(shadow.childNodes).reverse()) {
+		if (childNode instanceof HTMLStyleElement && childNode.tagName === 'STYLE' && childNode.dataset.themingFallback === undefined) {
 			shadow.removeChild(childNode);
 		} else {
 			break;
@@ -61,8 +61,32 @@ const patchStyle = (shadow: HTMLElement | ShadowRoot, styles: string[]) => {
 		});
 		(shadow as ShadowRoot).adoptedStyleSheets = styleSheets;
 	} catch (e) {
-		styles.reverse().forEach((style) => {
+		styles.reverse().forEach((style, idx) => {
+			if (typeof style !== 'string' || style.length === 0) {
+				return;
+			}
 			const styleElement: HTMLStyleElement = document.createElement('style');
+			styleElement.dataset.themingFallback = '';
+			switch (idx) {
+				case 4:
+					styleElement.dataset.themingBaseA11y = '';
+					break;
+				case 3:
+					styleElement.dataset.themingBaseGlobal = '';
+					break;
+				case 2:
+					styleElement.dataset.themingBaseComponent = '';
+					break;
+				case 1:
+					styleElement.dataset.themingCustomGlobal = '';
+					break;
+				case 0:
+					styleElement.dataset.themingCustomComponent = '';
+					break;
+				default:
+					styleElement.dataset.themingUnknown = '';
+					break;
+			}
 			styleElement.innerHTML = style;
 			shadow.insertBefore(styleElement, shadow.firstChild);
 		});
