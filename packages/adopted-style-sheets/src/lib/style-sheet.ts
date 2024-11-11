@@ -268,6 +268,10 @@ try {
 }
 
 export const setThemeStyle = (elm: HTMLElement, themeDetails: ThemeDetails) => {
+	themeDetails = {
+		...STORE.A11yUi.Theme,
+		...themeDetails,
+	};
 	loggedPushToDoTask(elm, themeDetails);
 	if (observer) {
 		observer.observe(elm, observerOptions);

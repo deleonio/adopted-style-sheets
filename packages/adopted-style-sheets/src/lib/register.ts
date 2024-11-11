@@ -155,6 +155,7 @@ export const getThemeDetails = (element: HTMLElement | ParentNode | null): Theme
 			details.cache = themeNode.dataset.themeCache !== 'false';
 			details.encroachCss = getEncroachCss(themeNode.dataset);
 			details.loglevel = themeNode.dataset.themeLoglevel === 'debug' ? themeNode.dataset.themeLoglevel : 'silent';
+			details.mode = themeNode.dataset.themeMode === 'ssr' ? themeNode.dataset.themeMode : 'csr';
 			details.name = themeNode.dataset.theme || null;
 		}
 		return details;
@@ -204,11 +205,29 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): vo
 			 */
 			options = getThemeOptionDefaults(themeName, options);
 
-			if (options.detect === 'fixed' && options.name === null && typeof themeName === 'string') {
-				options.name = themeName;
-			}
+			if (
+				/**
+				 * The presetting of theme options is only relevant by using 'fixed'
+				 * detection mode.
+				 */ options.detect === 'fixed'
+			) {
+				if (options.name === null && typeof themeName === 'string') {
+					options.name = themeName;
+				}
 
-			STORE.A11yUi.Theme = options;
+				if (
+					/**
+					 * Wenn mehrere Themes geladen werden, dann wird nur der Theme-Name gesetzt,
+					 * der mit dem Name eines Themes übereinstimmt.
+					 */
+					themeName === options.name
+				) {
+					STORE.A11yUi.Theme = options;
+					log.info(`[Theming] Theme "${themeName}" was set as default theme.`);
+				}
+			} else {
+				log.warn(`[Theming] The presetting of theme options is only relevant by using 'fixed' detection mode.`);
+			}
 		}
 	}
 };
