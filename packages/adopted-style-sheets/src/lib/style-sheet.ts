@@ -64,7 +64,7 @@ const patchStyle = (shadow: HTMLElement | ShadowRoot, styles: string[]) => {
 		});
 		(shadow as ShadowRoot).adoptedStyleSheets = styleSheets;
 	} catch (e) {
-		styles.reverse().forEach((style, idx) => {
+		[...styles].reverse().forEach((style, idx) => {
 			if (typeof style !== 'string' || style.length === 0) {
 				return;
 			}
