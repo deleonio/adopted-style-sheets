@@ -53,6 +53,9 @@ const removeStyle = (shadow: HTMLElement | ShadowRoot) => {
 
 const patchStyle = (shadow: HTMLElement | ShadowRoot, styles: string[]) => {
 	try {
+		if (STORE.A11yUi.Theme?.mode === 'ssr') {
+			throw new Error('SSR');
+		}
 		const styleSheets: CSSStyleSheet[] = [];
 		styles.forEach((style) => {
 			const styleSheet: CSSStyleSheet = new CSSStyleSheet();
@@ -174,9 +177,6 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 const switchStyle = (elm: HTMLElement, shadow: HTMLElement | ShadowRoot, styles: string[], styleDisplay: string | null) => {
 	removeStyle(shadow);
 	patchStyle(shadow, styles);
-	if (STORE.A11yUi.DEBUG) {
-		console.log(elm.tagName, elm, shadow, styles);
-	}
 	elm.style.display = styleDisplay as string; // null remove the style property display
 };
 

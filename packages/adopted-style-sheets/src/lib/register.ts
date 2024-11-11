@@ -146,6 +146,7 @@ export const getThemeDetails = (element: HTMLElement | ParentNode | null): Theme
 			cache: true,
 			encroachCss: getEncroachCss(),
 			loglevel: 'silent',
+			mode: 'csr',
 			name: null,
 		};
 
@@ -182,6 +183,7 @@ const getThemeOptionDefaults = (themeName: string, options: RegisterThemeOptions
 							mode: 'before', // default: 'before'
 						},
 		loglevel: options.loglevel === 'debug' ? options.loglevel : 'silent', // default: 'silent'
+		mode: options.mode === 'ssr' ? options.mode : 'csr', // default: 'csr'
 		name: typeof options.name === 'string' ? options.name : themeName, // default: themeName
 	};
 };
@@ -202,29 +204,11 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): vo
 			 */
 			options = getThemeOptionDefaults(themeName, options);
 
-			if (
-				/**
-				 * The presetting of theme options is only relevant by using 'fixed'
-				 * detection mode.
-				 */ options.detect === 'fixed'
-			) {
-				if (options.name === null && typeof themeName === 'string') {
-					options.name = themeName;
-				}
-
-				if (
-					/**
-					 * Wenn mehrere Themes geladen werden, dann wird nur der Theme-Name gesetzt,
-					 * der mit dem Name eines Themes übereinstimmt.
-					 */
-					themeName === options.name
-				) {
-					STORE.A11yUi.Theme = options;
-					log.info(`[Theming] Theme "${themeName}" was set as default theme.`);
-				}
-			} else {
-				log.warn(`[Theming] The presetting of theme options is only relevant by using 'fixed' detection mode.`);
+			if (options.detect === 'fixed' && options.name === null && typeof themeName === 'string') {
+				options.name = themeName;
 			}
+
+			STORE.A11yUi.Theme = options;
 		}
 	}
 };
@@ -247,9 +231,7 @@ export const register = (
 		| Generic.Theming.RegisterPatch<string, string, string>[]
 		| Set<Generic.Theming.RegisterPatch<string, string, string>>,
 	loaders: LoaderCallback | LoaderCallback[] | Set<LoaderCallback>,
-	options: RegisterOptions = {
-		debug: false,
-	},
+	options: RegisterOptions = {},
 ): Promise<void[]> => {
 	if (registered === false) {
 		registered = true;
@@ -271,6 +253,7 @@ export const register = (
 						cache: options.theme?.cache,
 						detect: options.theme?.detect,
 						encroachCss: options.theme?.encroachCss,
+						mode: options.theme?.mode,
 						name: options.theme?.name,
 					},
 				);
@@ -292,8 +275,6 @@ export const register = (
 			promises.push(result);
 		}
 	});
-
-	STORE.A11yUi.DEBUG = options.debug === true;
 
 	return Promise.all(promises);
 };

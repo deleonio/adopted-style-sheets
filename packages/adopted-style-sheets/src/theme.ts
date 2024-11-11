@@ -41,6 +41,10 @@ type OptionalThemeDetails = {
 	 */
 	loglevel?: 'debug' | 'info' | 'warn' | 'error' | 'silent';
 	/**
+	 * Gibt an, ob das Theming im Client- oder Server-Site-Rendering laufen soll.
+	 */
+	mode?: 'csr' | 'ssr';
+	/**
 	 * Gibt den eindeutigen Namen eines Themes an.
 	 */
 	name?: ThemeName;
@@ -72,5 +76,4 @@ export type RegisterOptions = {
 		| Set<Generic.I18n.RegisterPatch<Generic.I18n.Locale.ISO_639_1, string, string>>;
 	translation?: RegisterTranslationOptions;
 	transformTagName?: (tagName: string) => string;
-	debug?: boolean;
 };
