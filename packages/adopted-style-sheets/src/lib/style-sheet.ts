@@ -42,7 +42,7 @@ export const getCssStyle = (themeName: string, tagName: Generic.Theming.Props<st
 };
 
 const removeStyle = (shadow: HTMLElement | ShadowRoot) => {
-	for (const childNode of Array.from(shadow.childNodes).reverse()) {
+	for (const childNode of Array.from(shadow.childNodes)) {
 		if (childNode instanceof HTMLStyleElement && childNode.tagName === 'STYLE' && childNode.dataset.themingFallback === undefined) {
 			shadow.removeChild(childNode);
 		} else {
@@ -268,6 +268,10 @@ try {
 }
 
 export const setThemeStyle = (elm: HTMLElement, themeDetails: ThemeDetails) => {
+	themeDetails = {
+		...STORE.A11yUi.Theme,
+		...themeDetails,
+	};
 	loggedPushToDoTask(elm, themeDetails);
 	if (observer) {
 		observer.observe(elm, observerOptions);
