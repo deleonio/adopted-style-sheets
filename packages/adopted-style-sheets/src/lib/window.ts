@@ -1,7 +1,6 @@
 import type { RegisterThemeOptions, ThemeDetails } from '../theme';
 
 export type StylingTask = {
-	styleDisplay: string | null;
 	themeDetails: ThemeDetails;
 };
 

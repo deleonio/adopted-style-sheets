@@ -131,7 +131,7 @@ const encroachStyles = (shadow: HTMLElement | ShadowRoot, styles: string[], encr
 	}
 };
 
-const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails, styleDisplay: string | null) => {
+const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails) => {
 	const themeName = themeDetails.name || 'default';
 
 	let shadow: HTMLElement | ShadowRoot;
@@ -145,7 +145,7 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 	}
 
 	if (STORE.A11yUi.CSS_STYLE_CACHE.get(themeName)?.has(elm.tagName)) {
-		switchStyle(elm, shadow, STORE.A11yUi.CSS_STYLE_CACHE.get(themeName)?.get(elm.tagName) as string[], styleDisplay);
+		switchStyle(shadow, STORE.A11yUi.CSS_STYLE_CACHE.get(themeName)?.get(elm.tagName) as string[]);
 	} else {
 		const PROPERTY_STYLE = getCssStyle(themeName, 'PROPERTIES');
 		const GLOBAL_STYLE = getCssStyle(themeName, 'GLOBAL');
@@ -170,14 +170,13 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 			STORE.A11yUi.CSS_STYLE_CACHE.get(themeName)?.set(elm.tagName, STYLES);
 		}
 
-		switchStyle(elm, shadow, STYLES, styleDisplay);
+		switchStyle(shadow, STYLES);
 	}
 };
 
-const switchStyle = (elm: HTMLElement, shadow: HTMLElement | ShadowRoot, styles: string[], styleDisplay: string | null) => {
+const switchStyle = (shadow: HTMLElement | ShadowRoot, styles: string[]) => {
 	removeStyle(shadow);
 	patchStyle(shadow, styles);
-	elm.style.display = styleDisplay as string; // null remove the style property display
 };
 
 const logHydratedHistory = (themeDetails: ThemeDetails) => {
@@ -191,11 +190,6 @@ const logHydratedHistory = (themeDetails: ThemeDetails) => {
 
 const pushToDoTask = (elm: HTMLElement, themeDetails: ThemeDetails) => {
 	STORE.A11yUi.STYLING_TASK_QUEUE.set(elm, {
-		/**
-		 * Das Element soll solange nicht sichtbar bleiben
-		 * bis der Style im DOM gesetzt ist.
-		 */
-		styleDisplay: elm.style.display ? `${elm.style.display}` : null,
 		themeDetails,
 	});
 };
@@ -216,8 +210,8 @@ const waitForHydrated = (elm: HTMLElement) => {
 	const T = setTimeout(() => {
 		clearTimeout(T);
 		if (STORE.A11yUi.STYLING_TASK_QUEUE.has(elm) && elm.classList.contains('hydrated')) {
-			const { styleDisplay, themeDetails } = STORE.A11yUi.STYLING_TASK_QUEUE.get(elm) as StylingTask;
-			setThemeStyleAfterHydrated(elm, themeDetails, styleDisplay);
+			const { themeDetails } = STORE.A11yUi.STYLING_TASK_QUEUE.get(elm) as StylingTask;
+			setThemeStyleAfterHydrated(elm, themeDetails);
 			loggedDeleteDoneTask(elm, themeDetails);
 		} else {
 			waitForHydrated(elm);
@@ -240,8 +234,8 @@ const observerCallback = (mutationsList: MutationRecord[]) => {
 			STORE.A11yUi.STYLING_TASK_QUEUE.has(mutation.target as HTMLElement) &&
 			(mutation.target as HTMLElement).classList.contains('hydrated')
 		) {
-			const { styleDisplay, themeDetails } = STORE.A11yUi.STYLING_TASK_QUEUE.get(mutation.target as HTMLElement) as StylingTask;
-			setThemeStyleAfterHydrated(mutation.target as HTMLElement, themeDetails, styleDisplay);
+			const { themeDetails } = STORE.A11yUi.STYLING_TASK_QUEUE.get(mutation.target as HTMLElement) as StylingTask;
+			setThemeStyleAfterHydrated(mutation.target as HTMLElement, themeDetails);
 			loggedDeleteDoneTask(mutation.target as HTMLElement, themeDetails);
 		}
 	}
@@ -278,5 +272,4 @@ export const setThemeStyle = (elm: HTMLElement, themeDetails: ThemeDetails) => {
 	} else {
 		waitForHydrated(elm);
 	}
-	elm.style.display = 'none';
 };
