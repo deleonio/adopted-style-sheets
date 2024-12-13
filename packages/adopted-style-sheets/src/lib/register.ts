@@ -225,7 +225,8 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): vo
 					STORE.A11yUi.Theme = options;
 					log.info(`[Theming] Theme "${themeName}" was set as default theme.`);
 				}
-			} else {
+			} else if (!warrentyWarning) {
+				warrentyWarning = true;
 				log.warn(`[Theming] The presetting of theme options is only relevant by using 'fixed' detection mode.`);
 			}
 		}
@@ -277,7 +278,7 @@ export const register = (
 					},
 				);
 			} else {
-				log.error(`[Theming] Es wurde versucht eine nicht kompatibles Theme zu laden.`);
+				log.error(`[Theming] An attempt was made to load an incompatible theme.`);
 			}
 		});
 	}
