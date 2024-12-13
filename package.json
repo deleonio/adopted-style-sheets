@@ -1,11 +1,11 @@
 {
 	"devDependencies": {
-		"@commitlint/cli": "19.5.0",
-		"@commitlint/config-conventional": "19.5.0",
+		"@commitlint/cli": "19.6.0",
+		"@commitlint/config-conventional": "19.6.0",
 		"husky": "9.1.7",
 		"npm-check-updates": "17.1.11",
 		"npm-run-all": "4.1.5",
-		"prettier": "3.3.3"
+		"prettier": "3.4.2"
 	},
 	"engines": {
 		"pnpm": "^9"
@@ -14,6 +14,7 @@
 	"scripts": {
 		"build": "pnpm -r build",
 		"clean": "git clean -f -d -X",
+		"clean:branches": "git branch --merged | grep -v \\* | xargs git branch -D",
 		"format": "pnpm -r format",
 		"lint": "pnpm -r lint",
 		"ncu:major": "ncu && pnpm -r exec ncu",
