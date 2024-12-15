@@ -64,6 +64,7 @@ const patchStyle = (shadow: HTMLElement | ShadowRoot, styles: string[]) => {
 		});
 		(shadow as ShadowRoot).adoptedStyleSheets = styleSheets;
 	} catch (e) {
+		void e;
 		[...styles].reverse().forEach((style, idx) => {
 			if (typeof style !== 'string' || style.length === 0) {
 				return;
@@ -106,6 +107,7 @@ const encroachStyles = (shadow: HTMLElement | ShadowRoot, styles: string[], encr
 		try {
 			defaultStyleSheets = [...Array.from((shadow as ShadowRoot).adoptedStyleSheets)];
 		} catch (e) {
+			void e;
 			defaultStyleSheets = [];
 		}
 
@@ -141,6 +143,7 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 		}
 		shadow = elm.shadowRoot;
 	} catch (e) {
+		void e;
 		shadow = elm;
 	}
 
@@ -264,6 +267,7 @@ let observer: MutationObserver | null;
 try {
 	observer = new MutationObserver(observerCallback);
 } catch (e) {
+	void e;
 	observer = null;
 }
 
