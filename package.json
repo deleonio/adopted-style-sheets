@@ -1,35 +1,89 @@
 {
+	"name": "adopted-style-sheets",
+	"version": "1.1.7",
+	"license": "EUPL-1.2",
+	"description": "This library implements functions to use the adopted style of web components for multiple themes.",
+	"keywords": [
+		"webcomponents",
+		"style",
+		"css",
+		"theme",
+		"accessibility",
+		"custom",
+		"elements",
+		"w3c",
+		"adopted",
+		"style",
+		"sheets"
+	],
+	"author": {
+		"email": "github@martinoppitz.com",
+		"name": "Martin Oppitz",
+		"url": "https://martinoppitz.com"
+	},
+	"contributors": [
+		{
+			"email": "github@martinoppitz.com",
+			"name": "Martin Oppitz",
+			"url": "https://martinoppitz.com"
+		}
+	],
+	"scripts": {
+		"build": "pnpm build:unbuild",
+		"build:tsup": "tsup src/index.ts --clean --minify --dts --format cjs,esm --out-dir dist",
+		"build:unbuild": "unbuild",
+		"clean": "git clean -f -d -X",
+		"clean:branches": "git branch --merged | grep -v \\* | xargs git branch -D",
+		"format": "prettier --check src",
+		"lint": "tsc --noemit && eslint src",
+		"ncu:major": "ncu && pnpm exec ncu",
+		"ncu:minor": "ncu -t minor -u && pnpm exec ncu -t minor -u",
+		"ncu:patch": "ncu -t patch -u && pnpm exec ncu -t patch -u",
+		"prepack": "npm run build",
+		"prepare": "pnpm prepare:husky",
+		"prepare:husky": "rimraf .husky && husky && npm-run-all2 prepare:husky:*",
+		"prepare:husky:commitlint": "echo \"npx commitlint --edit $1\" >> .husky/commit-msg",
+		"prepare:husky:format": "echo \"pnpm format\" >> .husky/pre-push",
+		"prepare:husky:lint": "echo \"pnpm lint\" >> .husky/pre-commit",
+		"prepare:husky:unused": "echo \"pnpm unused\" >> .husky/pre-push",
+		"unused": "knip",
+		"update": "pnpm ncu:minor && pnpm ncu:major"
+	},
+	"dependencies": {
+		"loglevel": "1.9.2"
+	},
 	"devDependencies": {
 		"@commitlint/cli": "19.6.0",
 		"@commitlint/config-conventional": "19.6.0",
+		"@swc/core": "1.10.1",
+		"@types/mocha": "10.0.10",
+		"@typescript-eslint/eslint-plugin": "7.18.0",
+		"@typescript-eslint/parser": "7.18.0",
+		"eslint": "8.57.1",
 		"husky": "9.1.7",
+		"knip": "5.40.0",
+		"mocha": "10.8.2",
 		"npm-check-updates": "17.1.11",
-		"npm-run-all": "4.1.5",
-		"prettier": "3.4.2"
+		"npm-run-all2": "7.0.1",
+		"prettier": "3.4.2",
+		"rimraf": "6.0.1",
+		"tsup": "8.3.5",
+		"typescript": "5.7.2",
+		"unbuild": "1.2.1"
 	},
-	"engines": {
-		"pnpm": "^9"
+	"sideEffects": false,
+	"type": "module",
+	"exports": {
+		".": {
+			"import": "./dist/index.mjs",
+			"require": "./dist/index.cjs",
+			"types": "./dist/index.d.ts"
+		}
 	},
-	"private": true,
-	"scripts": {
-		"build": "pnpm -r build",
-		"clean": "git clean -f -d -X",
-		"clean:branches": "git branch --merged | grep -v \\* | xargs git branch -D",
-		"format": "pnpm -r format",
-		"lint": "pnpm -r lint",
-		"ncu:major": "ncu && pnpm -r exec ncu",
-		"ncu:minor": "ncu -t minor -u && pnpm -r exec ncu -t minor -u",
-		"ncu:patch": "ncu -t patch -u && pnpm -r exec ncu -t patch -u",
-		"pack": "pnpm -r exec npm pack",
-		"prepare": "pnpm prepare:husky",
-		"prepare:husky": "rimraf .husky && husky && npm-run-all prepare:husky:*",
-		"prepare:husky:commitlint": "echo \"npx commitlint --edit $1\" >> .husky/commit-msg",
-		"prepare:husky:format": "echo \"pnpm -r format\" >> .husky/pre-push",
-		"prepare:husky:lint": "echo \"pnpm -r lint\" >> .husky/pre-commit",
-		"prepare:husky:unused": "echo \"pnpm -r unused\" >> .husky/pre-push",
-		"publish": "pnpm -r exec npm publish --access public",
-		"ts-prune": "pnpm -r exec ts-prune src",
-		"depcheck": "pnpm -r exec depcheck --ignore-bin-package --skip-missing",
-		"update": "pnpm ncu:minor && pnpm ncu:major"
-	}
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.ts",
+	"files": [
+		"dist"
+	]
 }

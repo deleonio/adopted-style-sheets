@@ -56,7 +56,7 @@ We work according to the Git flow: https://medium.com/android-news/gitflow-with-
 6. Create a new branch for your changes
 7. [Install PNPM](https://pnpm.io/installation) on you local machine
 8. Install all packages with `pnpm i`
-9. Build all packages within the mono repository `pnpm -r build`
+9. Build all packages within the mono repository `pnpm build`
 10. Navigate to the desired package in our monorepo
 11. When you want to start the project navigate to `packages/components/` and run `pnpm dev`
 12. To watch for changes navigate to `samples/react/` and execute `pnpm start`. `http://localhost:8080/` will open automatically
@@ -71,7 +71,7 @@ When changing the current working branch, it is important to reinstall all depen
 To avoid unexpected problems, it is therefore always advisable to build all packages once. This can be done with these steps:
 
 - Reinstall all dependencies: `pnpm i`
-- Build all packages: `pnpm -r build`
+- Build all packages: `pnpm build`
 - You can then switch to the package to be processed and start it with `pnpm start`.
 
 If it is also necessary to edit dependent packages such as `@public-ui/components`, these must be rebuilt for each change. Such packages offer the `dev` script for this purpose. This automatically rebuilds the package after each change.
