@@ -49,8 +49,8 @@ importers:
         specifier: 8.57.1
         version: 8.57.1
       knip:
-        specifier: 5.39.4
-        version: 5.39.4(@types/node@20.12.12)(typescript@5.7.2)
+        specifier: 5.40.0
+        version: 5.40.0(@types/node@20.12.12)(typescript@5.7.2)
       mocha:
         specifier: 10.8.2
         version: 10.8.2
@@ -68,10 +68,6 @@ importers:
         version: 1.2.1
 
   packages/core:
-    dependencies:
-      adopted-style-sheets:
-        specifier: workspace:*
-        version: link:../adopted-style-sheets
     devDependencies:
       '@swc/core':
         specifier: 1.10.1
@@ -82,12 +78,15 @@ importers:
       '@typescript-eslint/parser':
         specifier: 7.18.0
         version: 7.18.0(eslint@8.57.1)(typescript@5.7.2)
+      adopted-style-sheets:
+        specifier: workspace:*
+        version: link:../adopted-style-sheets
       eslint:
         specifier: 8.57.1
         version: 8.57.1
       knip:
-        specifier: 5.39.4
-        version: 5.39.4(@types/node@20.12.12)(typescript@5.7.2)
+        specifier: 5.40.0
+        version: 5.40.0(@types/node@20.12.12)(typescript@5.7.2)
       prettier:
         specifier: 3.4.2
         version: 3.4.2
@@ -1990,8 +1989,8 @@ packages:
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
-  knip@5.39.4:
-    resolution: {integrity: sha512-IiNFwfe8xDFwuGzBY8lKvrY3hhR1I81iCaJ8nd85cxT7LxB7cDd73WP3MrzZylE9Vec1HhC0YLFiAL7jh5OYEQ==}
+  knip@5.40.0:
+    resolution: {integrity: sha512-EzBfQDz4YBzYnMLueWnaaVr15mneqZs1c3RanttciuVuRcodlNjzAmR2nch/khlRdVABAxAdMGFxfSvhvcH1NA==}
     engines: {node: '>=18.6.0'}
     hasBin: true
     peerDependencies:
@@ -4871,7 +4870,7 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
-  knip@5.39.4(@types/node@20.12.12)(typescript@5.7.2):
+  knip@5.40.0(@types/node@20.12.12)(typescript@5.7.2):
     dependencies:
       '@nodelib/fs.walk': 1.2.8
       '@snyk/github-codeowners': 1.1.0
