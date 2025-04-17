@@ -177,10 +177,10 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 	}
 };
 
-const switchStyle = (elm: HTMLElement, shadow: HTMLElement | ShadowRoot, styles: string[], styleDisplay: string | null) => {
+const switchStyle = (elm: HTMLElement, shadow: HTMLElement | ShadowRoot, styles: string[], styleVisibility: string | null) => {
 	removeStyle(shadow);
 	patchStyle(shadow, styles);
-	elm.style.display = styleDisplay as string; // null remove the style property display
+	elm.style.visibility = styleVisibility as string; // null remove the style property visibility
 };
 
 const logHydratedHistory = (themeDetails: ThemeDetails) => {
@@ -198,7 +198,7 @@ const pushToDoTask = (elm: HTMLElement, themeDetails: ThemeDetails) => {
 		 * Das Element soll solange nicht sichtbar bleiben
 		 * bis der Style im DOM gesetzt ist.
 		 */
-		styleDisplay: elm.style.display ? `${elm.style.display}` : null,
+		styleVisibility: elm.style.visibility ? `${elm.style.visibility}` : null,
 		themeDetails,
 	});
 };
@@ -219,7 +219,7 @@ const waitForHydrated = (elm: HTMLElement) => {
 	const T = setTimeout(() => {
 		clearTimeout(T);
 		if (STORE.A11yUi.STYLING_TASK_QUEUE.has(elm) && elm.classList.contains('hydrated')) {
-			const { styleDisplay, themeDetails } = STORE.A11yUi.STYLING_TASK_QUEUE.get(elm) as StylingTask;
+			const { styleVisibility: styleDisplay, themeDetails } = STORE.A11yUi.STYLING_TASK_QUEUE.get(elm) as StylingTask;
 			setThemeStyleAfterHydrated(elm, themeDetails, styleDisplay);
 			loggedDeleteDoneTask(elm, themeDetails);
 		} else {
@@ -243,7 +243,7 @@ const observerCallback = (mutationsList: MutationRecord[]) => {
 			STORE.A11yUi.STYLING_TASK_QUEUE.has(mutation.target as HTMLElement) &&
 			(mutation.target as HTMLElement).classList.contains('hydrated')
 		) {
-			const { styleDisplay, themeDetails } = STORE.A11yUi.STYLING_TASK_QUEUE.get(mutation.target as HTMLElement) as StylingTask;
+			const { styleVisibility: styleDisplay, themeDetails } = STORE.A11yUi.STYLING_TASK_QUEUE.get(mutation.target as HTMLElement) as StylingTask;
 			setThemeStyleAfterHydrated(mutation.target as HTMLElement, themeDetails, styleDisplay);
 			loggedDeleteDoneTask(mutation.target as HTMLElement, themeDetails);
 		}
@@ -282,5 +282,5 @@ export const setThemeStyle = (elm: HTMLElement, themeDetails: ThemeDetails) => {
 	} else {
 		waitForHydrated(elm);
 	}
-	elm.style.display = 'none';
+	elm.style.visibility = 'hidden';
 };
