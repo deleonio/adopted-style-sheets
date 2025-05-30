@@ -1,11 +1,18 @@
 import type { Generic, ThemeDetails } from '../';
 import { STORE } from '../';
 import type { ThemeEncroachCss } from '../theme';
-import type { StylingTask } from './window';
 
 const CSS_PROPERTIES_REGISTERED: Set<string> = new Set();
 const REGEX_CSS_PROPERTIES = /--[^;]+/g;
 const REGEX_SPLIT_CSS_PROPERTY = /:/;
+
+const SUPPORTS_MUTATION_OBSERVER = typeof MutationObserver !== 'undefined';
+
+let CURRENT_STYLING_DELAY = 25;
+
+let recalculateStylingDelay = () => {
+	CURRENT_STYLING_DELAY = Math.min(25 + Math.log2(STORE.A11yUi.STYLING_TASK_QUEUE.size + 1) * 20, 250);
+};
 
 const extractProperties = (themeName: string, css: string) => {
 	/**
@@ -162,10 +169,6 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 
 		encroachStyles(shadow, STYLES, themeDetails.encroachCss);
 
-		if (themeDetails.loglevel === 'debug') {
-			console.log(elm.tagName, STYLES);
-		}
-
 		if (themeDetails.cache === true) {
 			if (STORE.A11yUi.CSS_STYLE_CACHE.has(themeName) === false) {
 				STORE.A11yUi.CSS_STYLE_CACHE.set(themeName, new Map());
@@ -177,84 +180,31 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 	}
 };
 
-const switchStyle = (elm: HTMLElement, shadow: HTMLElement | ShadowRoot, styles: string[], styleVisibility: string | null) => {
+const switchStyle = (elm: HTMLElement, shadow: HTMLElement | ShadowRoot, styles: string[], styleDisplay: string | null) => {
 	removeStyle(shadow);
 	patchStyle(shadow, styles);
-	elm.style.visibility = styleVisibility as string; // null remove the style property visibility
+	deleteDoneTask(elm);
+	elm.style.setProperty('opacity', styleDisplay);
 };
 
-const logHydratedHistory = (themeDetails: ThemeDetails) => {
-	if (themeDetails.loglevel === 'debug') {
-		STORE.A11yUi.HYDRATED_HISTORY.push({
-			timestamp: Date.now(),
-			numberOfTasks: STORE.A11yUi.STYLING_TASK_QUEUE.size,
-		});
+const runStyling = (elm: HTMLElement) => {
+	const task = STORE.A11yUi.STYLING_TASK_QUEUE.get(elm);
+	if (task) {
+		const { styleVisibility, themeDetails } = task;
+		setThemeStyleAfterHydrated(elm, themeDetails, styleVisibility);
+		deleteDoneTask(elm);
 	}
 };
 
-const pushToDoTask = (elm: HTMLElement, themeDetails: ThemeDetails) => {
-	STORE.A11yUi.STYLING_TASK_QUEUE.set(elm, {
-		/**
-		 * Das Element soll solange nicht sichtbar bleiben
-		 * bis der Style im DOM gesetzt ist.
-		 */
-		styleVisibility: elm.style.visibility ? `${elm.style.visibility}` : null,
-		themeDetails,
-	});
-};
-const loggedPushToDoTask = (elm: HTMLElement, themeDetails: ThemeDetails) => {
-	pushToDoTask(elm, themeDetails);
-	logHydratedHistory(themeDetails);
-};
-
-const deleteDoneTask = (elm: HTMLElement) => {
-	STORE.A11yUi.STYLING_TASK_QUEUE.delete(elm);
-};
-const loggedDeleteDoneTask = (elm: HTMLElement, themeDetails: ThemeDetails) => {
-	deleteDoneTask(elm);
-	logHydratedHistory(themeDetails);
-};
-
-const waitForHydrated = (elm: HTMLElement) => {
+let waitForHydrated = (elm: HTMLElement) => {
 	const T = setTimeout(() => {
 		clearTimeout(T);
-		if (STORE.A11yUi.STYLING_TASK_QUEUE.has(elm) && elm.classList.contains('hydrated')) {
-			const { styleVisibility: styleDisplay, themeDetails } = STORE.A11yUi.STYLING_TASK_QUEUE.get(elm) as StylingTask;
-			setThemeStyleAfterHydrated(elm, themeDetails, styleDisplay);
-			loggedDeleteDoneTask(elm, themeDetails);
+		if (elm.classList.contains('hydrated')) {
+			runStyling(elm);
 		} else {
 			waitForHydrated(elm);
 		}
-	}, 25);
-};
-
-const observerCallback = (mutationsList: MutationRecord[]) => {
-	for (const mutation of mutationsList) {
-		if (
-			/**
-			 * Save by observer config
-			 */
-			// mutation.type === 'attributes' &&
-			// mutation.attributeName === 'class' &&
-			/**
-			 * Implizit check for HTMLElement
-			 */
-			// mutation.target &&
-			STORE.A11yUi.STYLING_TASK_QUEUE.has(mutation.target as HTMLElement) &&
-			(mutation.target as HTMLElement).classList.contains('hydrated')
-		) {
-			const { styleVisibility: styleDisplay, themeDetails } = STORE.A11yUi.STYLING_TASK_QUEUE.get(mutation.target as HTMLElement) as StylingTask;
-			setThemeStyleAfterHydrated(mutation.target as HTMLElement, themeDetails, styleDisplay);
-			loggedDeleteDoneTask(mutation.target as HTMLElement, themeDetails);
-		}
-	}
-};
-
-const observerOptions = {
-	attributes: true,
-	attributeFilter: ['class'],
-	childList: false,
-	subtree: false,
+	}, CURRENT_STYLING_DELAY);
 };
 
 /**
@@ -263,24 +213,50 @@ const observerOptions = {
  * - https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
  * - https://stackoverflow.com/questions/3219758/detect-changes-in-the-dom
  */
-let observer: MutationObserver | null;
-try {
-	observer = new MutationObserver(observerCallback);
-} catch (e) {
-	void e;
-	observer = null;
+
+const observeObtions: MutationObserverInit = {
+	attributes: true,
+	attributeFilter: ['class'],
+	childList: false,
+	subtree: false,
+};
+
+if (SUPPORTS_MUTATION_OBSERVER) {
+	waitForHydrated = (elm: HTMLElement) =>
+		new MutationObserver((entries, observer) => {
+			for (const entry of entries) {
+				const elm = entry.target as HTMLElement;
+				if (elm.classList.contains('hydrated')) {
+					runStyling(elm);
+					observer.disconnect();
+				}
+			}
+		}).observe(elm, observeObtions);
+	recalculateStylingDelay = () => void 0;
 }
 
+const pushToDoTask = (elm: HTMLElement, themeDetails: ThemeDetails) => {
+	STORE.A11yUi.STYLING_TASK_QUEUE.set(elm, {
+		/**
+		 * Das Element soll solange nicht sichtbar bleiben
+		 * bis der Style im DOM gesetzt ist.
+		 */
+		styleVisibility: elm.style.opacity || null,
+		themeDetails,
+	});
+	elm.style.setProperty('opacity', '0.01', 'important');
+
+	waitForHydrated(elm);
+};
+
+const deleteDoneTask = (elm: HTMLElement) => {
+	STORE.A11yUi.STYLING_TASK_QUEUE.delete(elm);
+	recalculateStylingDelay();
+};
+
 export const setThemeStyle = (elm: HTMLElement, themeDetails: ThemeDetails) => {
-	themeDetails = {
+	pushToDoTask(elm, {
 		...STORE.A11yUi.Theme,
 		...themeDetails,
-	};
-	loggedPushToDoTask(elm, themeDetails);
-	if (observer) {
-		observer.observe(elm, observerOptions);
-	} else {
-		waitForHydrated(elm);
-	}
-	elm.style.visibility = 'hidden';
+	});
 };
