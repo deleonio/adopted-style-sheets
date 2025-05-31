@@ -9,11 +9,10 @@ let warrentyWarning = false;
 
 // https://regex101.com/r/nEcl8u/1
 const THEME_NAME_PATTERN = /^[a-z][a-z0-9]{1,}(-[a-z0-9]+)?$/;
-const isThemeNameValid = (name: unknown): boolean => {
-	return typeof name === 'string' && THEME_NAME_PATTERN.test(name);
-};
+const isThemeNameValid = (name: unknown): boolean => typeof name === 'string' && THEME_NAME_PATTERN.test(name);
+
 const validateThemeName = (name: unknown) => {
-	if (isThemeNameValid(name) === false) {
+	if (!isThemeNameValid(name)) {
 		throw new Error(
 			`[Theming] The theme identifier "${
 				typeof name === 'string' ? name : ''
@@ -21,6 +20,14 @@ const validateThemeName = (name: unknown) => {
 		);
 	}
 };
+
+const minifyCss = (css: string) =>
+	css
+		.replace(/\/\*[\s\S]*?\*\//g, '') // Entferne Kommentare
+		.replace(/\s*([{}:;,])\s*/g, '$1') // Entferne Leerzeichen rund um Tokens
+		.replace(/\s+/g, ' ') // Reduziere Mehrfach-Whitespace auf ein Leerzeichen
+		.replace(/;\}/g, '}') // Entferne unnötiges Semikolon vor geschweifter Klammer
+		.trim();
 
 /**
  * @deprecated use setThemeTag instead
@@ -33,31 +40,35 @@ export const setThemeTag = (themeName: string, tagName: Generic.Theming.Props<st
 	options.append = options.append ?? false;
 
 	validateThemeName(themeName);
-	if (lockThemePatching === true && warrentyWarning === false) {
+	if (lockThemePatching && !warrentyWarning) {
 		warrentyWarning = true;
 		log.warn(
 			`[Theming] The theme process is locked. This means that the theme "${themeName}" should not be patched.
 
-	import { register } from 'adopted-style-sheets';
-	import { defineCustomElements } from '...';
-	import { THEME } from '...';
+    import { register } from 'adopted-style-sheets';
+    import { defineCustomElements } from '...';
+    import { THEME } from '...';
 
-	register(THEME, defineCustomElements)
-	.then(() => {
-		// run your app or website
-	})
-	.catch(console.warn);`,
+    register(THEME, defineCustomElements)
+    .then(() => {
+        // run your app or website
+    })
+    .catch(console.warn);`,
 		);
 	}
 
-	if (typeof STORE.A11yUi.Themes[themeName] !== 'object' || STORE.A11yUi.Themes[themeName] === null) {
-		STORE.A11yUi.Themes[themeName] = {};
+	// Refactored: Use THEMES Map instead of Themes object
+	let themeMap = STORE.A11yUi.THEMES.get(themeName);
+	if (!themeMap) {
+		themeMap = new Map();
+		STORE.A11yUi.THEMES.set(themeName, themeMap);
 	}
 
-	if (options.append && typeof (STORE.A11yUi.Themes[themeName] as Record<string, unknown>)[tagName] === 'string') {
-		((STORE.A11yUi.Themes[themeName] as Record<string, unknown>)[tagName] as string) += css;
+	if (options.append && themeMap.has(tagName)) {
+		const prev = themeMap.get(tagName) as string;
+		themeMap.set(tagName, minifyCss(`${prev}${css}`));
 	} else {
-		(STORE.A11yUi.Themes[themeName] as Record<string, unknown>)[tagName] = css;
+		themeMap.set(tagName, minifyCss(css));
 	}
 };
 
@@ -233,14 +244,15 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): vo
 	}
 };
 
-export const getRegisteredThemeNames = () => {
-	return Object.keys(STORE.A11yUi.Themes);
+// Refactored: Use THEMES Map for all theme queries
+export const getRegisteredThemeNames = (): string[] => {
+	return Array.from(STORE.A11yUi.THEMES.keys());
 };
-export const getRegisteredThemes = () => {
-	return STORE.A11yUi.Themes;
+export const getRegisteredThemes = (): Map<string, Map<string, string>> => {
+	return STORE.A11yUi.THEMES;
 };
-export const getRegisteredThemeByName = (themeName: string) => {
-	return STORE.A11yUi.Themes[themeName];
+export const getRegisteredThemeByName = (themeName: string): Map<string, string> | undefined => {
+	return STORE.A11yUi.THEMES.get(themeName);
 };
 
 let registered = false;
@@ -253,9 +265,12 @@ export const register = (
 	loaders: LoaderCallback | LoaderCallback[] | Set<LoaderCallback>,
 	options: RegisterOptions = {},
 ): Promise<void[]> => {
-	if (registered === false) {
+	if (!registered) {
 		registered = true;
 		lockThemePatching = false;
+		if (typeof window !== 'undefined') {
+			window.A11yUi = STORE.A11yUi;
+		}
 	}
 	if (typeof themes === 'function') {
 		themes = new Set([themes]);

@@ -29,20 +29,9 @@ const extractProperties = (themeName: string, css: string) => {
 };
 
 export const getCssStyle = (themeName: string, tagName: Generic.Theming.Props<string, string>): string => {
-	if (
-		/**
-		 * Search custom StyleSheet in Config
-		 * TODO: Performance???
-		 */
-		typeof STORE.A11yUi === 'object' &&
-		STORE.A11yUi !== null &&
-		typeof STORE.A11yUi.Themes === 'object' &&
-		STORE.A11yUi.Themes !== null &&
-		typeof STORE.A11yUi.Themes[themeName] === 'object' &&
-		STORE.A11yUi.Themes[themeName] !== null &&
-		typeof (STORE.A11yUi.Themes[themeName] as Record<string, unknown>)[tagName] === 'string'
-	) {
-		return ((STORE.A11yUi.Themes[themeName] as Record<string, unknown>)[tagName] as string).replace(/\r?\n/g, '');
+	const themeMap = STORE.A11yUi.THEMES.get(themeName);
+	if (typeof STORE.A11yUi === 'object' && STORE.A11yUi !== null && themeMap instanceof Map && themeMap.has(tagName)) {
+		return themeMap.get(tagName)!;
 	} else {
 		return '';
 	}
@@ -181,10 +170,23 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 };
 
 const switchStyle = (elm: HTMLElement, shadow: HTMLElement | ShadowRoot, styles: string[], resetCss: () => void) => {
+	const start = performance.now();
+
 	removeStyle(shadow);
 	patchStyle(shadow, styles);
 	deleteDoneTask(elm);
 	resetCss();
+
+	if (STORE.A11yUi.PERFORMANCE_MEASURES.has(elm.tagName)) {
+		const existingMeasure = STORE.A11yUi.PERFORMANCE_MEASURES.get(elm.tagName)!;
+		existingMeasure.count += 1;
+		existingMeasure.totalTime += performance.now() - start;
+	} else {
+		STORE.A11yUi.PERFORMANCE_MEASURES.set(elm.tagName, {
+			count: 1,
+			totalTime: performance.now() - start,
+		});
+	}
 };
 
 const runStyling = (elm: HTMLElement) => {
@@ -214,24 +216,33 @@ let waitForHydrated = (elm: HTMLElement) => {
  * - https://stackoverflow.com/questions/3219758/detect-changes-in-the-dom
  */
 
-const observeObtions: MutationObserverInit = {
+const observeOptions: MutationObserverInit = {
 	attributes: true,
 	attributeFilter: ['class'],
 	childList: false,
 	subtree: false,
 };
+const unobserveOptions: MutationObserverInit = {
+	attributes: true,
+	attributeFilter: [],
+	childList: false,
+	subtree: false,
+};
 
-if (SUPPORTS_MUTATION_OBSERVER) {
-	waitForHydrated = (elm: HTMLElement) =>
-		new MutationObserver((entries, observer) => {
+const mutationobserver = SUPPORTS_MUTATION_OBSERVER
+	? new MutationObserver((entries, observer) => {
 			for (const entry of entries) {
 				const elm = entry.target as HTMLElement;
 				if (elm.classList.contains('hydrated')) {
 					runStyling(elm);
-					observer.disconnect();
+					observer.observe(elm, unobserveOptions);
 				}
 			}
-		}).observe(elm, observeObtions);
+		})
+	: null;
+
+if (mutationobserver) {
+	waitForHydrated = (elm: HTMLElement) => mutationobserver.observe(elm, observeOptions);
 	recalculateStylingDelay = () => void 0;
 }
 
@@ -259,7 +270,7 @@ const pushToDoTask = (elm: HTMLElement, themeDetails: ThemeDetails) => {
 			if (delay > 0) {
 				setTimeout(() => {
 					elm.style.setProperty('visibility', storeCssProperty);
-				}, 25);
+				}, delay);
 			} else {
 				elm.style.setProperty('visibility', storeCssProperty);
 			}

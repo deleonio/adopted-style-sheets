@@ -1,11 +1,14 @@
-import type { Generic } from './';
-import type { ThemeDetails } from './theme';
+import type { Measure, StylingTask } from './lib/window';
+import type { RegisterThemeOptions } from './theme';
 
 declare global {
 	interface Window {
 		A11yUi: {
-			Theme?: ThemeDetails;
-			Themes?: Record<string, Generic.Theming.Map<string, string>>;
+			CSS_STYLE_CACHE: Map<string, Map<string, string[]>>;
+			STYLING_TASK_QUEUE: Map<HTMLElement, StylingTask>;
+			Theme?: RegisterThemeOptions;
+			THEMES: Map<string, Map<string, string>>;
+			PERFORMANCE_MEASURES: Map<string, Measure>;
 		} & Record<string, unknown>;
 	}
 }

@@ -5,23 +5,23 @@ export type StylingTask = {
 	themeDetails: ThemeDetails;
 };
 
-type History = {
-	timestamp: number;
-	numberOfTasks: number;
+export type Measure = {
+	count: number;
+	totalTime: number;
 };
 
 type Store = {
 	A11yUi: {
 		CSS_STYLE_CACHE: Map<string, Map<string, string[]>>;
-		HYDRATED_HISTORY: History[];
+		PERFORMANCE_MEASURES: Map<string, Measure>;
 		STYLING_TASK_QUEUE: Map<HTMLElement, StylingTask>;
 		Theme?: RegisterThemeOptions;
-		Themes: Record<string, unknown>;
+		THEMES: Map<string, Map<string, string>>;
+		showAverageTimes: () => Record<string, number[]>;
 	};
 };
 
 const CSS_STYLE_CACHE: Map<string, Map<string, string[]>> = new Map();
-const HYDRATED_HISTORY: History[] = [];
 const STYLING_TASK_QUEUE: Map<HTMLElement, StylingTask> = new Map();
 
 /**
@@ -36,8 +36,17 @@ const STYLING_TASK_QUEUE: Map<HTMLElement, StylingTask> = new Map();
 export const STORE: Store = {
 	A11yUi: {
 		CSS_STYLE_CACHE,
-		HYDRATED_HISTORY,
+		PERFORMANCE_MEASURES: new Map(),
 		STYLING_TASK_QUEUE,
-		Themes: {},
+		THEMES: new Map(),
+		showAverageTimes: () => {
+			const averages: Record<string, number[]> = {};
+			for (const [tagName, measure] of STORE.A11yUi.PERFORMANCE_MEASURES.entries()) {
+				averages[tagName] = [measure.totalTime / measure.count, measure.count];
+			}
+			const sorted = Object.entries(averages).sort((a, b) => b[1][0] - a[1][0]);
+			console.table(Object.fromEntries(sorted.map(([tag, [avg, count]]) => [tag, { 'avg (ms)': parseFloat(avg.toFixed(2)), count }])));
+			return averages;
+		},
 	},
 };
