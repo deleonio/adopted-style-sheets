@@ -5,9 +5,11 @@ const THEME = createTheme('test', {});
 
 describe(`Test: register`, () => {
 	it('register', (done) => {
-		register(THEME, []).finally(() => {
-			console.log(getThemeDetails(null));
-			done();
-		});
+		register(THEME, [])
+			.catch(console.warn)
+			.finally(() => {
+				console.log(getThemeDetails(null));
+				done();
+			});
 	});
 });

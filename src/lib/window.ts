@@ -1,7 +1,7 @@
 import type { RegisterThemeOptions, ThemeDetails } from '../theme';
 
 export type StylingTask = {
-	styleVisibility: string | null;
+	resetCss: () => void;
 	themeDetails: ThemeDetails;
 };
 

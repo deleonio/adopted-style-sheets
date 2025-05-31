@@ -140,7 +140,7 @@ const encroachStyles = (shadow: HTMLElement | ShadowRoot, styles: string[], encr
 	}
 };
 
-const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails, styleDisplay: string | null) => {
+const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails, resetCss: () => void) => {
 	const themeName = themeDetails.name || 'default';
 
 	let shadow: HTMLElement | ShadowRoot;
@@ -155,7 +155,7 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 	}
 
 	if (STORE.A11yUi.CSS_STYLE_CACHE.get(themeName)?.has(elm.tagName)) {
-		switchStyle(elm, shadow, STORE.A11yUi.CSS_STYLE_CACHE.get(themeName)?.get(elm.tagName) as string[], styleDisplay);
+		switchStyle(elm, shadow, STORE.A11yUi.CSS_STYLE_CACHE.get(themeName)?.get(elm.tagName) as string[], resetCss);
 	} else {
 		const PROPERTY_STYLE = getCssStyle(themeName, 'PROPERTIES');
 		const GLOBAL_STYLE = getCssStyle(themeName, 'GLOBAL');
@@ -176,22 +176,22 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 			STORE.A11yUi.CSS_STYLE_CACHE.get(themeName)?.set(elm.tagName, STYLES);
 		}
 
-		switchStyle(elm, shadow, STYLES, styleDisplay);
+		switchStyle(elm, shadow, STYLES, resetCss);
 	}
 };
 
-const switchStyle = (elm: HTMLElement, shadow: HTMLElement | ShadowRoot, styles: string[], styleDisplay: string | null) => {
+const switchStyle = (elm: HTMLElement, shadow: HTMLElement | ShadowRoot, styles: string[], resetCss: () => void) => {
 	removeStyle(shadow);
 	patchStyle(shadow, styles);
 	deleteDoneTask(elm);
-	elm.style.setProperty('opacity', styleDisplay);
+	resetCss();
 };
 
 const runStyling = (elm: HTMLElement) => {
 	const task = STORE.A11yUi.STYLING_TASK_QUEUE.get(elm);
 	if (task) {
-		const { styleVisibility, themeDetails } = task;
-		setThemeStyleAfterHydrated(elm, themeDetails, styleVisibility);
+		const { resetCss, themeDetails } = task;
+		setThemeStyleAfterHydrated(elm, themeDetails, resetCss);
 		deleteDoneTask(elm);
 	}
 };
@@ -235,16 +235,38 @@ if (SUPPORTS_MUTATION_OBSERVER) {
 	recalculateStylingDelay = () => void 0;
 }
 
+const getThemeReadyDelay = (elm: HTMLElement): number => {
+	const raw = getComputedStyle(elm).getPropertyValue('--theme-visibility-delay').trim();
+	if (raw.endsWith('ms')) {
+		return parseFloat(raw);
+	} else if (raw.endsWith('s')) {
+		return parseFloat(raw) * 1000;
+	} else {
+		const fallback = parseFloat(raw);
+		return isNaN(fallback) ? 0 : fallback;
+	}
+};
+
 const pushToDoTask = (elm: HTMLElement, themeDetails: ThemeDetails) => {
+	const storeCssProperty = elm.style.visibility || null;
 	STORE.A11yUi.STYLING_TASK_QUEUE.set(elm, {
 		/**
 		 * Das Element soll solange nicht sichtbar bleiben
 		 * bis der Style im DOM gesetzt ist.
 		 */
-		styleVisibility: elm.style.opacity || null,
+		resetCss: () => {
+			const delay = getThemeReadyDelay(elm);
+			if (delay > 0) {
+				setTimeout(() => {
+					elm.style.setProperty('visibility', storeCssProperty);
+				}, 25);
+			} else {
+				elm.style.setProperty('visibility', storeCssProperty);
+			}
+		},
 		themeDetails,
 	});
-	elm.style.setProperty('opacity', '0.01', 'important');
+	elm.style.setProperty('visibility', 'hidden', 'important');
 
 	waitForHydrated(elm);
 };

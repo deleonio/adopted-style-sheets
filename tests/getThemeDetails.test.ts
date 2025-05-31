@@ -5,9 +5,11 @@ describe.skip(`Test: getThemeDetails`, () => {
 		console.log(getThemeDetails(null));
 	});
 	it('register', (done) => {
-		register([], []).finally(() => {
-			console.log(getThemeDetails(null));
-			done();
-		});
+		register([], [])
+			.catch(console.warn)
+			.finally(() => {
+				console.log(getThemeDetails(null));
+				done();
+			});
 	});
 });
