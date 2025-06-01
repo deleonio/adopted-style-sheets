@@ -30,7 +30,7 @@ const extractProperties = (themeName: string, css: string) => {
 
 export const getCssStyle = (themeName: string, tagName: Generic.Theming.Props<string, string>): string => {
 	const themeMap = STORE.A11yUi.THEMES.get(themeName);
-	if (typeof STORE.A11yUi === 'object' && STORE.A11yUi !== null && themeMap instanceof Map && themeMap.has(tagName)) {
+	if (themeMap instanceof Map && themeMap.has(tagName)) {
 		return themeMap.get(tagName)!;
 	} else {
 		return '';
@@ -246,7 +246,7 @@ if (mutationobserver) {
 	recalculateStylingDelay = () => void 0;
 }
 
-const getThemeReadyDelay = (elm: HTMLElement): number => {
+let getThemeReadyDelay = (elm: HTMLElement): number => {
 	const raw = getComputedStyle(elm).getPropertyValue('--theme-visibility-delay').trim();
 	if (raw.endsWith('ms')) {
 		return parseFloat(raw);
@@ -257,6 +257,11 @@ const getThemeReadyDelay = (elm: HTMLElement): number => {
 		return isNaN(fallback) ? 0 : fallback;
 	}
 };
+
+if (STORE.A11yUi.IS_TEST_ENVIRONMENT) {
+	getThemeReadyDelay = () => 0;
+	console.log('Test-Runner detected, disabling theme visibility delay.');
+}
 
 const pushToDoTask = (elm: HTMLElement, themeDetails: ThemeDetails) => {
 	const storeCssProperty = elm.style.visibility || null;

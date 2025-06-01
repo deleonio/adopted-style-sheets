@@ -57,7 +57,6 @@ export const setThemeTag = (themeName: string, tagName: Generic.Theming.Props<st
 		);
 	}
 
-	// Refactored: Use THEMES Map instead of Themes object
 	let themeMap = STORE.A11yUi.THEMES.get(themeName);
 	if (!themeMap) {
 		themeMap = new Map();
@@ -134,8 +133,6 @@ const getEncroachCss = (dataset: DOMStringMap = {}): false | ThemeEncroachCss =>
 };
 
 const isTheCurrentThemeConfigValid = () =>
-	typeof STORE.A11yUi === 'object' &&
-	STORE.A11yUi !== null &&
 	typeof STORE.A11yUi.Theme === 'object' &&
 	STORE.A11yUi.Theme !== null &&
 	typeof (STORE.A11yUi.Theme as Record<string, unknown>).cache === 'boolean' &&
@@ -145,9 +142,7 @@ const isTheCurrentThemeConfigValid = () =>
 	typeof (STORE.A11yUi.Theme as Record<string, unknown>).name === 'string';
 
 const isTheCurrentThemeNotDefault = () =>
-	(typeof STORE.A11yUi === 'object' && STORE.A11yUi !== null) === false ||
-	(typeof STORE.A11yUi.Theme === 'object' && STORE.A11yUi.Theme !== null) === false ||
-	(STORE.A11yUi.Theme as Record<string, unknown>).name !== 'default';
+	(typeof STORE.A11yUi.Theme === 'object' && STORE.A11yUi.Theme !== null) === false || (STORE.A11yUi.Theme as Record<string, unknown>).name !== 'default';
 
 export const getThemeDetails = (element: HTMLElement | ParentNode | null): ThemeDetails => {
 	if (isTheCurrentThemeConfigValid()) {
@@ -244,7 +239,6 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): vo
 	}
 };
 
-// Refactored: Use THEMES Map for all theme queries
 export const getRegisteredThemeNames = (): string[] => {
 	return Array.from(STORE.A11yUi.THEMES.keys());
 };

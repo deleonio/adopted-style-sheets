@@ -1,4 +1,5 @@
 import type { RegisterThemeOptions, ThemeDetails } from '../theme';
+import { isTestEnvironment } from './helpers';
 
 export type StylingTask = {
 	resetCss: () => void;
@@ -13,6 +14,7 @@ export type Measure = {
 type Store = {
 	A11yUi: {
 		CSS_STYLE_CACHE: Map<string, Map<string, string[]>>;
+		IS_TEST_ENVIRONMENT: boolean;
 		PERFORMANCE_MEASURES: Map<string, Measure>;
 		STYLING_TASK_QUEUE: Map<HTMLElement, StylingTask>;
 		Theme?: RegisterThemeOptions;
@@ -20,9 +22,6 @@ type Store = {
 		showAverageTimes: () => Record<string, number[]>;
 	};
 };
-
-const CSS_STYLE_CACHE: Map<string, Map<string, string[]>> = new Map();
-const STYLING_TASK_QUEUE: Map<HTMLElement, StylingTask> = new Map();
 
 /**
  * We try to store our date in the global window object.
@@ -35,9 +34,10 @@ const STYLING_TASK_QUEUE: Map<HTMLElement, StylingTask> = new Map();
  */
 export const STORE: Store = {
 	A11yUi: {
-		CSS_STYLE_CACHE,
+		CSS_STYLE_CACHE: new Map(),
+		IS_TEST_ENVIRONMENT: isTestEnvironment(),
 		PERFORMANCE_MEASURES: new Map(),
-		STYLING_TASK_QUEUE,
+		STYLING_TASK_QUEUE: new Map(),
 		THEMES: new Map(),
 		showAverageTimes: () => {
 			const averages: Record<string, number[]> = {};
