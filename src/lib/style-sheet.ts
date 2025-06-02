@@ -263,6 +263,11 @@ if (STORE.A11yUi.IS_TEST_ENVIRONMENT) {
 	console.log('Test-Runner detected, disabling theme visibility delay.');
 }
 
+const setVisibility = (elm: HTMLElement, storeCssProperty: string | null) => {
+	elm.style.setProperty('visibility', storeCssProperty);
+	elm.classList.add('themed');
+};
+
 const pushToDoTask = (elm: HTMLElement, themeDetails: ThemeDetails) => {
 	const storeCssProperty = elm.style.visibility || null;
 	STORE.A11yUi.STYLING_TASK_QUEUE.set(elm, {
@@ -274,10 +279,10 @@ const pushToDoTask = (elm: HTMLElement, themeDetails: ThemeDetails) => {
 			const delay = getThemeReadyDelay(elm);
 			if (delay > 0) {
 				setTimeout(() => {
-					elm.style.setProperty('visibility', storeCssProperty);
+					setVisibility(elm, storeCssProperty);
 				}, delay);
 			} else {
-				elm.style.setProperty('visibility', storeCssProperty);
+				setVisibility(elm, storeCssProperty);
 			}
 		},
 		themeDetails,
