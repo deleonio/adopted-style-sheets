@@ -265,7 +265,7 @@ if (STORE.A11yUi.IS_TEST_ENVIRONMENT) {
 
 const setVisibility = (elm: HTMLElement, storeCssProperty: string | null) => {
 	elm.style.setProperty('visibility', storeCssProperty);
-	elm.classList.add('themed');
+	elm.dataset.themed = '';
 };
 
 const pushToDoTask = (elm: HTMLElement, themeDetails: ThemeDetails) => {
