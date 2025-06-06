@@ -259,8 +259,8 @@ let getThemeReadyDelay = (elm: HTMLElement): number => {
 };
 
 if (STORE.A11yUi.IS_TEST_ENVIRONMENT) {
+	// Test-Runner detected, disabling theme visibility delay.
 	getThemeReadyDelay = () => 0;
-	console.log('Test-Runner detected, disabling theme visibility delay.');
 }
 
 const setVisibility = (elm: HTMLElement, storeCssProperty: string | null) => {
