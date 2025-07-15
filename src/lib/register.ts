@@ -24,7 +24,8 @@ const validateThemeName = (name: unknown) => {
 const minifyCss = (css: string) =>
 	css
 		.replace(/\/\*[\s\S]*?\*\//g, '') // Entferne Kommentare
-		.replace(/\s*([{}:;,])\s*/g, '$1') // Entferne Leerzeichen rund um Tokens
+		.replace(/\s*([{},;])\s*/g, '$1') // Entferne Leerzeichen rund um Tokens (ohne ':')
+		.replace(/:\s+/g, ':') // Entferne Leerzeichen nach ':'
 		.replace(/\s+/g, ' ') // Reduziere Mehrfach-Whitespace auf ein Leerzeichen
 		.replace(/;\}/g, '}') // Entferne unnötiges Semikolon vor geschweifter Klammer
 		.trim();
