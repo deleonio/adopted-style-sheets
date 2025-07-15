@@ -1,4 +1,4 @@
-import { getThemeDetails, register } from '../src';
+import { register, getThemeDetails } from '../src/lib/register';
 import { createTheme } from '../src/theming';
 
 const THEME = createTheme('test', {});
