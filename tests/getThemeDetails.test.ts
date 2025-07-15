@@ -1,4 +1,4 @@
-import { getThemeDetails, register } from '../src';
+import { getThemeDetails, register } from '../src/lib/register';
 
 describe.skip(`Test: getThemeDetails`, () => {
 	it('getThemeDetails > null', () => {
