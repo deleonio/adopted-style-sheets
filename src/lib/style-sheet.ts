@@ -3,6 +3,7 @@ import { STORE } from '../';
 import type { ThemeEncroachCss } from '../theme';
 
 const CSS_PROPERTIES_REGISTERED: Set<string> = new Set();
+const CSS_SHEET_CACHE: Map<string, CSSStyleSheet> = new Map();
 const REGEX_CSS_PROPERTIES = /--[^;]+/g;
 const REGEX_SPLIT_CSS_PROPERTY = /:/;
 
@@ -30,14 +31,20 @@ const extractProperties = (themeName: string, css: string) => {
 
 export const getCssStyle = (themeName: string, tagName: Generic.Theming.Props<string, string>): string => {
 	const themeMap = STORE.A11yUi.THEMES.get(themeName);
-	if (themeMap instanceof Map && themeMap.has(tagName)) {
-		return themeMap.get(tagName)!;
-	} else {
-		return '';
+	if (themeMap instanceof Map) {
+		const style = themeMap.get(tagName);
+		if (style !== undefined) {
+			return style;
+		}
 	}
+	return '';
 };
 
 const removeStyle = (shadow: HTMLElement | ShadowRoot) => {
+	const firstChild = shadow.firstChild;
+	if (!(firstChild instanceof HTMLStyleElement) || firstChild.dataset.themingFallback !== undefined) {
+		return;
+	}
 	for (const childNode of Array.from(shadow.childNodes)) {
 		if (childNode instanceof HTMLStyleElement && childNode.tagName === 'STYLE' && childNode.dataset.themingFallback === undefined) {
 			shadow.removeChild(childNode);
@@ -52,19 +59,26 @@ const patchStyle = (shadow: HTMLElement | ShadowRoot, styles: string[]) => {
 		if (STORE.A11yUi.Theme?.mode === 'ssr') {
 			throw new Error('SSR');
 		}
-		const styleSheets: CSSStyleSheet[] = [];
-		styles.forEach((style) => {
-			const styleSheet: CSSStyleSheet = new CSSStyleSheet();
-			styleSheet.replaceSync(style);
-			styleSheets.push(styleSheet);
-		});
+		const styleSheets: CSSStyleSheet[] = styles
+			.filter((style) => typeof style === 'string' && style.length > 0)
+			.map((style) => {
+				let sheet = CSS_SHEET_CACHE.get(style);
+				if (!sheet) {
+					sheet = new CSSStyleSheet();
+					sheet.replaceSync(style);
+					CSS_SHEET_CACHE.set(style, sheet);
+				}
+				return sheet;
+			});
 		(shadow as ShadowRoot).adoptedStyleSheets = styleSheets;
 	} catch (e) {
 		void e;
-		[...styles].reverse().forEach((style, idx) => {
+		for (let i = styles.length - 1; i >= 0; i--) {
+			const style = styles[i];
 			if (typeof style !== 'string' || style.length === 0) {
-				return;
+				continue;
 			}
+			const idx = styles.length - 1 - i;
 			const styleElement: HTMLStyleElement = document.createElement('style');
 			styleElement.dataset.themingFallback = '';
 			switch (idx) {
@@ -89,43 +103,51 @@ const patchStyle = (shadow: HTMLElement | ShadowRoot, styles: string[]) => {
 			}
 			styleElement.innerHTML = style;
 			shadow.insertBefore(styleElement, shadow.firstChild);
-		});
+		}
 	}
 };
 
 const encroachStyles = (shadow: HTMLElement | ShadowRoot, styles: string[], encroachCss?: ThemeEncroachCss | false) => {
-	if (encroachCss !== false) {
-		const defaultStyleNodes: HTMLStyleElement[] = [
-			...Array.from(shadow.childNodes).filter((node) => node instanceof HTMLStyleElement && node.tagName === 'STYLE'),
-		] as HTMLStyleElement[];
+	if (encroachCss === false || (encroachCss?.mode !== 'before' && encroachCss?.mode !== 'after')) {
+		return;
+	}
 
-		let defaultStyleSheets: CSSStyleSheet[];
-		try {
-			defaultStyleSheets = [...Array.from((shadow as ShadowRoot).adoptedStyleSheets)];
-		} catch (e) {
-			void e;
-			defaultStyleSheets = [];
-		}
+	const defaultStyleNodes = Array.from(shadow.childNodes).filter(
+		(node): node is HTMLStyleElement => node instanceof HTMLStyleElement && node.tagName === 'STYLE',
+	);
 
-		if (encroachCss?.mode === 'before') {
-			defaultStyleNodes.reverse().forEach((style) => styles.unshift(style.innerHTML));
-			defaultStyleSheets.reverse().forEach((style) =>
-				styles.unshift(
-					Array.from(style.cssRules)
-						.map((rule) => rule.cssText)
-						.join(''),
-				),
-			);
-		} else if (encroachCss?.mode === 'after') {
-			defaultStyleNodes.forEach((style) => styles.push(style.innerHTML));
-			defaultStyleSheets.forEach((style) =>
-				styles.push(
-					Array.from(style.cssRules)
-						.map((rule) => rule.cssText)
-						.join(''),
-				),
-			);
-		}
+	let defaultStyleSheets: CSSStyleSheet[];
+	try {
+		defaultStyleSheets = Array.from((shadow as ShadowRoot).adoptedStyleSheets);
+	} catch (e) {
+		void e;
+		defaultStyleSheets = [];
+	}
+
+	if (defaultStyleNodes.length === 0 && defaultStyleSheets.length === 0) {
+		return;
+	}
+
+	if (encroachCss.mode === 'before') {
+		// Collect all prepend strings then splice once to avoid O(n²) unshift-in-loop
+		const prepend: string[] = [
+			...defaultStyleSheets.map((style) =>
+				Array.from(style.cssRules)
+					.map((rule) => rule.cssText)
+					.join(''),
+			),
+			...defaultStyleNodes.map((style) => style.innerHTML),
+		];
+		styles.unshift(...prepend);
+	} else {
+		defaultStyleNodes.forEach((style) => styles.push(style.innerHTML));
+		defaultStyleSheets.forEach((style) =>
+			styles.push(
+				Array.from(style.cssRules)
+					.map((rule) => rule.cssText)
+					.join(''),
+			),
+		);
 	}
 };
 
@@ -143,8 +165,11 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 		shadow = elm;
 	}
 
-	if (STORE.A11yUi.CSS_STYLE_CACHE.get(themeName)?.has(elm.tagName)) {
-		switchStyle(elm, shadow, STORE.A11yUi.CSS_STYLE_CACHE.get(themeName)?.get(elm.tagName) as string[], resetCss);
+	const themeCache = STORE.A11yUi.CSS_STYLE_CACHE.get(themeName);
+	const cachedStyles = themeCache?.get(elm.tagName);
+
+	if (cachedStyles) {
+		switchStyle(elm, shadow, cachedStyles, resetCss);
 	} else {
 		const PROPERTY_STYLE = getCssStyle(themeName, 'PROPERTIES');
 		const GLOBAL_STYLE = getCssStyle(themeName, 'GLOBAL');
@@ -159,10 +184,12 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 		encroachStyles(shadow, STYLES, themeDetails.encroachCss);
 
 		if (themeDetails.cache === true) {
-			if (STORE.A11yUi.CSS_STYLE_CACHE.has(themeName) === false) {
-				STORE.A11yUi.CSS_STYLE_CACHE.set(themeName, new Map());
+			let styleCache = STORE.A11yUi.CSS_STYLE_CACHE.get(themeName);
+			if (!styleCache) {
+				styleCache = new Map();
+				STORE.A11yUi.CSS_STYLE_CACHE.set(themeName, styleCache);
 			}
-			STORE.A11yUi.CSS_STYLE_CACHE.get(themeName)?.set(elm.tagName, STYLES);
+			styleCache.set(elm.tagName, STYLES);
 		}
 
 		switchStyle(elm, shadow, STYLES, resetCss);
@@ -170,22 +197,26 @@ const setThemeStyleAfterHydrated = (elm: HTMLElement, themeDetails: ThemeDetails
 };
 
 const switchStyle = (elm: HTMLElement, shadow: HTMLElement | ShadowRoot, styles: string[], resetCss: () => void) => {
-	const start = performance.now();
+	const shouldTrack = STORE.A11yUi.Theme?.loglevel === 'debug';
+	const start = shouldTrack ? performance.now() : 0;
 
 	removeStyle(shadow);
 	patchStyle(shadow, styles);
 	deleteDoneTask(elm);
-	resetCss();
+	requestAnimationFrame(resetCss);
 
-	if (STORE.A11yUi.PERFORMANCE_MEASURES.has(elm.tagName)) {
-		const existingMeasure = STORE.A11yUi.PERFORMANCE_MEASURES.get(elm.tagName)!;
-		existingMeasure.count += 1;
-		existingMeasure.totalTime += performance.now() - start;
-	} else {
-		STORE.A11yUi.PERFORMANCE_MEASURES.set(elm.tagName, {
-			count: 1,
-			totalTime: performance.now() - start,
-		});
+	if (shouldTrack) {
+		const elapsed = performance.now() - start;
+		const existingMeasure = STORE.A11yUi.PERFORMANCE_MEASURES.get(elm.tagName);
+		if (existingMeasure) {
+			existingMeasure.count += 1;
+			existingMeasure.totalTime += elapsed;
+		} else {
+			STORE.A11yUi.PERFORMANCE_MEASURES.set(elm.tagName, {
+				count: 1,
+				totalTime: elapsed,
+			});
+		}
 	}
 };
 
@@ -194,17 +225,19 @@ const runStyling = (elm: HTMLElement) => {
 	if (task) {
 		const { resetCss, themeDetails } = task;
 		setThemeStyleAfterHydrated(elm, themeDetails, resetCss);
-		deleteDoneTask(elm);
 	}
 };
 
-let waitForHydrated = (elm: HTMLElement) => {
+const MAX_HYDRATION_RETRIES = 100;
+
+let waitForHydrated = (elm: HTMLElement, retries = 0) => {
+	if (retries >= MAX_HYDRATION_RETRIES) return;
 	const T = setTimeout(() => {
 		clearTimeout(T);
 		if (elm.classList.contains('hydrated')) {
 			runStyling(elm);
 		} else {
-			waitForHydrated(elm);
+			waitForHydrated(elm, retries + 1);
 		}
 	}, CURRENT_STYLING_DELAY);
 };
@@ -231,12 +264,16 @@ const unobserveOptions: MutationObserverInit = {
 
 const mutationobserver = SUPPORTS_MUTATION_OBSERVER
 	? new MutationObserver((entries, observer) => {
+			const styledElements: HTMLElement[] = [];
 			for (const entry of entries) {
 				const elm = entry.target as HTMLElement;
-				if (elm.classList.contains('hydrated')) {
+				if (elm.classList.contains('hydrated') && STORE.A11yUi.STYLING_TASK_QUEUE.has(elm)) {
 					runStyling(elm);
-					observer.observe(elm, unobserveOptions);
+					styledElements.push(elm);
 				}
+			}
+			for (const elm of styledElements) {
+				observer.observe(elm, unobserveOptions);
 			}
 		})
 	: null;
@@ -246,16 +283,27 @@ if (mutationobserver) {
 	recalculateStylingDelay = () => void 0;
 }
 
-let getThemeReadyDelay = (elm: HTMLElement): number => {
+const THEME_DELAY_CACHE: Map<string, number> = new Map();
+
+let getThemeReadyDelay = (elm: HTMLElement, themeName?: string): number => {
+	if (themeName) {
+		const cached = THEME_DELAY_CACHE.get(themeName);
+		if (cached !== undefined) return cached;
+	}
 	const raw = getComputedStyle(elm).getPropertyValue('--theme-visibility-delay').trim();
+	let delay: number;
 	if (raw.endsWith('ms')) {
-		return parseFloat(raw);
+		delay = parseFloat(raw);
 	} else if (raw.endsWith('s')) {
-		return parseFloat(raw) * 1000;
+		delay = parseFloat(raw) * 1000;
 	} else {
 		const fallback = parseFloat(raw);
-		return isNaN(fallback) ? 0 : fallback;
+		delay = isNaN(fallback) ? 0 : fallback;
 	}
+	if (themeName) {
+		THEME_DELAY_CACHE.set(themeName, delay);
+	}
+	return delay;
 };
 
 if (STORE.A11yUi.IS_TEST_ENVIRONMENT) {
@@ -270,13 +318,14 @@ const setVisibility = (elm: HTMLElement, storeCssProperty: string | null) => {
 
 const pushToDoTask = (elm: HTMLElement, themeDetails: ThemeDetails) => {
 	const storeCssProperty = elm.style.visibility || null;
+	const themeName = themeDetails.name || 'default';
 	STORE.A11yUi.STYLING_TASK_QUEUE.set(elm, {
 		/**
 		 * Das Element soll solange nicht sichtbar bleiben
 		 * bis der Style im DOM gesetzt ist.
 		 */
 		resetCss: () => {
-			const delay = getThemeReadyDelay(elm);
+			const delay = getThemeReadyDelay(elm, themeName);
 			if (delay > 0) {
 				setTimeout(() => {
 					setVisibility(elm, storeCssProperty);
