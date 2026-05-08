@@ -6,7 +6,6 @@
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
 		"esModuleInterop": true,
-		"types": ["mocha"],
 		"lib": ["dom", "es2015"],
 		"module": "ESNext",
 		"moduleResolution": "node",
@@ -21,6 +20,7 @@
 		"forceConsistentCasingInFileNames": false,
 		"importHelpers": false,
 		"strict": true,
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"types": ["mocha"]
 	}
 }

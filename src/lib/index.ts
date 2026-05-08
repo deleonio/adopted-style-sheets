@@ -1,4 +1,6 @@
 export {
+	getDefaultThemeDetails,
+	getDefaultThemeName,
 	getRegisteredThemeByName,
 	getRegisteredThemeNames,
 	getRegisteredThemes,

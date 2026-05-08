@@ -174,6 +174,28 @@ export const getTheme = (element: HTMLElement | ParentNode | null): string | nul
 };
 
 /**
+ * Returns the name of the default theme that was primarily registered via `register()`.
+ * Returns `null` if no theme was registered with 'fixed' detection mode.
+ */
+export const getDefaultThemeName = (): string | null => {
+	if (isTheCurrentThemeConfigValid()) {
+		return (STORE.A11yUi.Theme as ThemeDetails).name;
+	}
+	return null;
+};
+
+/**
+ * Returns the full theme details of the default theme that was primarily registered via `register()`.
+ * Returns `null` if no theme was registered with 'fixed' detection mode.
+ */
+export const getDefaultThemeDetails = (): ThemeDetails | null => {
+	if (isTheCurrentThemeConfigValid()) {
+		return STORE.A11yUi.Theme as ThemeDetails;
+	}
+	return null;
+};
+
+/**
  * Set the theming option defaults.
  */
 const getThemeOptionDefaults = (themeName: string, options: RegisterThemeOptions): Required<RegisterThemeOptions> => {

@@ -36,6 +36,8 @@ export class Theme<Prefix extends string, Key extends string, Tag extends string
 export {
 	RobustStore,
 	getCssStyle,
+	getDefaultThemeDetails,
+	getDefaultThemeName,
 	getRegisteredThemeByName,
 	getRegisteredThemeNames,
 	getRegisteredThemes,
