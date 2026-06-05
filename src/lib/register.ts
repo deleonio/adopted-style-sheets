@@ -1,7 +1,7 @@
 import log from 'loglevel';
 
 import type { Generic } from '../';
-import type { LoaderCallback, RegisterOptions, RegisterThemeOptions, ThemeDetails, ThemeEncroachCss } from '../theme';
+import type { FeatureFlags, LoaderCallback, RegisterOptions, RegisterThemeOptions, ThemeDetails, ThemeEncroachCss } from '../theme';
 import { STORE } from './window';
 
 let lockThemePatching = true;
@@ -262,6 +262,24 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): vo
 	}
 };
 
+/**
+ * Kombiniert mehrere Feature-Flag-Objekte zu einem. Spätere Einträge überschreiben frühere.
+ * Typisches Muster: mergeFeatureFlags(THEME_DEFAULTS, appOverrides)
+ */
+export const mergeFeatureFlags = (...sets: (FeatureFlags | undefined)[]): FeatureFlags => {
+	const result: FeatureFlags = {};
+	for (const set of sets) {
+		if (set) Object.assign(result, set);
+	}
+	return result;
+};
+
+/**
+ * Gibt den Wert eines Feature-Flags zurück, das via register() gesetzt wurde.
+ * Gibt undefined zurück wenn das Flag nicht gesetzt ist.
+ */
+export const getFeatureFlag = (key: string): unknown => (STORE.A11yUi.Features as Record<string, unknown>)[key];
+
 export const getRegisteredThemeNames = (): string[] => {
 	return Array.from(STORE.A11yUi.THEMES.keys());
 };
@@ -315,6 +333,9 @@ export const register = (
 		});
 	}
 	lockThemePatching = true;
+	if (options.features) {
+		STORE.A11yUi.Features = mergeFeatureFlags(STORE.A11yUi.Features, options.features);
+	}
 	if (typeof loaders === 'function') {
 		loaders = new Set([loaders]);
 	} else if (Array.isArray(loaders)) {

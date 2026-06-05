@@ -1,4 +1,4 @@
-import type { RegisterThemeOptions, ThemeDetails } from '../theme';
+import type { FeatureFlags, RegisterThemeOptions, ThemeDetails } from '../theme';
 import { isTestEnvironment } from './helpers';
 
 export type StylingTask = {
@@ -14,6 +14,7 @@ export type Measure = {
 type Store = {
 	A11yUi: {
 		CSS_STYLE_CACHE: Map<string, Map<string, string[]>>;
+		Features: FeatureFlags;
 		IS_TEST_ENVIRONMENT: boolean;
 		PERFORMANCE_MEASURES: Map<string, Measure>;
 		STYLING_TASK_QUEUE: Map<HTMLElement, StylingTask>;
@@ -35,6 +36,7 @@ type Store = {
 export const STORE: Store = {
 	A11yUi: {
 		CSS_STYLE_CACHE: new Map(),
+		Features: {},
 		IS_TEST_ENVIRONMENT: isTestEnvironment(),
 		PERFORMANCE_MEASURES: new Map(),
 		STYLING_TASK_QUEUE: new Map(),

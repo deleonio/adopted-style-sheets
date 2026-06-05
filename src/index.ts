@@ -38,11 +38,13 @@ export {
 	getCssStyle,
 	getDefaultThemeDetails,
 	getDefaultThemeName,
+	getFeatureFlag,
 	getRegisteredThemeByName,
 	getRegisteredThemeNames,
 	getRegisteredThemes,
 	getTheme,
 	getThemeDetails,
+	mergeFeatureFlags,
 	patchTheme,
 	patchThemeTag,
 	register,
@@ -51,4 +53,4 @@ export {
 	setThemeTag,
 } from './lib';
 export { STORE } from './lib/window';
-export type { LoaderCallback, RegisterOptions, ThemeDetails } from './theme';
+export type { FeatureFlags, LoaderCallback, RegisterOptions, ThemeDetails } from './theme';

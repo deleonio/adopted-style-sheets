@@ -1,11 +1,13 @@
 export {
 	getDefaultThemeDetails,
 	getDefaultThemeName,
+	getFeatureFlag,
 	getRegisteredThemeByName,
 	getRegisteredThemeNames,
 	getRegisteredThemes,
 	getTheme,
 	getThemeDetails,
+	mergeFeatureFlags,
 	setTheme,
 	patchTheme,
 	setThemeTag,

@@ -2,6 +2,8 @@ import type { Generic } from './';
 
 type ThemeName = string | null;
 
+export type FeatureFlags = Record<string, unknown>;
+
 type Required<T> = {
 	[P in keyof T]-?: T[P];
 };
@@ -70,6 +72,11 @@ type RegisterTranslationOptions = {
 };
 export type RegisterOptions = {
 	theme?: RegisterThemeOptions;
+	/**
+	 * Globale Feature-Flags für opt-in Komponentenverhalten. Mehrere Flag-Objekte
+	 * können per `mergeFeatureFlags()` zusammengeführt werden, wobei spätere Werte gewinnen.
+	 */
+	features?: FeatureFlags;
 	translations?:
 		| Generic.I18n.RegisterPatch<Generic.I18n.Locale.ISO_639_1, string, string>
 		| Generic.I18n.RegisterPatch<Generic.I18n.Locale.ISO_639_1, string, string>[]
