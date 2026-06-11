@@ -53,4 +53,4 @@ export {
 	setThemeTag,
 } from './lib';
 export { STORE } from './lib/window';
-export type { FeatureFlags, LoaderCallback, RegisterOptions, ThemeDetails } from './theme';
+export type { FeatureFlagRegistry, FeatureFlags, LoaderCallback, RegisterOptions, ThemeDetails } from './theme';

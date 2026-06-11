@@ -30,6 +30,32 @@ register,
 setTheme,
 setThemeStyle,
 setThemeTag,
+mergeFeatureFlags,
+getFeatureFlag,
+
+### Feature Flags
+
+Applications can opt in/out of optional component behaviors at registration time.
+Themes may ship default flags as a separate export; app-level flags win on key collisions:
+
+```ts
+import { register, mergeFeatureFlags } from 'adopted-style-sheets';
+import { THEME, FEATURE_FLAGS } from 'my-theme';
+
+register(THEME, loaders, {
+	features: mergeFeatureFlags(FEATURE_FLAGS, { myComponentFlag: 'off' }),
+});
+```
+
+Component libraries get fully typed flags by extending the registry via declaration merging:
+
+```ts
+declare module 'adopted-style-sheets' {
+	interface FeatureFlagRegistry {
+		myComponentFlag: 'on' | 'off';
+	}
+}
+```
 
 ## Contributing
 

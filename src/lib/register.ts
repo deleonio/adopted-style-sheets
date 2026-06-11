@@ -263,8 +263,8 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): vo
 };
 
 /**
- * Kombiniert mehrere Feature-Flag-Objekte zu einem. Spätere Einträge überschreiben frühere.
- * Typisches Muster: mergeFeatureFlags(THEME_DEFAULTS, appOverrides)
+ * Combines multiple feature flag objects into one without mutating the inputs.
+ * Later entries win per key. Typical pattern: mergeFeatureFlags(THEME_DEFAULTS, appOverrides)
  */
 export const mergeFeatureFlags = (...sets: (FeatureFlags | undefined)[]): FeatureFlags => {
 	const result: FeatureFlags = {};
@@ -275,10 +275,11 @@ export const mergeFeatureFlags = (...sets: (FeatureFlags | undefined)[]): Featur
 };
 
 /**
- * Gibt den Wert eines Feature-Flags zurück, das via register() gesetzt wurde.
- * Gibt undefined zurück wenn das Flag nicht gesetzt ist.
+ * Returns the value of a feature flag that was set via `register()`.
+ * Flags accumulate across multiple `register()` calls (later call wins per key).
+ * Returns `undefined` if the flag is not set.
  */
-export const getFeatureFlag = (key: string): unknown => (STORE.A11yUi.Features as Record<string, unknown>)[key];
+export const getFeatureFlag = <K extends keyof FeatureFlags>(key: K): FeatureFlags[K] => STORE.A11yUi.Features[key];
 
 export const getRegisteredThemeNames = (): string[] => {
 	return Array.from(STORE.A11yUi.THEMES.keys());

@@ -1,1 +1,1 @@
-{"exclude": ["nsExports", "namespaceMembers"], "ignoreFiles": ["nyc.config.cjs"]}
+{ "exclude": ["namespaceMembers"], "ignoreFiles": ["nyc.config.cjs"] }
