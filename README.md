@@ -47,6 +47,14 @@ register(THEME, loaders, {
 });
 ```
 
+Read a flag anywhere after registration with `getFeatureFlag`:
+
+```ts
+import { getFeatureFlag } from 'adopted-style-sheets';
+
+const mode = getFeatureFlag('myComponentFlag'); // 'on' | 'off' | undefined
+```
+
 Component libraries get fully typed flags by extending the registry via declaration merging:
 
 ```ts

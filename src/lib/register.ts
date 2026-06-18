@@ -279,7 +279,7 @@ export const mergeFeatureFlags = (...sets: (FeatureFlags | undefined)[]): Featur
  * Flags accumulate across multiple `register()` calls (later call wins per key).
  * Returns `undefined` if the flag is not set.
  */
-export const getFeatureFlag = <K extends keyof FeatureFlags>(key: K): FeatureFlags[K] => STORE.A11yUi.Features[key];
+export const getFeatureFlag = <K extends keyof FeatureFlags>(key: K): FeatureFlags[K] => STORE.A11yUi.FEATURES[key];
 
 export const getRegisteredThemeNames = (): string[] => {
 	return Array.from(STORE.A11yUi.THEMES.keys());
@@ -335,7 +335,7 @@ export const register = (
 	}
 	lockThemePatching = true;
 	if (options.features) {
-		STORE.A11yUi.Features = mergeFeatureFlags(STORE.A11yUi.Features, options.features);
+		STORE.A11yUi.FEATURES = mergeFeatureFlags(STORE.A11yUi.FEATURES, options.features);
 	}
 	if (typeof loaders === 'function') {
 		loaders = new Set([loaders]);

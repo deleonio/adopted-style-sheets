@@ -6,7 +6,7 @@ import { createTheme } from '../src/theming';
 
 describe('Test: feature flags', () => {
 	beforeEach(() => {
-		STORE.A11yUi.Features = {};
+		STORE.A11yUi.FEATURES = {};
 	});
 
 	describe('mergeFeatureFlags', () => {
