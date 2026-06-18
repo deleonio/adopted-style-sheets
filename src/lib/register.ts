@@ -313,13 +313,17 @@ export const register = (
 	} else if (Array.isArray(themes)) {
 		themes = new Set(themes);
 	}
+	const collectedThemeFeatures: FeatureFlags[] = [];
 	if (themes instanceof Set) {
 		themes.forEach((theme: (patchTheme: Generic.Theming.Patch<string, string, string>) => string) => {
 			if (typeof theme === 'function' && theme.length === 1) {
 				setConfigureTheme(
-					theme((name: string, map: Generic.Theming.Map<string, string>, patchOptions?: Generic.Theming.PatchOptions) =>
-						setTheme(name, map, patchOptions, options),
-					),
+					theme((name: string, map: Generic.Theming.Map<string, string>, patchOptions?: Generic.Theming.PatchOptions, features?: FeatureFlags) => {
+						if (features) {
+							collectedThemeFeatures.push(features);
+						}
+						return setTheme(name, map, patchOptions, options);
+					}),
 					{
 						cache: options.theme?.cache,
 						detect: options.theme?.detect,
@@ -334,8 +338,9 @@ export const register = (
 		});
 	}
 	lockThemePatching = true;
-	if (options.features) {
-		STORE.A11yUi.FEATURES = mergeFeatureFlags(STORE.A11yUi.FEATURES, options.features);
+	if (collectedThemeFeatures.length > 0 || options.features) {
+		// Theme-pinned flags are defaults; explicit options.features override per key (later wins).
+		STORE.A11yUi.FEATURES = mergeFeatureFlags(STORE.A11yUi.FEATURES, ...collectedThemeFeatures, options.features);
 	}
 	if (typeof loaders === 'function') {
 		loaders = new Set([loaders]);

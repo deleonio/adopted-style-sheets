@@ -94,8 +94,10 @@ export type RegisterOptions = {
 	theme?: RegisterThemeOptions;
 	/**
 	 * Global feature flags for opt-in component behaviors. Flags accumulate across
-	 * multiple `register()` calls; on key collisions the later call wins. Use
-	 * `mergeFeatureFlags()` to combine theme defaults with app overrides.
+	 * multiple `register()` calls; on key collisions the later call wins. These
+	 * also override any defaults pinned to a theme via `createTheme(name, map, features)`
+	 * (theme flags are defaults, these are overrides). Use `mergeFeatureFlags()`
+	 * to combine flag sets manually.
 	 */
 	features?: FeatureFlags;
 	translations?:

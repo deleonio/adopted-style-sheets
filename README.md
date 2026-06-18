@@ -36,13 +36,25 @@ getFeatureFlag,
 ### Feature Flags
 
 Applications can opt in/out of optional component behaviors at registration time.
-Themes may ship default flags as a separate export; app-level flags win on key collisions:
+
+A theme can pin its own default flags directly via `createTheme(name, map, features)`.
+They are applied automatically when the theme is registered:
+
+```ts
+import { createTheme } from 'adopted-style-sheets';
+
+export const THEME = createTheme('my-theme', THEME_MAP, { myComponentFlag: 'on' });
+```
+
+App-level flags passed to `register()` still win on key collisions, so a theme's
+flags act as defaults that the app can override:
 
 ```ts
 import { register, mergeFeatureFlags } from 'adopted-style-sheets';
 import { THEME, FEATURE_FLAGS } from 'my-theme';
 
 register(THEME, loaders, {
+	// overrides any flag the theme pinned via createTheme
 	features: mergeFeatureFlags(FEATURE_FLAGS, { myComponentFlag: 'off' }),
 });
 ```

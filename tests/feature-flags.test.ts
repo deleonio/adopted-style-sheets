@@ -46,4 +46,22 @@ describe('Test: feature flags', () => {
 			assert.equal(getFeatureFlag('b'), 'second');
 		});
 	});
+
+	describe('createTheme with pinned features', () => {
+		it('applies feature flags pinned to a theme via createTheme', async () => {
+			await register(createTheme('flags4', {}, { inputNumberButtons: 'hide' }), []);
+			assert.equal(getFeatureFlag('inputNumberButtons'), 'hide');
+		});
+
+		it('lets explicit register options.features override theme-pinned flags', async () => {
+			await register(createTheme('flags5', {}, { a: 'theme' }), [], { features: { a: 'app' } });
+			assert.equal(getFeatureFlag('a'), 'app');
+		});
+
+		it('merges pinned flags from multiple themes in one register call', async () => {
+			await register([createTheme('flags6', {}, { a: 'one' }), createTheme('flags7', {}, { b: 'two' })], []);
+			assert.equal(getFeatureFlag('a'), 'one');
+			assert.equal(getFeatureFlag('b'), 'two');
+		});
+	});
 });

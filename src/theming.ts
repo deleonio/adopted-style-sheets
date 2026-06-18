@@ -1,4 +1,5 @@
 import type { Common } from './common';
+import type { FeatureFlags } from './theme';
 
 export declare namespace Theming {
 	export type PatchOptions = {
@@ -8,20 +9,42 @@ export declare namespace Theming {
 	export type Map<Prefix extends string, Key extends string> = {
 		[K in Props<Prefix, Key>]?: string;
 	};
-	export type Patch<Name extends string, Prefix extends string, Key extends string> = (name: Name, map: Map<Prefix, Key>, options?: PatchOptions) => Name;
+	export type Patch<Name extends string, Prefix extends string, Key extends string> = (
+		name: Name,
+		map: Map<Prefix, Key>,
+		options?: PatchOptions,
+		features?: FeatureFlags,
+	) => Name;
 	export type RegisterPatch<Name extends string, Prefix extends string, Key extends string> = (patch: Patch<Name, Prefix, Key>) => Name;
 	export type Register<Name extends string, Prefix extends string, Key extends string> = (
 		name: Name,
 		map: Map<Prefix, Key>,
+		features?: FeatureFlags,
 	) => RegisterPatch<Name, Prefix, Key>;
 }
 
+/**
+ * Creates a theme patch for `register()`.
+ *
+ * @param name     Unique theme identifier.
+ * @param map      CSS map per component tag (plus `GLOBAL`/`PROPERTIES`).
+ * @param features Feature-flag defaults pinned to this theme. They are applied
+ *                 automatically when the theme is passed to `register()`. An
+ *                 explicit `register(..., { features })` still wins per key —
+ *                 theme flags are defaults, app options are overrides.
+ */
 export const createTheme: Theming.Register<string, string, string> = <Name extends string, Prefix extends string, Key extends string>(
 	name: Name,
 	map: Theming.Map<Prefix, Key>,
+	features?: FeatureFlags,
 ): Theming.RegisterPatch<Name, Prefix, Key> => {
 	return (patch): Name =>
-		patch(name, map, {
-			append: false,
-		});
+		patch(
+			name,
+			map,
+			{
+				append: false,
+			},
+			features,
+		);
 };
