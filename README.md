@@ -32,6 +32,7 @@ setThemeStyle,
 setThemeTag,
 mergeFeatureFlags,
 getFeatureFlag,
+getThemeFeatures,
 
 ### Feature Flags
 
@@ -59,12 +60,29 @@ register(THEME, loaders, {
 });
 ```
 
-Read a flag anywhere after registration with `getFeatureFlag`:
+The application only registers a theme — it does not read flags. At `register()`
+time each theme's pinned flags are stored per theme name; components resolve them
+for **their** active theme. Components read the value internally with
+`getFeatureFlag`, passing their host element so the flag is resolved from the
+nearest `data-theme` ancestor (the fixed default theme is used when no element is
+given). Resolution order, first defined wins: a global `register(..., { features })`
+override → the active theme's pinned flag → `undefined`.
 
 ```ts
 import { getFeatureFlag } from 'adopted-style-sheets';
 
-const mode = getFeatureFlag('myComponentFlag'); // 'on' | 'off' | undefined
+// inside a web component — resolves the flag for the element's theme:
+const mode = getFeatureFlag('myComponentFlag', this.host); // 'on' | 'off' | undefined
+```
+
+In `detect: 'auto'` mode several themes can be active on the same page, so two
+elements under different themes can see different values. Read a theme's pinned
+defaults directly by name with `getThemeFeatures`:
+
+```ts
+import { getThemeFeatures } from 'adopted-style-sheets';
+
+const flags = getThemeFeatures('my-theme'); // { myComponentFlag: 'on' } | undefined
 ```
 
 Component libraries get fully typed flags by extending the registry via declaration merging:

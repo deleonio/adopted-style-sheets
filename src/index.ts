@@ -48,6 +48,7 @@ export {
 	getRegisteredThemes,
 	getTheme,
 	getThemeDetails,
+	getThemeFeatures,
 	mergeFeatureFlags,
 	patchTheme,
 	patchThemeTag,

@@ -7,6 +7,7 @@ export {
 	getRegisteredThemes,
 	getTheme,
 	getThemeDetails,
+	getThemeFeatures,
 	mergeFeatureFlags,
 	setTheme,
 	patchTheme,

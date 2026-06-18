@@ -20,6 +20,7 @@ type Store = {
 		STYLING_TASK_QUEUE: Map<HTMLElement, StylingTask>;
 		Theme?: RegisterThemeOptions;
 		THEMES: Map<string, Map<string, string>>;
+		THEME_FEATURES: Record<string, FeatureFlags>;
 		showAverageTimes: () => Record<string, number[]>;
 	};
 };
@@ -41,6 +42,7 @@ export const STORE: Store = {
 		PERFORMANCE_MEASURES: new Map(),
 		STYLING_TASK_QUEUE: new Map(),
 		THEMES: new Map(),
+		THEME_FEATURES: {},
 		showAverageTimes: () => {
 			const averages: Record<string, number[]> = {};
 			for (const [tagName, measure] of STORE.A11yUi.PERFORMANCE_MEASURES.entries()) {
