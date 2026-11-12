@@ -1,15 +1,92 @@
 {
-	"name": "adopted-style-sheets",
-	"version": "1.2.0-rc.0",
-	"license": "EUPL-1.2",
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/deleonio/adopted-style-sheets.git"
+	"author": {
+		"email": "github@martinoppitz.com",
+		"name": "Martin Oppitz",
+		"url": "https://martinoppitz.com"
 	},
 	"bugs": {
 		"url": "https://github.com/deleonio/adopted-style-sheets/issues"
 	},
+	"c8": {
+		"all": true,
+		"include": [
+			"src/**/*.ts"
+		],
+		"exclude": [
+			"**/*.d.ts",
+			"**/*.spec.ts",
+			"**/*.test.ts"
+		],
+		"reporter": [
+			"text",
+			"html",
+			"lcov"
+		],
+		"reports-dir": ".reports/coverage",
+		"check-coverage": true,
+		"lines": 32,
+		"branches": 67,
+		"functions": 54,
+		"statements": 32
+	},
+	"contributors": [
+		{
+			"email": "github@martinoppitz.com",
+			"name": "Martin Oppitz",
+			"url": "https://martinoppitz.com"
+		}
+	],
+	"dependencies": {
+		"loglevel": "1.9.2"
+	},
+	"description": "This library implements functions to use the adopted style of web components for multiple themes.",
+	"devDependencies": {
+		"@commitlint/cli": "21.2.4",
+		"@commitlint/config-conventional": "21.2.4",
+		"@eslint/js": "10.0.1",
+		"@happy-dom/global-registrator": "21.0.4",
+		"@types/mocha": "10.0.10",
+		"@types/node": "26.6.6",
+		"c8": "12.0.0",
+		"esbuild-register": "3.6.0",
+		"eslint": "10.14.0",
+		"husky": "9.1.7",
+		"knip": "6.45.1",
+		"mocha": "12.0.3",
+		"npm-check-updates": "23.1.1",
+		"prettier": "3.10.1",
+		"typescript": "6.0.3",
+		"typescript-eslint": "8.72.2",
+		"unbuild": "3.6.1"
+	},
+	"exports": {
+		".": {
+			"import": "./dist/index.mjs",
+			"require": "./dist/index.cjs",
+			"types": "./dist/index.d.ts"
+		}
+	},
+	"files": [
+		"dist"
+	],
 	"homepage": "https://github.com/deleonio/adopted-style-sheets#readme",
+	"keywords": [
+		"webcomponents",
+		"style",
+		"css",
+		"theme",
+		"accessibility",
+		"custom",
+		"elements",
+		"w3c",
+		"adopted",
+		"style",
+		"sheets"
+	],
+	"license": "EUPL-1.2",
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.mjs",
+	"name": "adopted-style-sheets",
 	"pnpm": {
 		"overrides": {
 			"@commitlint/config-validator>ajv": "^8.18.0",
@@ -24,91 +101,30 @@
 			"rollup": "^4.59.0"
 		}
 	},
-	"description": "This library implements functions to use the adopted style of web components for multiple themes.",
-	"keywords": [
-		"webcomponents",
-		"style",
-		"css",
-		"theme",
-		"accessibility",
-		"custom",
-		"elements",
-		"w3c",
-		"adopted",
-		"style",
-		"sheets"
-	],
-	"author": {
-		"email": "github@martinoppitz.com",
-		"name": "Martin Oppitz",
-		"url": "https://martinoppitz.com"
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/deleonio/adopted-style-sheets.git"
 	},
-	"contributors": [
-		{
-			"email": "github@martinoppitz.com",
-			"name": "Martin Oppitz",
-			"url": "https://martinoppitz.com"
-		}
-	],
 	"scripts": {
 		"build": "pnpm build:unbuild",
 		"build:unbuild": "unbuild",
 		"clean": "git clean -f -d -X",
 		"clean:branches": "git branch --merged | grep -v \\* | xargs git branch -D",
-		"format": "prettier --check src",
+		"format": "prettier --check .",
 		"lint": "tsc --noemit && eslint src tests",
 		"ncu:major": "ncu",
 		"ncu:minor": "ncu -t minor -u",
 		"ncu:patch": "ncu -t patch -u",
 		"prepack": "npm run build",
-		"prepare": "pnpm prepare:husky",
-		"prepare:husky": "rimraf .husky && husky && npm-run-all2 prepare:husky:*",
-		"prepare:husky:commitlint": "echo \"npx commitlint --edit $1\" >> .husky/commit-msg",
-		"prepare:husky:format": "echo \"pnpm format\" >> .husky/pre-push",
-		"prepare:husky:lint": "echo \"pnpm lint\" >> .husky/pre-commit",
-		"prepare:husky:unused": "echo \"pnpm unused\" >> .husky/pre-push",
+		"prepare": "husky",
 		"test": "mocha",
 		"unused": "knip",
-		"update": "pnpm ncu:minor && pnpm ncu:major"
-	},
-	"dependencies": {
-		"loglevel": "1.9.2"
-	},
-	"devDependencies": {
-		"@commitlint/cli": "21.2.4",
-		"@commitlint/config-conventional": "21.2.4",
-		"@eslint/eslintrc": "3.3.7",
-		"@eslint/js": "10.0.1",
-		"@happy-dom/global-registrator": "21.0.4",
-		"@types/mocha": "10.0.10",
-		"@types/node": "26.6.6",
-		"@typescript-eslint/eslint-plugin": "8.72.2",
-		"@typescript-eslint/parser": "8.72.2",
-		"esbuild-register": "3.6.0",
-		"eslint": "10.14.0",
-		"husky": "9.1.7",
-		"knip": "6.45.1",
-		"mocha": "12.0.3",
-		"npm-check-updates": "23.1.1",
-		"npm-run-all2": "9.0.4",
-		"prettier": "3.10.1",
-		"rimraf": "6.1.4",
-		"typescript": "6.0.3",
-		"unbuild": "3.6.1"
+		"update": "pnpm ncu:minor && pnpm ncu:major",
+		"test:coverage": "c8 npm test"
 	},
 	"sideEffects": false,
 	"type": "module",
-	"exports": {
-		".": {
-			"import": "./dist/index.mjs",
-			"require": "./dist/index.cjs",
-			"types": "./dist/index.d.ts"
-		}
-	},
-	"main": "./dist/index.cjs",
-	"module": "./dist/index.mjs",
 	"types": "./dist/index.d.ts",
-	"files": [
-		"dist"
-	]
+	"version": "1.2.0-rc.0",
+	"packageManager": "pnpm@10.34.5"
 }

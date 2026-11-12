@@ -29,27 +29,42 @@ yarn add adopted-style-sheets
 
 ## Usage
 
-Here is a basic example of how to use the library: https://stackblitz.com/edit/vitejs-vite-podyif?file=src%2Fmain.ts,index.html
+Register themes with the `Theme` class – components pick up the styles of the active theme automatically:
+
+```ts
+import { createTheme, register } from 'adopted-style-sheets';
+
+const THEME = createTheme('my-theme', {
+	GLOBAL: 'body { background-color: #fafafa; color: #1a1a1a; }',
+	PROPERTIES: { '--color-primary': '#2563eb' },
+});
+
+register(THEME, [], {
+	theme: { detect: 'auto' },
+});
+```
+
+Switch themes at runtime via the `data-theme` attribute on any ancestor element.
 
 ## API
 
 The library exports the following functions:
 
-| Function | Description |
-| --- | --- |
-| `register` | Registers themes, translations, loaders and options |
-| `setTheme` / `patchTheme` | Sets or patches theme styles |
-| `setThemeStyle` | Sets a style for a specific theme |
-| `setThemeTag` / `patchThemeTag` | Sets or patches the theme tag |
-| `getCssStyle` | Returns the current CSS style |
-| `getTheme` / `getThemeDetails` | Returns theme information |
-| `getDefaultThemeName` / `getDefaultThemeDetails` | Returns the default theme information |
-| `getRegisteredThemes` | Returns all registered themes |
-| `getRegisteredThemeByName` | Returns a theme by name |
-| `getRegisteredThemeNames` | Returns all registered theme names |
-| `getFeatureFlag` | Resolves a feature flag for the active theme |
-| `getThemeFeatures` | Returns the feature flags pinned to a theme |
-| `mergeFeatureFlags` | Combines multiple feature flag objects |
+| Function                                         | Description                                         |
+| ------------------------------------------------ | --------------------------------------------------- |
+| `register`                                       | Registers themes, translations, loaders and options |
+| `setTheme` / `patchTheme`                        | Sets or patches theme styles                        |
+| `setThemeStyle`                                  | Sets a style for a specific theme                   |
+| `setThemeTag` / `patchThemeTag`                  | Sets or patches the theme tag                       |
+| `getCssStyle`                                    | Returns the current CSS style                       |
+| `getTheme` / `getThemeDetails`                   | Returns theme information                           |
+| `getDefaultThemeName` / `getDefaultThemeDetails` | Returns the default theme information               |
+| `getRegisteredThemes`                            | Returns all registered themes                       |
+| `getRegisteredThemeByName`                       | Returns a theme by name                             |
+| `getRegisteredThemeNames`                        | Returns all registered theme names                  |
+| `getFeatureFlag`                                 | Resolves a feature flag for the active theme        |
+| `getThemeFeatures`                               | Returns the feature flags pinned to a theme         |
+| `mergeFeatureFlags`                              | Combines multiple feature flag objects              |
 
 ### Feature Flags
 
