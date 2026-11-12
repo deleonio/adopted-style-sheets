@@ -7,7 +7,7 @@
 module.exports = {
 	extension: ['js', 'jsx', 'ts', 'tsx'],
 	reporter: 'spec',
-	require: ['esbuild-register', 'jsdom-global/register', 'mock-local-storage'],
+	require: ['esbuild-register', './.mocharc.setup.cjs'],
 	spec: ['src/**/*.spec.*s*', 'src/**/*.test.*s*', 'tests/**/*.spec.*s*', 'tests/**/*.test.*s*'],
 };
 
