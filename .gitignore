@@ -1,4 +1,4 @@
-/.husky/
+/.husky/_/
 /.reports/
 /dist/
 /license-reports/
@@ -6,3 +6,4 @@
 /pnpm-lock.yaml
 *.log
 *.tgz
+.claude/

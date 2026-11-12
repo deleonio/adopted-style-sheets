@@ -1,5 +1,4 @@
 import type { Common } from './common';
-import type { Element } from './element';
 import type { I18n } from './i18n';
 import { createTranslation as coreCreateTranslation } from './i18n';
 import type { FeatureFlags } from './theme';
@@ -7,7 +6,7 @@ import type { Theming } from './theming';
 import { createTheme as coreCreateTheme } from './theming';
 
 export declare namespace Generic {
-	export type { Common, Element, I18n, Theming };
+	export type { Common, I18n, Theming };
 }
 
 interface Library<Prefix extends string, Key extends string, Tag extends string> {

@@ -1,41 +1,24 @@
-import typescriptEslint from '@typescript-eslint/eslint-plugin';
-import tsParser from '@typescript-eslint/parser';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import js from '@eslint/js';
-import { FlatCompat } from '@eslint/eslintrc';
+import tseslint from 'typescript-eslint';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-	baseDirectory: __dirname,
-	recommendedConfig: js.configs.recommended,
-	allConfig: js.configs.all,
-});
-
-export default [
-	...compat.extends('eslint:recommended', 'plugin:@typescript-eslint/recommended', 'plugin:@typescript-eslint/recommended-requiring-type-checking'),
+export default tseslint.config(
 	{
-		plugins: {
-			'@typescript-eslint': typescriptEslint,
-		},
-
+		ignores: ['dist/**', '.reports/**', 'coverage/**'],
+	},
+	js.configs.recommended,
+	...tseslint.configs.recommendedTypeChecked,
+	{
 		languageOptions: {
-			parser: tsParser,
-			ecmaVersion: 5,
-			sourceType: 'module',
-
 			parserOptions: {
-				project: 'tsconfig.json',
-				tsconfigRootDir: __dirname,
+				projectService: true,
+				tsconfigRootDir: import.meta.dirname,
 			},
 		},
-
 		rules: {
 			'@typescript-eslint/consistent-type-imports': 'warn',
 			'@typescript-eslint/no-unsafe-assignment': 'warn',
-			'no-mixed-spaces-and-tabs': 'off',
 			'@typescript-eslint/no-namespace': 'off',
+			'no-mixed-spaces-and-tabs': 'off',
 		},
 	},
-];
+);

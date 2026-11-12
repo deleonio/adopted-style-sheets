@@ -1,5 +1,10 @@
 # Adopted Style Sheets
 
+[![npm](https://img.shields.io/npm/v/adopted-style-sheets)](https://www.npmjs.com/package/adopted-style-sheets)
+[![License: EUPL-1.2](https://img.shields.io/badge/License-EUPL--1.2-blue.svg)](https://github.com/deleonio/adopted-style-sheets/blob/main/LICENSE)
+
+Repository: [github.com/deleonio/adopted-style-sheets](https://github.com/deleonio/adopted-style-sheets) · Issues: [github.com/deleonio/adopted-style-sheets/issues](https://github.com/deleonio/adopted-style-sheets/issues)
+
 ## Overview
 
 This library implements functions to use the adopted style of web components for multiple themes. It makes it possible to reuse a web component with multiple style guides (themes).
@@ -16,23 +21,50 @@ To install the library, you can use npm or yarn:
 
 ```sh
 npm install adopted-style-sheets
-or
+```
+
+```sh
 yarn add adopted-style-sheets
 ```
 
 ## Usage
 
-Here is a basic example of how to use the library: https://stackblitz.com/edit/vitejs-vite-podyif?file=src%2Fmain.ts,index.html
+Register themes with the `Theme` class – components pick up the styles of the active theme automatically:
+
+```ts
+import { createTheme, register } from 'adopted-style-sheets';
+
+const THEME = createTheme('my-theme', {
+	GLOBAL: 'body { background-color: #fafafa; color: #1a1a1a; }',
+	PROPERTIES: { '--color-primary': '#2563eb' },
+});
+
+register(THEME, [], {
+	theme: { detect: 'auto' },
+});
+```
+
+Switch themes at runtime via the `data-theme` attribute on any ancestor element.
 
 ## API
 
-register,
-setTheme,
-setThemeStyle,
-setThemeTag,
-mergeFeatureFlags,
-getFeatureFlag,
-getThemeFeatures,
+The library exports the following functions:
+
+| Function                                         | Description                                         |
+| ------------------------------------------------ | --------------------------------------------------- |
+| `register`                                       | Registers themes, translations, loaders and options |
+| `setTheme` / `patchTheme`                        | Sets or patches theme styles                        |
+| `setThemeStyle`                                  | Sets a style for a specific theme                   |
+| `setThemeTag` / `patchThemeTag`                  | Sets or patches the theme tag                       |
+| `getCssStyle`                                    | Returns the current CSS style                       |
+| `getTheme` / `getThemeDetails`                   | Returns theme information                           |
+| `getDefaultThemeName` / `getDefaultThemeDetails` | Returns the default theme information               |
+| `getRegisteredThemes`                            | Returns all registered themes                       |
+| `getRegisteredThemeByName`                       | Returns a theme by name                             |
+| `getRegisteredThemeNames`                        | Returns all registered theme names                  |
+| `getFeatureFlag`                                 | Resolves a feature flag for the active theme        |
+| `getThemeFeatures`                               | Returns the feature flags pinned to a theme         |
+| `mergeFeatureFlags`                              | Combines multiple feature flag objects              |
 
 ### Feature Flags
 
@@ -97,11 +129,13 @@ declare module 'adopted-style-sheets' {
 
 ## Contributing
 
-We welcome contributions! Please read our CONTRIBUTING.md for guidelines on how to contribute to this project.
+We welcome contributions! Please read our [CONTRIBUTING.md](https://github.com/deleonio/adopted-style-sheets/blob/main/CONTRIBUTING.md) for guidelines on how to contribute to this project.
+
+Bug reports and feature requests are welcome via the [issue tracker](https://github.com/deleonio/adopted-style-sheets/issues).
 
 ## License
 
-This project is licensed under the EUPL-v1.2-License. See the LICENSE file for details.
+This project is licensed under the EUPL-v1.2-License. See the [LICENSE](https://github.com/deleonio/adopted-style-sheets/blob/main/LICENSE) file for details.
 
 ## Acknowledgements
 
