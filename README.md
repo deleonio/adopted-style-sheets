@@ -30,6 +30,70 @@ register,
 setTheme,
 setThemeStyle,
 setThemeTag,
+mergeFeatureFlags,
+getFeatureFlag,
+getThemeFeatures,
+
+### Feature Flags
+
+Applications can opt in/out of optional component behaviors at registration time.
+
+A theme can pin its own default flags directly via `createTheme(name, map, features)`.
+They are applied automatically when the theme is registered:
+
+```ts
+import { createTheme } from 'adopted-style-sheets';
+
+export const THEME = createTheme('my-theme', THEME_MAP, { myComponentFlag: 'on' });
+```
+
+App-level flags passed to `register()` still win on key collisions, so a theme's
+flags act as defaults that the app can override:
+
+```ts
+import { register, mergeFeatureFlags } from 'adopted-style-sheets';
+import { THEME, FEATURE_FLAGS } from 'my-theme';
+
+register(THEME, loaders, {
+	// overrides any flag the theme pinned via createTheme
+	features: mergeFeatureFlags(FEATURE_FLAGS, { myComponentFlag: 'off' }),
+});
+```
+
+The application only registers a theme — it does not read flags. At `register()`
+time each theme's pinned flags are stored per theme name; components resolve them
+for **their** active theme. Components read the value internally with
+`getFeatureFlag`, passing their host element so the flag is resolved from the
+nearest `data-theme` ancestor (the fixed default theme is used when no element is
+given). Resolution order, first defined wins: a global `register(..., { features })`
+override → the active theme's pinned flag → `undefined`.
+
+```ts
+import { getFeatureFlag } from 'adopted-style-sheets';
+
+// inside a web component — resolves the flag for the element's theme:
+const mode = getFeatureFlag('myComponentFlag', this.host); // 'on' | 'off' | undefined
+```
+
+In `detect: 'auto'` mode several themes can be active on the same page, so two
+elements under different themes can see different values. Read a theme's pinned
+defaults directly by name with `getThemeFeatures`:
+
+```ts
+import { getThemeFeatures } from 'adopted-style-sheets';
+
+const flags = getThemeFeatures('my-theme'); // { myComponentFlag: 'on' } | undefined
+```
+
+Component libraries get fully typed flags by extending the registry via declaration merging:
+
+```ts
+declare module 'adopted-style-sheets' {
+	interface FeatureFlagRegistry {
+		myComponentFlag: 'on' | 'off';
+	}
+}
+```
 
 ## Contributing
 

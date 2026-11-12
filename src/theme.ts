@@ -2,6 +2,28 @@ import type { Generic } from './';
 
 type ThemeName = string | null;
 
+/**
+ * Registry of all known feature flags. Component libraries extend this interface
+ * via declaration merging to get fully typed flag keys and values:
+ *
+ * ```ts
+ * declare module 'adopted-style-sheets' {
+ * 	interface FeatureFlagRegistry {
+ * 		myComponentFlag: 'on' | 'off';
+ * 	}
+ * }
+ * ```
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface FeatureFlagRegistry {}
+
+/**
+ * Feature flags for opt-in component behaviors. Fully typed as soon as
+ * `FeatureFlagRegistry` has been extended via declaration merging; otherwise
+ * an open record.
+ */
+export type FeatureFlags = keyof FeatureFlagRegistry extends never ? Record<string, unknown> : Partial<FeatureFlagRegistry>;
+
 type Required<T> = {
 	[P in keyof T]-?: T[P];
 };
@@ -70,6 +92,14 @@ type RegisterTranslationOptions = {
 };
 export type RegisterOptions = {
 	theme?: RegisterThemeOptions;
+	/**
+	 * Global feature flags for opt-in component behaviors. Flags accumulate across
+	 * multiple `register()` calls; on key collisions the later call wins. These
+	 * also override any defaults pinned to a theme via `createTheme(name, map, features)`
+	 * (theme flags are defaults, these are overrides). Use `mergeFeatureFlags()`
+	 * to combine flag sets manually.
+	 */
+	features?: FeatureFlags;
 	translations?:
 		| Generic.I18n.RegisterPatch<Generic.I18n.Locale.ISO_639_1, string, string>
 		| Generic.I18n.RegisterPatch<Generic.I18n.Locale.ISO_639_1, string, string>[]

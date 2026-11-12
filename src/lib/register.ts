@@ -1,7 +1,7 @@
 import log from 'loglevel';
 
 import type { Generic } from '../';
-import type { LoaderCallback, RegisterOptions, RegisterThemeOptions, ThemeDetails, ThemeEncroachCss } from '../theme';
+import type { FeatureFlags, LoaderCallback, RegisterOptions, RegisterThemeOptions, ThemeDetails, ThemeEncroachCss } from '../theme';
 import { STORE } from './window';
 
 let lockThemePatching = true;
@@ -113,7 +113,9 @@ const getThemeNode = (element: HTMLElement | ParentNode | null): HTMLElement | n
 			return element;
 		} else {
 			let parentNode: HTMLElement | ParentNode | null = element.parentNode;
-			while (parentNode instanceof ShadowRoot) {
+			// Guard `ShadowRoot` so DOM walking also works in environments that do not expose it
+			// globally (e.g. SSR / Node test runners); in the browser this behaves unchanged.
+			while (typeof ShadowRoot !== 'undefined' && parentNode instanceof ShadowRoot) {
 				parentNode = parentNode.host;
 			}
 			return getThemeNode(parentNode);
@@ -262,6 +264,52 @@ const setConfigureTheme = (themeName: string, options: RegisterThemeOptions): vo
 	}
 };
 
+/**
+ * Combines multiple feature flag objects into one without mutating the inputs.
+ * Later entries win per key. Typical pattern: mergeFeatureFlags(THEME_DEFAULTS, appOverrides)
+ */
+export const mergeFeatureFlags = (...sets: (FeatureFlags | undefined)[]): FeatureFlags => {
+	const result: FeatureFlags = {};
+	for (const set of sets) {
+		if (set) Object.assign(result, set);
+	}
+	return result;
+};
+
+/**
+ * Returns the feature-flag defaults pinned to a specific theme via `createTheme(name, map, features)`.
+ * This is the per-theme source of truth (keyed by theme name); returns `undefined` if the theme
+ * declared no flags. Components use it (directly or via `getFeatureFlag(key, element)`) to resolve
+ * the flags that apply for their theme.
+ */
+export const getThemeFeatures = (themeName: string): FeatureFlags | undefined => STORE.A11yUi.THEME_FEATURES[themeName];
+
+/**
+ * Returns the value of a feature flag for the theme that applies to `element`.
+ *
+ * Applications do not call this — they only register a theme. This is the engine-internal read API
+ * that components use to switch on opt-in behaviors. Resolution (first defined wins):
+ * 1. a global `register(..., { features })` app override — applies regardless of theme;
+ * 2. the pinned flag of the element's active theme — resolved from the nearest `data-theme` ancestor
+ *    in 'auto' mode, or the fixed default theme otherwise (pass the component's host element; omit it
+ *    to use only the global override / fixed default theme);
+ * 3. `undefined` — the consumer falls back to its built-in default.
+ */
+export const getFeatureFlag = <K extends keyof FeatureFlags>(key: K, element?: HTMLElement | ParentNode | null): FeatureFlags[K] => {
+	const override = STORE.A11yUi.FEATURES[key];
+	if (override !== undefined) {
+		return override;
+	}
+	const themeName = getTheme(element ?? null) ?? getDefaultThemeName();
+	if (themeName !== null) {
+		const themeFlags = STORE.A11yUi.THEME_FEATURES[themeName];
+		if (themeFlags && themeFlags[key] !== undefined) {
+			return themeFlags[key];
+		}
+	}
+	return undefined;
+};
+
 export const getRegisteredThemeNames = (): string[] => {
 	return Array.from(STORE.A11yUi.THEMES.keys());
 };
@@ -298,9 +346,14 @@ export const register = (
 		themes.forEach((theme: (patchTheme: Generic.Theming.Patch<string, string, string>) => string) => {
 			if (typeof theme === 'function' && theme.length === 1) {
 				setConfigureTheme(
-					theme((name: string, map: Generic.Theming.Map<string, string>, patchOptions?: Generic.Theming.PatchOptions) =>
-						setTheme(name, map, patchOptions, options),
-					),
+					theme((name: string, map: Generic.Theming.Map<string, string>, patchOptions?: Generic.Theming.PatchOptions, features?: FeatureFlags) => {
+						if (features) {
+							// Pin the theme's feature-flag defaults per theme name (accumulate, later wins per key).
+							// This is the single source resolved later per element by getFeatureFlag / getThemeFeatures.
+							STORE.A11yUi.THEME_FEATURES[name] = mergeFeatureFlags(STORE.A11yUi.THEME_FEATURES[name], features);
+						}
+						return setTheme(name, map, patchOptions, options);
+					}),
 					{
 						cache: options.theme?.cache,
 						detect: options.theme?.detect,
@@ -315,6 +368,11 @@ export const register = (
 		});
 	}
 	lockThemePatching = true;
+	if (options.features) {
+		// Global app-level override only — NOT theme flags (those stay in THEME_FEATURES and are
+		// resolved per element on read). The override wins per key over any theme-pinned flag.
+		STORE.A11yUi.FEATURES = mergeFeatureFlags(STORE.A11yUi.FEATURES, options.features);
+	}
 	if (typeof loaders === 'function') {
 		loaders = new Set([loaders]);
 	} else if (Array.isArray(loaders)) {

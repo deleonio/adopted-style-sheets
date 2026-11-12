@@ -1,4 +1,4 @@
-import type { RegisterThemeOptions, ThemeDetails } from '../theme';
+import type { FeatureFlags, RegisterThemeOptions, ThemeDetails } from '../theme';
 import { isTestEnvironment } from './helpers';
 
 export type StylingTask = {
@@ -14,11 +14,13 @@ export type Measure = {
 type Store = {
 	A11yUi: {
 		CSS_STYLE_CACHE: Map<string, Map<string, string[]>>;
+		FEATURES: FeatureFlags;
 		IS_TEST_ENVIRONMENT: boolean;
 		PERFORMANCE_MEASURES: Map<string, Measure>;
 		STYLING_TASK_QUEUE: Map<HTMLElement, StylingTask>;
 		Theme?: RegisterThemeOptions;
 		THEMES: Map<string, Map<string, string>>;
+		THEME_FEATURES: Record<string, FeatureFlags>;
 		showAverageTimes: () => Record<string, number[]>;
 	};
 };
@@ -35,10 +37,12 @@ type Store = {
 export const STORE: Store = {
 	A11yUi: {
 		CSS_STYLE_CACHE: new Map(),
+		FEATURES: {},
 		IS_TEST_ENVIRONMENT: isTestEnvironment(),
 		PERFORMANCE_MEASURES: new Map(),
 		STYLING_TASK_QUEUE: new Map(),
 		THEMES: new Map(),
+		THEME_FEATURES: {},
 		showAverageTimes: () => {
 			const averages: Record<string, number[]> = {};
 			for (const [tagName, measure] of STORE.A11yUi.PERFORMANCE_MEASURES.entries()) {
