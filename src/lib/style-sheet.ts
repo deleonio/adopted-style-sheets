@@ -336,7 +336,14 @@ const pushToDoTask = (elm: HTMLElement, themeDetails: ThemeDetails) => {
 		},
 		themeDetails,
 	});
-	elm.style.setProperty('visibility', 'hidden', 'important');
+	/**
+	 * Im SSR-Modus (mode: 'ssr') wird die Sichtbarkeit nie angetastet, weil die
+	 * Komponenten vom Server bereits gestylt ausgeliefert wurden – ein
+	 * Zwischen-Verstecken würde sonst zum Flackern führen.
+	 */
+	if (themeDetails.mode !== 'ssr') {
+		elm.style.setProperty('visibility', 'hidden', 'important');
+	}
 
 	waitForHydrated(elm);
 };
