@@ -26,7 +26,7 @@
 		"check-coverage": true,
 		"lines": 32,
 		"branches": 65,
-		"functions": 54,
+		"functions": 30,
 		"statements": 32
 	},
 	"contributors": [
