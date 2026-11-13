@@ -1,7 +1,25 @@
 # Adopted Style Sheets
 
+[![CI](https://github.com/deleonio/adopted-style-sheets/actions/workflows/ci.yml/badge.svg)](https://github.com/deleonio/adopted-style-sheets/actions/workflows/ci.yml)
+[![Publish](https://github.com/deleonio/adopted-style-sheets/actions/workflows/publish.yml/badge.svg)](https://github.com/deleonio/adopted-style-sheets/actions/workflows/publish.yml)
 [![npm](https://img.shields.io/npm/v/adopted-style-sheets)](https://www.npmjs.com/package/adopted-style-sheets)
-[![License: EUPL-1.2](https://img.shields.io/badge/License-EUPL--1.2-blue.svg)](https://github.com/deleonio/adopted-style-sheets/blob/main/LICENSE)
+[![npm provenance](https://img.shields.io/badge/npm-provenance-enabled-5faea3)](https://www.npmjs.com/package/adopted-style-sheets)
+
+[![Downloads](https://img.shields.io/npm/dt/adopted-style-sheets)](https://www.npmjs.com/package/adopted-style-sheets)
+[![npm license](https://img.shields.io/npm/l/adopted-style-sheets)](https://github.com/deleonio/adopted-style-sheets/blob/main/LICENSE)
+[![types](https://img.shields.io/badge/types-TypeScript-blue)](https://www.typescriptlang.org/)
+[![minzip](https://img.shields.io/bundlephobia/minzip/adopted-style-sheets)](https://bundlephobia.com/package/adopted-style-sheets)
+[![min](https://img.shields.io/bundlephobia/min/adopted-style-sheets)](https://bundlephobia.com/package/adopted-style-sheets)
+
+[![Stars](https://img.shields.io/github/stars/deleonio/adopted-style-sheets)](https://github.com/deleonio/adopted-style-sheets/stargazers)
+[![Forks](https://img.shields.io/github/forks/deleonio/adopted-style-sheets)](https://github.com/deleonio/adopted-style-sheets/network/members)
+[![Issues](https://img.shields.io/github/issues/deleonio/adopted-style-sheets)](https://github.com/deleonio/adopted-style-sheets/issues)
+[![Pull Requests](https://img.shields.io/github/issues-pr/deleonio/adopted-style-sheets)](https://github.com/deleonio/adopted-style-sheets/pulls)
+
+[![Last commit](https://img.shields.io/github/last-commit/deleonio/adopted-style-sheets)](https://github.com/deleonio/adopted-style-sheets/commits)
+[![Commit activity](https://img.shields.io/github/commit-activity/m/deleonio/adopted-style-sheets)](https://github.com/deleonio/adopted-style-sheets/graphs/commit-activity)
+[![Contributors](https://img.shields.io/github/contributors/deleonio/adopted-style-sheets)](https://github.com/deleonio/adopted-style-sheets/graphs/contributors)
+[![Release date](https://img.shields.io/github/release-date/deleonio/adopted-style-sheets)](https://github.com/deleonio/adopted-style-sheets/releases)
 
 Repository: [github.com/deleonio/adopted-style-sheets](https://github.com/deleonio/adopted-style-sheets) · Issues: [github.com/deleonio/adopted-style-sheets/issues](https://github.com/deleonio/adopted-style-sheets/issues)
 
